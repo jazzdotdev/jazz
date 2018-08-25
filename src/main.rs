@@ -92,26 +92,26 @@ fn main() {
         LuaActorBuilder::new()
             .on_handle_with_lua(
                 r#"
-                    result = ""
-
-                    -- host can be nil if host == localhost
+                    host = "0.0.0.0"
                     if ctx.msg.host then
-                        host_line = "Host: " .. ctx.msg.host .. "\n"
-                        result = host_line
-                        print(host_line)
+                        host = ctx.msg.host
                     end
 
-                    result = result .. ctx.msg.req_line .. "\n\nHTTP headers:\n"
+                    message = "Host: " .. host .. "\n" .. ctx.msg.req_line .. "\n\nHTTP headers:\n"
 
                     for k, v in pairs(ctx.msg.headers) do
-                        result = result .. k .. ": " .. v .. "\n"
+                        message = message .. k .. ": " .. v .. "\n"
                     end
 
-                    result = result .. "\nRequest body:\n" .. ctx.msg.body
+                    message = message .. "\nRequest body:\n" .. ctx.msg.body
 
-                    print(result)
+                    print(message)
 
-                    return "<html><head><title>Hello World</title></head><body>Hello world</body></html>"
+                    return "<html><head><title>Hello " ..
+                        host ..
+                        "</title></head><body>Hello " ..
+                        host ..
+                        "</body></html>"
                 "#,
             )
             .build()
