@@ -70,7 +70,6 @@ struct AppState {
 
 fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_req(&req, body);
-    println!("{:?}", &table);
 
     req.state()
         .lua
