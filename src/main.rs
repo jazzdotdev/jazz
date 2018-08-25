@@ -18,13 +18,24 @@ use http::header::ToStrError;
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
     let mut table = HashMap::new();
-    let mut headers = HashMap::new();
 
-    for (key, value) in req.headers().iter() {
-        let key = key.as_str().to_owned();
-        let value = value.to_str().unwrap().to_owned();
-        headers.insert(key, LuaMessage::String(value));
-    }
+    let query: HashMap<_, _> = req.query().iter()
+        .map(|(key, value)| (key.clone(), LuaMessage::String(value.clone())))
+        .collect();
+    let headers: HashMap<_, _> = req.headers().iter()
+        .map(|(key, value)| (
+            key.as_str().to_owned(),
+            LuaMessage::String(value.to_str().unwrap().to_owned()),
+        ))
+        .collect();
+    let host = req.uri().host()
+        .map(|host| LuaMessage::String(host.to_owned()))
+        .unwrap_or(LuaMessage::Nil);
+    let fragment = req.uri().to_string()
+        .rsplit("#")
+        .next()
+        .map(|fragment| LuaMessage::String(fragment.to_owned()))
+        .unwrap_or(LuaMessage::Nil);
 
     let req_line = if req.query_string().is_empty() {
         format!(
@@ -46,6 +57,9 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
     table.insert("req_line".to_owned(), LuaMessage::String(req_line));
     table.insert("headers".to_owned(), LuaMessage::Table(headers));
     table.insert("body".to_owned(), LuaMessage::String(body));
+    table.insert("query".to_owned(), LuaMessage::Table(query));
+    table.insert("host".to_owned(), host);
+    table.insert("fragment".to_owned(), fragment);
 
     table
 }
@@ -85,6 +99,11 @@ fn main() {
                     end
 
                     result = result .. "\nRequest body:\n" .. ctx.msg.body
+
+                    -- host can be nil if host == localhost
+                    if ctx.msg.host then
+                        print("Host: " .. ctx.msg.host .. "\n")
+                    end
 
                     print(result)
 
