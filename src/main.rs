@@ -70,6 +70,7 @@ struct AppState {
 
 fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_req(&req, body);
+    println!("{:?}", &table);
 
     req.state()
         .lua
@@ -92,18 +93,22 @@ fn main() {
         LuaActorBuilder::new()
             .on_handle_with_lua(
                 r#"
-                    result = ctx.msg.req_line .. "\n\nHTTP headers:\n"
+                    result = ""
+
+                    -- host can be nil if host == localhost
+                    if ctx.msg.host then
+                        host_line = "Host: " .. ctx.msg.host .. "\n"
+                        result = host_line
+                        print(host_line)
+                    end
+
+                    result = result .. ctx.msg.req_line .. "\n\nHTTP headers:\n"
 
                     for k, v in pairs(ctx.msg.headers) do
                         result = result .. k .. ": " .. v .. "\n"
                     end
 
                     result = result .. "\nRequest body:\n" .. ctx.msg.body
-
-                    -- host can be nil if host == localhost
-                    if ctx.msg.host then
-                        print("Host: " .. ctx.msg.host .. "\n")
-                    end
 
                     print(result)
 
