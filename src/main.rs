@@ -111,7 +111,7 @@ fn main() {
 
                     print(result)
 
-                    return result
+                    return "<html><head><title>Hello World</title></head><body>Hello world</body></html>"
                 "#,
             )
             .build()
