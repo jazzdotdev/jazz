@@ -13,8 +13,18 @@ message = message .. "\nRequest body:\n" .. ctx.msg.body
 
 print(message)
 
-return "<html><head><title>Hello " ..
-    host ..
-    "</title></head><body>Hello " ..
-    host ..
-    "</body></html>"
+if ctx.msg.path:match("/file/.*") then
+    file_path = string.gsub(ctx.msg.path, "^/file/", "")
+    file = io.open(file_path, "r")
+    file_content = file:read("*all")
+    file:close()
+
+    return file_content
+else
+    return "<html><head><title>Hello " ..
+            host ..
+            "</title></head><body>Hello " ..
+            host ..
+            "</body></html>"
+end
+

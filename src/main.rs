@@ -13,7 +13,6 @@ use actix_web::{
     FutureResponse, HttpResponse, HttpMessage, HttpRequest,
 };
 use futures::Future;
-use http::header::ToStrError;
 
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
@@ -36,6 +35,7 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
         .next()
         .map(|fragment| LuaMessage::String(fragment.to_owned()))
         .unwrap_or(LuaMessage::Nil);
+    let path = req.path().to_string();
 
     let req_line = if req.query_string().is_empty() {
         format!(
@@ -60,6 +60,7 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
     table.insert("query".to_owned(), LuaMessage::Table(query));
     table.insert("host".to_owned(), host);
     table.insert("fragment".to_owned(), fragment);
+    table.insert("path".to_owned(), LuaMessage::String(path));
 
     table
 }
@@ -77,6 +78,9 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
         .from_err()
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
+//            LuaMessage::Table(params) => {
+//
+//            }
 
             // ignore everything else
             _ => unimplemented!(),
