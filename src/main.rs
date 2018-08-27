@@ -4,8 +4,14 @@ extern crate actix_lua;
 extern crate actix_web;
 extern crate env_logger;
 extern crate futures;
+#[macro_use]
+extern crate tera;
+extern crate rlua;
+#[macro_use]
+extern crate failure;
 
 use std::collections::HashMap;
+use std::sync::Arc;
 use actix::prelude::*;
 use actix_lua::{LuaActor, LuaActorBuilder, LuaMessage};
 use actix_web::{
@@ -13,6 +19,13 @@ use actix_web::{
     FutureResponse, HttpResponse, HttpMessage, HttpRequest,
 };
 use futures::Future;
+use tera::{Tera, Context as TeraContext};
+use rlua::prelude::*;
+
+struct AppState {
+    lua: Addr<LuaActor>,
+    tera: Arc<Tera>,
+}
 
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
@@ -65,10 +78,6 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
     table
 }
 
-struct AppState {
-    lua: Addr<LuaActor>,
-}
-
 fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_req(&req, body);
 
@@ -79,7 +88,7 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
 //            LuaMessage::Table(params) => {
-//
+//                // TODO: Take response params from the table
 //            }
 
             // ignore everything else
@@ -88,19 +97,66 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
         .responder()
 }
 
+fn set_vm_globals(lua: &mut Lua, tera: Arc<Tera>) {
+    let render_template = lua.create_function(move |_, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
+        let text = match params {
+            Some(params) => {
+                let mut context = get_tera_context_from_table(&params)?;
+                tera.render(&path, &context)
+            },
+            None => {
+                tera.render(&path, &())
+            },
+        }.map_err(|err| {
+            // can't convert error_chain to failure directly
+            LuaError::external(format_err!("{}", err.to_string()))
+        })?;
+
+        Ok(text)
+    }).unwrap();
+
+    let mut globals = lua.globals();
+    globals.set("render", render_template).unwrap();
+}
+
+fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<TeraContext, LuaError> {
+    let mut context = TeraContext::new();
+
+    for (key, value) in table.iter() {
+        match value {
+            LuaValue::Integer(num) => context.add(key, num),
+            LuaValue::Number(num) => context.add(key, num),
+            LuaValue::String(string) => context.add(key, string.to_str()?),
+            LuaValue::Boolean(boolean) => context.add(key, boolean),
+            LuaValue::Nil => context.add(key, &()),
+            value @ _ => unimplemented!("Value {:?} is not implemented as a template parameter", value),
+        }
+    }
+
+    Ok(context)
+}
+
+
 fn main() {
     env_logger::init();
     let sys = actix::System::new("actix-lua-example");
+    let tera = Arc::new(compile_templates!("templates/**/*"));
 
-    let addr = Arbiter::start(|_| {
-        LuaActorBuilder::new()
+    let shared_tera = tera.clone();
+    let addr = Arbiter::start(move |_| {
+        let tera = shared_tera;
+        let mut lua_actor = LuaActorBuilder::new()
             .on_handle_with_lua(include_str!("./handler.lua"))
             .build()
-            .unwrap()
+            .unwrap();
+
+        set_vm_globals(&mut lua_actor.vm, tera);
+
+        lua_actor
     });
 
     server::new(move || {
-        App::with_state(AppState { lua: addr.clone() })
+        App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
             .resource("/{_:.*}", |r| r.with(req_data))
     }).bind("localhost:3000")
         .unwrap()
