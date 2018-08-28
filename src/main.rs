@@ -97,7 +97,7 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
         .responder()
 }
 
-fn set_vm_globals(lua: &mut Lua, tera: Arc<Tera>) {
+fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
     let render_template = lua.create_function(move |_, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
         let text = match params {
             Some(params) => {
@@ -113,10 +113,12 @@ fn set_vm_globals(lua: &mut Lua, tera: Arc<Tera>) {
         })?;
 
         Ok(text)
-    }).unwrap();
+    })?;
 
-    let mut globals = lua.globals();
-    globals.set("render", render_template).unwrap();
+    let globals = lua.globals();
+    globals.set("render", render_template)?;
+
+    Ok(())
 }
 
 fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<TeraContext, LuaError> {
@@ -145,12 +147,13 @@ fn main() {
     let shared_tera = tera.clone();
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
-        let mut lua_actor = LuaActorBuilder::new()
+        let lua_actor = LuaActorBuilder::new()
             .on_handle_with_lua(include_str!("./handler.lua"))
+            .with_vm(move |vm| {
+                set_vm_globals(vm, tera.clone())
+            })
             .build()
             .unwrap();
-
-        set_vm_globals(&mut lua_actor.vm, tera);
 
         lua_actor
     });
