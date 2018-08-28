@@ -148,7 +148,7 @@ fn main() {
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
-            .on_handle_with_lua(include_str!("./handler.lua"))
+            .on_handle("src/handler.lua")
             .with_vm(move |vm| {
                 set_vm_globals(vm, tera.clone())
             })
