@@ -28,8 +28,8 @@ dependencies = [
 
 [[package]]
 name = "actix-lua"
-version = "0.3.0"
-source = "git+https://github.com/voidxnull/actix-lua?branch=expose_vm#8c05e831a6fff2e848fac24b430b4eb3b45fe2b9"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "actix 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.23 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -103,7 +103,7 @@ name = "actix_lua_http"
 version = "0.1.0"
 dependencies = [
  "actix 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "actix-lua 0.3.0 (git+https://github.com/voidxnull/actix-lua?branch=expose_vm)",
+ "actix-lua 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-web 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.5.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1578,7 +1578,7 @@ dependencies = [
 
 [metadata]
 "checksum actix 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "0470f5163ac229ed0329f6abbd6f775591b06ec5ecbf2f2589c16ab8bd6f76b8"
-"checksum actix-lua 0.3.0 (git+https://github.com/voidxnull/actix-lua?branch=expose_vm)" = "<none>"
+"checksum actix-lua 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d3c2a6bfc03768ffe70ae2f33b4268b3ca66e30b3f23e9b5c521ab38bd74a157"
 "checksum actix-web 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)" = "d0eddc44f25a168d776edf60477bd3d46566f89286e66288da8e196072e5a870"
 "checksum actix_derive 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5b9d1525ef45e5e021f0b93dace157dcab5d792acb4cc78f3213787d65e2bb92"
 "checksum aho-corasick 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c1c6d463cbe7ed28720b5b489e7c083eeb8f90d08be2a0d6bb9e1ffea9ce1afa"
