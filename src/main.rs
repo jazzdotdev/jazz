@@ -161,7 +161,7 @@ fn main() {
     server::new(move || {
         App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
             .resource("/{_:.*}", |r| r.with(req_data))
-    }).bind("localhost:3000")
+    }).bind("0.0.0.0:3000")
         .unwrap()
         .start();
 
