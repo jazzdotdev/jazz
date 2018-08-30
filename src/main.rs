@@ -9,6 +9,9 @@ extern crate tera;
 extern crate rlua;
 #[macro_use]
 extern crate failure;
+extern crate serde;
+extern crate serde_yaml;
+extern crate rlua_serde;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -101,6 +104,7 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
     lua_bindings::tera::init(lua, tera)?;
+    lua_bindings::yaml::init(lua)?;
 
     Ok(())
 }

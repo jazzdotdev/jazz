@@ -21,6 +21,12 @@ if ctx.msg.path:match("/file/.*") then
 
     return file_content
 else
+    local yaml_str = "one: { two: 3 }"
+
+    local doc = yaml.load(yaml_str)
+    print("Ser: ", yaml.dump(doc))
+    print("Nested: ", doc.one.two)
+
     -- If render fails, the thrown error will be pretty confusing since actix_lua doesn't handle lua errors yet.
     -- pcall or xpcall can be used to intercept errors if needed.
     return render("index.html", { host = host })
