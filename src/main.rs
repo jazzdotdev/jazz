@@ -103,6 +103,10 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
+    lua.exec::<()>(r#"
+    package.path = package.path..";./lua/?.lua"
+    "#, None)?;
+
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
 
@@ -118,7 +122,7 @@ fn main() {
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
-            .on_handle("src/handler.lua")
+            .on_handle("lua/handler.lua")
             .with_vm(move |vm| {
                 set_vm_globals(vm, tera.clone())
             })

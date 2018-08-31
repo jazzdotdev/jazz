@@ -1,17 +1,6 @@
-local host = "0.0.0.0"
-if ctx.msg.host then
-    host = ctx.msg.host
-end
+local debug = require "debug"
 
-local message = "Host: " .. host .. "\n" .. ctx.msg.req_line .. "\n\nHTTP headers:\n"
-
-for k, v in pairs(ctx.msg.headers) do
-    message = message .. k .. ": " .. v .. "\n"
-end
-
-message = message .. "\nRequest body:\n" .. ctx.msg.body
-
-print(message)
+debug.print_req_info(ctx.msg)
 
 if ctx.msg.path:match("/file/.*") then
     local file_path = string.gsub(ctx.msg.path, "^/file/", "")
@@ -29,5 +18,5 @@ else
 
     -- If render fails, the thrown error will be pretty confusing since actix_lua doesn't handle lua errors yet.
     -- pcall or xpcall can be used to intercept errors if needed.
-    return render("index.html", { host = host })
+    return render("index.html", { host = ctx.msg.host or "0.0.0.0" })
 end
