@@ -1,14 +1,59 @@
 local debug = require "debug"
+local fs = require "fs"
 
-debug.print_req_info(ctx.msg)
+local req = ctx.msg
 
-if ctx.msg.path:match("/file/.*") then
-    local file_path = string.gsub(ctx.msg.path, "^/file/", "")
-    local file = io.open(file_path, "r")
-    local file_content = file:read("*all")
-    file:close()
+debug.print_req_info(req)
 
-    return file_content
+local uuid_pattern = "%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x"
+
+local function split_document(document_text, uuid, type)
+    local yaml_text, body = document_text:match("(.*)\n\n(.*)")
+    local yaml = yaml.load(yaml_text)
+    local processed_body = body:gsub("\n", "\\n")
+
+    local params = {
+        uuid = uuid,
+        type = type,
+        title = yaml.title,
+        body = processed_body,
+        created = yaml.created or "",
+        updated = yaml.updated or "",
+    }
+
+    return params
+end
+
+if req.path:match("/%a+/" .. uuid_pattern .. "/?") then
+    -- /[type]/[uuid]
+    local type, uuid = req.path:match("/(%a*)/(.*)")
+    local file_content = fs.read_file("content/" .. uuid)
+    local template_params = split_document(file_content, uuid, type)
+
+    return {
+        headers = {
+            ["content-type"] = "application/json",
+        },
+        body = render("document.json", { document = template_params }),
+    }
+elseif req.path:match("/%a+/?") then
+    -- /[type]
+    local type = req.path:match("/(%a+)/?")
+    local files = fs.get_all_files_in("content/")
+    local documents = {}
+
+    for _, file_name in ipairs(files) do
+        local file_content = fs.read_file("content/" .. file_name)
+        local template_params = split_document(file_content, file_name, type)
+        table.insert(documents, template_params)
+    end
+
+    return {
+        headers = {
+            ["content-type"] = "application/json",
+        },
+        body = render("document-list.json", { documents = documents }),
+    }
 else
     local yaml_str = "one: { two: 3 }"
 
@@ -22,6 +67,6 @@ else
         headers = {
             ["content-type"] = "text/html"
         },
-        body = render("index.html", { host = ctx.msg.host or "0.0.0.0" }),
+        body = render("index.html", { host = req.host or "0.0.0.0" }),
     }
 end

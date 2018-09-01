@@ -21,7 +21,6 @@ use actix_web::{
     http, server, App, AsyncResponder,
     FutureResponse, HttpResponse, HttpMessage, HttpRequest,
 };
-use actix_web::dev::HttpResponseBuilder;
 use futures::Future;
 use tera::{Tera};
 use rlua::prelude::*;
@@ -84,7 +83,7 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
     table
 }
 
-fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
+fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_req(&req, body);
 
     req.state()
@@ -115,8 +114,11 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
                 }
 
                 Ok(response.body(body))
-            }
-            ref msg @ _ => unimplemented!("Response {:?} is not supported", res),
+            },
+            LuaMessage::Nil => {
+                Ok(HttpResponse::NotFound().finish())
+            },
+            _ => unimplemented!("Response {:?} is not supported", res),
         })
         .responder()
 }
@@ -153,7 +155,7 @@ fn main() {
 
     server::new(move || {
         App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
-            .resource("/{_:.*}", |r| r.with(req_data))
+            .resource("/{_:.*}", |r| r.with(handler))
     }).bind("0.0.0.0:3000")
         .unwrap()
         .start();
