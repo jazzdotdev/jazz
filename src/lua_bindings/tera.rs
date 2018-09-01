@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use rlua::prelude::*;
-use tera::{Tera, Context as TeraContext};
+use rlua_serde;
+use tera::{Tera, Value as JsonValue, Context as TeraContext};
 
 fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<TeraContext, LuaError> {
     let mut context = TeraContext::new();
@@ -12,6 +13,11 @@ fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<Tera
             LuaValue::Number(num) => context.add(key, num),
             LuaValue::String(string) => context.add(key, string.to_str()?),
             LuaValue::Boolean(boolean) => context.add(key, boolean),
+            value @ LuaValue::Table(_) => {
+                let value: JsonValue = rlua_serde::from_value(value.clone())
+                    .map_err(|err| LuaError::external(err))?;
+                context.add(key, &value);
+            },
             LuaValue::Nil => context.add(key, &()),
             value @ _ => unimplemented!("Value {:?} is not implemented as a template parameter", value),
         }
