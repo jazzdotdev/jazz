@@ -18,5 +18,10 @@ else
 
     -- If render fails, the thrown error will be pretty confusing since actix_lua doesn't handle lua errors yet.
     -- pcall or xpcall can be used to intercept errors if needed.
-    return render("index.html", { host = ctx.msg.host or "0.0.0.0" })
+    return {
+        headers = {
+            ["content-type"] = "text/html"
+        },
+        body = render("index.html", { host = ctx.msg.host or "0.0.0.0" }),
+    }
 end

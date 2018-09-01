@@ -21,6 +21,7 @@ use actix_web::{
     http, server, App, AsyncResponder,
     FutureResponse, HttpResponse, HttpMessage, HttpRequest,
 };
+use actix_web::dev::HttpResponseBuilder;
 use futures::Future;
 use tera::{Tera};
 use rlua::prelude::*;
@@ -92,12 +93,30 @@ fn req_data((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<Http
         .from_err()
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
-//            LuaMessage::Table(params) => {
-//                // TODO: Take response params from the table
-//            }
+            LuaMessage::Table(params) => {
+                let mut response = HttpResponse::Ok();
 
-            // ignore everything else
-            _ => unimplemented!(),
+                let body = match params.get("body") {
+                    Some(LuaMessage::String(body)) => body.to_owned(),
+                    Some(ref value @ _) => unimplemented!("Invalid body: {:?}", value),
+                    None => String::new(),
+                };
+
+                if let Some(LuaMessage::Table(headers)) = params.get("headers") {
+                    for (key, value) in headers.iter() {
+                        let value = match value {
+                            LuaMessage::String(value) => value.to_owned(),
+                            LuaMessage::Number(number) => number.to_string(),
+                            LuaMessage::Integer(number) => number.to_string(),
+                            ref value @ _ => unimplemented!("Header value is not supported: {:?}", value),
+                        };
+                        response.header(key as &str, value);
+                    }
+                }
+
+                Ok(response.body(body))
+            }
+            ref msg @ _ => unimplemented!("Response {:?} is not supported", res),
         })
         .responder()
 }
