@@ -45,7 +45,10 @@ elseif req.path:match("/%a+/?") then
     for _, file_name in ipairs(files) do
         local file_content = fs.read_file("content/" .. file_name)
         local template_params = split_document(file_content, file_name, type)
-        table.insert(documents, template_params)
+
+        if template_params.type == type then
+            table.insert(documents, template_params)
+        end
     end
 
     return {
