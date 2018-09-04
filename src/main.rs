@@ -12,6 +12,7 @@ extern crate failure;
 extern crate serde;
 extern crate serde_yaml;
 extern crate rlua_serde;
+extern crate uuid;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -73,6 +74,7 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
     };
 
     table.insert("req_line".to_owned(), LuaMessage::String(req_line));
+    table.insert("method".to_owned(), LuaMessage::String(req.method().to_string()));
     table.insert("headers".to_owned(), LuaMessage::Table(headers));
     table.insert("body".to_owned(), LuaMessage::String(body));
     table.insert("query".to_owned(), LuaMessage::Table(query));
@@ -130,6 +132,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
 
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
+    lua_bindings::uuid::init(lua)?;
 
     Ok(())
 }
