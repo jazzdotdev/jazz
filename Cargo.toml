@@ -15,3 +15,4 @@ failure = "0.1.2"
 serde = "1.0.75"
 serde_yaml = "0.8.2"
 rlua_serde = { git = "https://github.com/voidxnull/rlua_serde", branch = "update_rlua" }
+uuid = "0.6.5"

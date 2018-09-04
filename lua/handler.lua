@@ -24,7 +24,9 @@ local function split_document(document_text, uuid, type)
     return params
 end
 
-if req.path:match("/%a+/" .. uuid_pattern .. "/?") then
+if req.method == "POST" then
+    return uuid.v4()
+elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
     -- /[type]/[uuid]
     local type, uuid = req.path:match("/(%a*)/(.*)")
     local file_content = fs.read_file("content/" .. uuid)
