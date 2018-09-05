@@ -133,6 +133,22 @@ fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpR
                     }
                 }
 
+                match params.get("status") {
+                    Some(LuaMessage::String(string)) => {
+                        let number: u16 = string.parse()
+                            .expect("Invalid response status");
+                        let status = http::StatusCode::from_u16(number)
+                            .expect("Invalid response status");
+                        response.status(status);
+                    },
+                    Some(LuaMessage::Integer(number)) => {
+                        let status = http::StatusCode::from_u16(*number as u16)
+                            .expect("Invalid response status");
+                        response.status(status);
+                    },
+                    _ => (),
+                }
+
                 Ok(response.body(body))
             },
             LuaMessage::Nil => {

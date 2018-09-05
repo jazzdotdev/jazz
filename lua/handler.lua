@@ -46,7 +46,7 @@ if req.method == "POST" then
         },
         body = render("document.json", { document = document_params }),
     }
-elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
+elseif req.path:match("^/%a+/" .. uuid_pattern .. "/?$") then
     -- GET /[type]/[uuid]
     local type, id = req.path:match("/(%a*)/(.*)")
     local file_content = fs.read_file("content/" .. id)
@@ -58,7 +58,7 @@ elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
         },
         body = render("document.json", { document = template_params }),
     }
-elseif req.path:match("/%a+/?") then
+elseif req.path:match("^/%a+/?$") then
     -- GET /[type]
     local type = req.path:match("/(%a+)/?")
     local files = fs.get_all_files_in("content/")
@@ -85,18 +85,7 @@ elseif req.path:match("/%a+/?") then
         body = body,
     }
 else
-    local yaml_str = "one: { two: 3 }"
-
-    local doc = yaml.load(yaml_str)
-    print("Ser: ", yaml.dump(doc))
-    print("Nested: ", doc.one.two)
-
-    -- If render fails, the thrown error will be pretty confusing since actix_lua doesn't handle lua errors yet.
-    -- pcall or xpcall can be used to intercept errors if needed.
     return {
-        headers = {
-            ["content-type"] = "text/html"
-        },
-        body = render("index.html", { host = req.host or "0.0.0.0" }),
+        status = 404,
     }
 end
