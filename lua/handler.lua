@@ -1,6 +1,5 @@
 local debug = require "debug"
 local fs = require "fs"
-local inspect = require "inspect"
 
 local req = ctx.msg
 
