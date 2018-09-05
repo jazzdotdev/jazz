@@ -1,5 +1,6 @@
 local debug = require "debug"
 local fs = require "fs"
+local inspect = require "inspect"
 
 local req = ctx.msg
 
@@ -7,13 +8,13 @@ debug.print_req_info(req)
 
 local uuid_pattern = "%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x"
 
-local function split_document(document_text, uuid, type)
+local function split_document(document_text, id, type)
     local yaml_text, body = document_text:match("(.*)\n\n(.*)")
     local yaml = yaml.load(yaml_text)
     local processed_body = body:gsub("\n", "\\n")
 
     local params = {
-        uuid = uuid,
+        uuid = id,
         type = type,
         title = yaml.title,
         body = processed_body,
@@ -48,9 +49,9 @@ if req.method == "POST" then
     }
 elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
     -- GET /[type]/[uuid]
-    local type, uuid = req.path:match("/(%a*)/(.*)")
-    local file_content = fs.read_file("content/" .. uuid)
-    local template_params = split_document(file_content, uuid, type)
+    local type, id = req.path:match("/(%a*)/(.*)")
+    local file_content = fs.read_file("content/" .. id)
+    local template_params = split_document(file_content, id, type)
 
     return {
         headers = {
