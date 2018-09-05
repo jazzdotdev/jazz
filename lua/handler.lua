@@ -25,9 +25,30 @@ local function split_document(document_text, uuid, type)
 end
 
 if req.method == "POST" then
-    return uuid.v4()
+    --print(inspect(req))
+    -- POST /
+    local post_uuid = uuid.v4()
+    local file = io.open("content/" .. post_uuid, "w")
+    local params = {
+        title = req.body.title,
+        type = req.body.type,
+    }
+
+    local yaml_string = yaml.dump(params)
+    local document_text = yaml_string .. "\n\n" .. req.body.text
+    local document_params = split_document(document_text, post_uuid, params.type)
+
+    file:write(content)
+    file:close()
+
+    return {
+        headers = {
+            ["content-type"] = "application/json",
+        },
+        body = render("document.json", { document = document_params }),
+    }
 elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
-    -- /[type]/[uuid]
+    -- GET /[type]/[uuid]
     local type, uuid = req.path:match("/(%a*)/(.*)")
     local file_content = fs.read_file("content/" .. uuid)
     local template_params = split_document(file_content, uuid, type)
@@ -39,7 +60,7 @@ elseif req.path:match("/%a+/" .. uuid_pattern .. "/?") then
         body = render("document.json", { document = template_params }),
     }
 elseif req.path:match("/%a+/?") then
-    -- /[type]
+    -- GET /[type]
     local type = req.path:match("/(%a+)/?")
     local files = fs.get_all_files_in("content/")
     local documents = {}

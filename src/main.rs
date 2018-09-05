@@ -22,7 +22,7 @@ use actix_web::{
     http, server, App, AsyncResponder,
     FutureResponse, HttpResponse, HttpMessage, HttpRequest,
 };
-use futures::Future;
+use futures::{future, Future};
 use tera::{Tera};
 use rlua::prelude::*;
 
@@ -34,9 +34,7 @@ struct AppState {
 }
 
 /// Creates a lua table from a HttpRequest
-fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
-    let mut table = HashMap::new();
-
+fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> Box<Future<Item = HashMap<String, LuaMessage>, Error = failure::Error>> {
     let query: HashMap<_, _> = req.query().iter()
         .map(|(key, value)| (key.clone(), LuaMessage::String(value.clone())))
         .collect();
@@ -72,26 +70,45 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
             req.version()
         )
     };
+    let method = req.method().to_string();
 
-    table.insert("req_line".to_owned(), LuaMessage::String(req_line));
-    table.insert("method".to_owned(), LuaMessage::String(req.method().to_string()));
-    table.insert("headers".to_owned(), LuaMessage::Table(headers));
-    table.insert("body".to_owned(), LuaMessage::String(body));
-    table.insert("query".to_owned(), LuaMessage::Table(query));
-    table.insert("host".to_owned(), host);
-    table.insert("fragment".to_owned(), fragment);
-    table.insert("path".to_owned(), LuaMessage::String(path));
+    let future = req.urlencoded::<HashMap<String, String>>()
+        .map(|values| {
+            println!("{:?}", &values);
+            LuaMessage::Table(
+                values.into_iter()
+                    .map(|(k, v)| (k, LuaMessage::from(v)))
+                    .collect()
+            )
+        })
+        .or_else(move |err| {
+            future::ok(LuaMessage::String(body))
+        })
+        .and_then(move |body| {
+            let mut table = HashMap::new();
+            table.insert("req_line".to_owned(), LuaMessage::String(req_line));
+            table.insert("method".to_owned(), LuaMessage::String(method));
+            table.insert("headers".to_owned(), LuaMessage::Table(headers));
+            table.insert("query".to_owned(), LuaMessage::Table(query));
+            table.insert("host".to_owned(), host);
+            table.insert("fragment".to_owned(), fragment);
+            table.insert("path".to_owned(), LuaMessage::String(path));
+            table.insert("body".to_owned(), body);
+            future::ok(table)
+        });
 
-    table
+    Box::new(future)
 }
 
 fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
-    let table = extract_table_from_req(&req, body);
-
-    req.state()
-        .lua
-        .send(LuaMessage::Table(table))
+    extract_table_from_req(&req, body)
         .from_err()
+        .and_then(move |table| {
+            req.state()
+                .lua
+                .send(LuaMessage::Table(table))
+                .from_err()
+        })
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
             LuaMessage::Table(params) => {
