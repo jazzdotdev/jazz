@@ -192,7 +192,7 @@ fn main() {
 
     server::new(move || {
         App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
-            .resource("/{_:.*}", |r| r.with(handler))
+            .default_resource(|r| r.with(handler))
     }).bind("0.0.0.0:3000")
         .unwrap()
         .start();
