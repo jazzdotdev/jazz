@@ -73,11 +73,16 @@ elseif req.path:match("/%a+/?") then
         end
     end
 
+    local body = "[]"
+    if #documents > 0 then
+        body = render("document-list.json", { documents = documents })
+    end
+
     return {
         headers = {
             ["content-type"] = "application/json",
         },
-        body = render("document-list.json", { documents = documents }),
+        body = body,
     }
 else
     local yaml_str = "one: { two: 3 }"
