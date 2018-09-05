@@ -7,14 +7,14 @@ debug.print_req_info(req)
 
 local uuid_pattern = "%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x"
 
-local function split_document(document_text, id, type)
+local function split_document(document_text, id)
     local yaml_text, body = document_text:match("(.*)\n\n(.*)")
     local yaml = yaml.load(yaml_text)
     local processed_body = body:gsub("\n", "\\n")
 
     local params = {
         uuid = id,
-        type = type,
+        type = yaml.type,
         title = yaml.title,
         body = processed_body,
         created = yaml.created or "",
@@ -35,7 +35,7 @@ if req.method == "POST" then
 
     local yaml_string = yaml.dump(params)
     local document_text = yaml_string .. "\n\n" .. req.body.text
-    local document_params = split_document(document_text, post_uuid, params.type)
+    local document_params = split_document(document_text, post_uuid)
 
     file:write(document_text)
     file:close()
@@ -66,7 +66,7 @@ elseif req.path:match("/%a+/?") then
 
     for _, file_name in ipairs(files) do
         local file_content = fs.read_file("content/" .. file_name)
-        local template_params = split_document(file_content, file_name, type)
+        local template_params = split_document(file_content, file_name)
 
         if template_params.type == type then
             table.insert(documents, template_params)
