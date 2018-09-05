@@ -6,7 +6,7 @@ authors = ["Dmitry Vdovin <voidxnull@gmail.com>"]
 [dependencies]
 actix = "0.7.3"
 actix-web = "0.7.4"
-actix-lua = "0.3.1"
+actix-lua = { git = "https://github.com/voidxnull/actix-lua", branch = "error-handling" }
 futures = "0.1.23"
 env_logger = "0.5.12"
 tera = "0.11.12"
