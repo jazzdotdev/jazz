@@ -25,7 +25,6 @@ local function split_document(document_text, uuid, type)
 end
 
 if req.method == "POST" then
-    --print(inspect(req))
     -- POST /
     local post_uuid = uuid.v4()
     local file = io.open("content/" .. post_uuid, "w")
@@ -38,7 +37,7 @@ if req.method == "POST" then
     local document_text = yaml_string .. "\n\n" .. req.body.text
     local document_params = split_document(document_text, post_uuid, params.type)
 
-    file:write(content)
+    file:write(document_text)
     file:close()
 
     return {

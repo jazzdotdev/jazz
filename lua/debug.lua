@@ -10,7 +10,7 @@ local function print_req_info(req)
         message = message .. k .. ": " .. v .. "\n"
     end
 
-    message = message .. "\nRequest body:\n" .. req.body
+    message = message .. "\nRequest body:\n" .. req.body_raw
 
     print(message)
 end
