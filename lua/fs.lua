@@ -1,5 +1,10 @@
 local function read_file(path)
     local file = io.open(path, "r")
+
+    if not file then
+        error("File not found " .. path)
+    end
+
     local file_content = file:read("*all")
     file:close()
     return file_content
