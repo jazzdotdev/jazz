@@ -14,6 +14,7 @@ extern crate serde_yaml;
 extern crate serde_urlencoded;
 extern crate rlua_serde;
 extern crate uuid;
+extern crate comrak;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -167,6 +168,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
     lua_bindings::uuid::init(lua)?;
+    lua_bindings::markdown::init(lua)?;
 
     Ok(())
 }
