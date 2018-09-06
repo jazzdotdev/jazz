@@ -2,7 +2,7 @@ local function read_file(path)
     local file = io.open(path, "r")
 
     if not file then
-        error("File not found " .. path)
+        return nil
     end
 
     local file_content = file:read("*all")
