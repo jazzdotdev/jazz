@@ -1,0 +1,8 @@
+[package]
+name = "actix-lua-web-app"
+version = "0.1.0"
+authors = ["Dmitry Vdovin <voidxnull@gmail.com>"]
+
+[dependencies]
+actix-lua-web = { path = "../actix-lua-web" }
+env_logger = "0.5.13"
