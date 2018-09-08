@@ -160,10 +160,10 @@ fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpR
         .responder()
 }
 
-fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
-    lua.exec::<()>(r#"
-    package.path = package.path..";./lua/?.lua"
-    "#, None)?;
+fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<(), LuaError> {
+    lua.exec::<()>(&format!(r#"
+        package.path = package.path..";{}"
+    "#, lua_modules_path), None)?;
 
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
@@ -173,32 +173,74 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
     Ok(())
 }
 
-fn main() {
-    env_logger::init();
-    let sys = actix::System::new("actix-lua-example");
-    let tera = Arc::new(compile_templates!("templates/**/*"));
+pub struct ApplicationBuilder {
+    handler_path: Option<&'static str>,
+    templates_path: Option<&'static str>,
+    lua_modules_path: Option<&'static str>,
+    host: Option<&'static str>,
+}
 
-    let shared_tera = tera.clone();
-    let addr = Arbiter::start(move |_| {
-        let tera = shared_tera;
-        let lua_actor = LuaActorBuilder::new()
-            .on_handle("lua/handler.lua")
-            .with_vm(move |vm| {
-                set_vm_globals(vm, tera.clone())
-            })
-            .build()
-            .unwrap();
+impl ApplicationBuilder {
+    pub fn new() -> Self {
+        ApplicationBuilder {
+            handler_path: None,
+            templates_path: None,
+            host: None,
+            lua_modules_path: None,
+        }
+    }
 
-        lua_actor
-    });
+    pub fn handler_path(mut self, path: &'static str) -> Self {
+        self.handler_path = Some(path);
+        self
+    }
 
-    server::new(move || {
-        App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
-            .default_resource(|r| r.with(handler))
-    }).bind("0.0.0.0:3000")
-        .unwrap()
-        .start();
+    pub fn host(mut self, host: &'static str) -> Self {
+        self.host = Some(&host);
+        self
+    }
 
-    println!("Started http server: localhost:3000");
-    let _ = sys.run();
+    pub fn templates_path(mut self, path: &'static str) -> Self {
+        self.templates_path = Some(path);
+        self
+    }
+
+    pub fn lua_modules_path(mut self, path: &'static str) -> Self {
+        self.lua_modules_path = Some(path);
+        self
+    }
+
+    pub fn start(self) {
+        let handler_path = self.handler_path.unwrap_or("lua/handler.lua");
+        let templates_path = self.templates_path.unwrap_or("templates/**/*");
+        let host = self.host.unwrap_or("0.0.0.0:3000");
+        let lua_modules_path = self.lua_modules_path.unwrap_or("./lua/?.lua");
+
+        let sys = actix::System::new("actix-lua-web");
+        let tera = Arc::new(compile_templates!(templates_path));
+
+        let shared_tera = tera.clone();
+        let addr = Arbiter::start(move |_| {
+            let tera = shared_tera;
+            let lua_actor = LuaActorBuilder::new()
+                .on_handle(handler_path)
+                .with_vm(move |vm| {
+                    set_vm_globals(vm, tera.clone(), lua_modules_path)
+                })
+                .build()
+                .unwrap();
+
+            lua_actor
+        });
+
+        server::new(move || {
+            App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
+                .default_resource(|r| r.with(handler))
+        }).bind(host)
+            .unwrap()
+            .start();
+
+        println!("Started http server: localhost:3000");
+        let _ = sys.run();
+    }
 }

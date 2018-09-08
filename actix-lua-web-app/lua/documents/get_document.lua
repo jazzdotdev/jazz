@@ -13,7 +13,7 @@ local function get_document(req)
                 ["content-type"] = "application/json",
             },
             status = 404,
-            body = '"{error: "Document not found"}"',
+            body = '{"error": "Document not found"}',
         }
     end
 

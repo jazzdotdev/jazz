@@ -25,7 +25,7 @@ utils.try(function()
 end, function(err)
     response = {
         status = 500,
-        body = { error = err },
+        body = '{ "error": ' .. err .. ' }',
     }
 end)
 
