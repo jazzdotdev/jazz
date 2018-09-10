@@ -3,12 +3,16 @@ local utils = require "utils"
 local create_document = require "documents.create_document"
 local get_document = require "documents.get_document"
 local get_documents = require "documents.get_documents"
+local inspect = require "inspect"
 
 local req = ctx.msg
 
 debug.print_req_info(req)
 
 local response
+
+local resp = client.get("http://jsonplaceholder.typicode.com/comments")
+print("RESPONSE", inspect(resp))
 
 utils.try(function()
     if req.method == "POST" and req.path == "/" then
