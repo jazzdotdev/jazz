@@ -1,5 +1,4 @@
 //! A basic example on how to use request fields from inside a lua script.
-#![feature(try_from)]
 extern crate actix;
 extern crate actix_lua;
 extern crate actix_web;
