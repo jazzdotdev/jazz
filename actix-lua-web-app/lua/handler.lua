@@ -11,9 +11,6 @@ debug.print_req_info(req)
 
 local response
 
-local resp = client.get("http://jsonplaceholder.typicode.com/comments")
-print("RESPONSE", inspect(resp))
-
 utils.try(function()
     if req.method == "POST" and req.path == "/" then
         response = create_document(req)
