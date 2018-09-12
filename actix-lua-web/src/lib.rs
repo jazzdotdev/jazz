@@ -10,6 +10,7 @@ extern crate rlua;
 #[macro_use]
 extern crate failure;
 extern crate serde;
+extern crate serde_json;
 extern crate serde_yaml;
 extern crate serde_urlencoded;
 extern crate rlua_serde;
@@ -169,6 +170,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<
     lua_bindings::yaml::init(lua)?;
     lua_bindings::uuid::init(lua)?;
     lua_bindings::markdown::init(lua)?;
+    lua_bindings::client::init(lua)?;
 
     Ok(())
 }

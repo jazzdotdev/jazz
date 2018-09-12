@@ -3,6 +3,7 @@ local utils = require "utils"
 local create_document = require "documents.create_document"
 local get_document = require "documents.get_document"
 local get_documents = require "documents.get_documents"
+local inspect = require "inspect"
 
 local req = ctx.msg
 
