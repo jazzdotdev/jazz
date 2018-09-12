@@ -9,6 +9,8 @@ extern crate tera;
 extern crate rlua;
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate serde_yaml;
@@ -16,6 +18,8 @@ extern crate serde_urlencoded;
 extern crate rlua_serde;
 extern crate uuid;
 extern crate comrak;
+extern crate rust_sodium;
+extern crate base64;
 
 use std::collections::HashMap;
 use std::sync::Arc;
