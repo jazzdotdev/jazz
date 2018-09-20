@@ -18,6 +18,16 @@ utils.try(function()
         response = get_document(req)
     elseif req.method == "GET" and req.path:match("^/%a+/?$") then
         response = get_documents(req)
+    elseif req.method == "GET" and req.path == "/test-client" then
+        local new_todo = ClientRequest.build()
+            :method("POST")
+            :uri("http://jsonplaceholder.typicode.com/todos/")
+            :headers({ ["content-type"] = "application/json" })
+            :send()
+        print(inspect(new_todo))
+        response = {
+            body = inspect(new_todo)
+        }
     else
         response = {
             status = 404,
