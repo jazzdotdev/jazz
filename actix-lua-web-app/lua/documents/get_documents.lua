@@ -1,5 +1,5 @@
 local helpers = require "documents.helpers"
-local fs = require "fs"
+local fs = require "utils.fs"
 
 -- GET /[type]
 local function get_documents(req)

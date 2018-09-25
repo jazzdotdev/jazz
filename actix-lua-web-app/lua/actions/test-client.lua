@@ -2,6 +2,7 @@ local inspect = require "utils.inspect"
 
 local function action (req)
     if req.method == "GET" and req.path == "/test-client" then
+        print("test-client action")
         local new_todo = ClientRequest.build()
             :method("POST")
             :uri("http://jsonplaceholder.typicode.com/todos/")
