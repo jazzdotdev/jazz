@@ -1,44 +1,58 @@
-local debug = require "debug"
-local utils = require "utils"
-local create_document = require "documents.create_document"
-local get_document = require "documents.get_document"
-local get_documents = require "documents.get_documents"
-local inspect = require "inspect"
+local utils = require "utils.utils"
+local luvent = require "utils.Luvent"
+local test_client_action = require "actions.test-client"
+local debug_action = require "actions.debug"
+local post_document_action = require "actions.post_document"
+local get_document_action = require "actions.get_document_by_type"
+local get_documents_action = require "actions.get_documents_by_type"
 
-local req = ctx.msg
+local req = ctx.msg -- get the request
+local response -- declare the response
 
-debug.print_req_info(req)
+reqProcess = luvent.newEvent() -- create event for request processing
 
-local response
+-- declare and add actions
+
+reqProcess:addAction( 
+    function(req)
+        debug_action.action(req)
+    end
+)
+reqProcess:addAction( -- 
+    function(req)
+       response = test_client_action.action(req)
+    end
+)
+reqProcess:addAction(
+    function(req)
+        response = post_document_action.action(req)
+    end
+)
+reqProcess:addAction(
+    function(req)
+        response = get_document_action.action(req)
+    end
+)
+reqProcess:addAction(
+    function(req)
+        response = get_documents_action.action(req)
+    end
+)
+-- end of declaring actions
+
+-- try/catch in case of errors 
 
 utils.try(function()
-    if req.method == "POST" and req.path == "/" then
-        response = create_document(req)
-    elseif req.method == "GET" and req.path:match("^/%a+/" .. utils.uuid_pattern .. "/?$") then
-        response = get_document(req)
-    elseif req.method == "GET" and req.path:match("^/%a+/?$") then
-        response = get_documents(req)
-    elseif req.method == "GET" and req.path == "/test-client" then
-        local new_todo = ClientRequest.build()
-            :method("POST")
-            :uri("http://jsonplaceholder.typicode.com/todos/")
-            :headers({ ["content-type"] = "application/json" })
-            :send()
-        print(inspect(new_todo))
-        response = {
-            body = inspect(new_todo)
-        }
-    else
-        response = {
-            status = 404,
-        }
-    end
+    
+    reqProcess:trigger(req) -- try to process request and give response
+
 end, function(err)
-    response = {
+    response = { 
         status = 500,
-        body = '{ "error": ' .. err .. ' }',
+        body = '{ "error": ' .. err .. ' }',  -- if something go wrong give error 500 in response
     }
 end)
+
 
 return response
 
