@@ -1,76 +1,58 @@
-local debug = require "debug"
 local utils = require "utils"
-local create_document = require "documents.create_document"
-local get_document = require "documents.get_document"
-local get_documents = require "documents.get_documents"
-local inspect = require "inspect"
 local luvent = require "Luvent"
+local test_client_action = require "actions.test-client"
+local debug_action = require "actions.debug"
+local post_document_action = require "actions.post_document"
+local get_document_action = require "actions.get_document_by_type"
+local get_documents_action = require "actions.get_documents_by_type"
 
-local req = ctx.msg
+local req = ctx.msg -- get the request
+local response -- declare the response
 
-printReqInfo = luvent.newEvent()
-printReqInfo:addAction(
+reqProcess = luvent.newEvent() -- create event for request processing
+
+-- declare and add actions
+
+reqProcess:addAction( 
     function(req)
-        debug.print_req_info(req)
+        debug_action.action(req)
     end
 )
-
-printReqInfo:trigger(req)
-
-local response
-
-reqProcess = luvent.newEvent()
-reqProcess:addAction(
+reqProcess:addAction( -- 
     function(req)
-        if req.method == "POST" and req.path == "/" then
-            response = create_document(req)
-        end
-    end
-)
-reqProcess:addAction(
-    function(req)
-        if req.method == "GET" and req.path:match("^/%a+/" .. utils.uuid_pattern .. "/?$") then
-            response = get_document(req)
-        end
+       response = test_client_action.action(req)
     end
 )
 reqProcess:addAction(
     function(req)
-        if req.method == "GET" and req.path:match("^/%a+/?$") then
-            response = get_document(req)
-        end
+        response = post_document_action.action(req)
     end
 )
 reqProcess:addAction(
     function(req)
-        if req.method == "GET" and req.path:match("^/%a+/?$") then
-            response = get_document(req)
-        end
+        response = get_document_action.action(req)
     end
 )
 reqProcess:addAction(
     function(req)
-        if req.method == "GET" and req.path == "/test-client" then
-            local new_todo = ClientRequest.build()
-                :method("POST")
-                :uri("http://jsonplaceholder.typicode.com/todos/")
-                :headers({ ["content-type"] = "application/json" })
-                :send()
-                print(inspect(new_todo))
-                    response = {
-                        body = inspect(new_todo)
-                    }        
-                     else
-                         response = {
-                             status = 404,
-                         }
-                     end
+        response = get_documents_action.action(req)
     end
 )
+-- end of declaring actions
+
+-- try/catch in case of errors 
 
 utils.try(function()
-    reqProcess:trigger(req)
+    
+    reqProcess:trigger(req) -- try to process request and give response
+
+end, function(err)
+    response = { 
+        status = 500,
+        body = '{ "error": ' .. err .. ' }',  -- if something go wrong give error 500 in response
+    }
 end)
+
 
 return response
 
