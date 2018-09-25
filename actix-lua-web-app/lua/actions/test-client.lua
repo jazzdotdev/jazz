@@ -1,4 +1,4 @@
-local inspect = require "inspect"
+local inspect = require "utils.inspect"
 
 local function action (req)
     if req.method == "GET" and req.path == "/test-client" then

@@ -1,5 +1,5 @@
-local utils = require "utils"
-local luvent = require "Luvent"
+local utils = require "utils.utils"
+local luvent = require "utils.Luvent"
 local test_client_action = require "actions.test-client"
 local debug_action = require "actions.debug"
 local post_document_action = require "actions.post_document"
