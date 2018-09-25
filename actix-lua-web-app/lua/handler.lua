@@ -4,40 +4,84 @@ local create_document = require "documents.create_document"
 local get_document = require "documents.get_document"
 local get_documents = require "documents.get_documents"
 local inspect = require "inspect"
+local luvent = require "Luvent"
 
 local req = ctx.msg
 
-debug.print_req_info(req)
+printReqInfo = luvent.newEvent()
+printReqInfo:addAction(
+    function(req)
+        debug.print_req_info(req)
+    end
+)
+
+printReqInfo:trigger(req)
 
 local response
 
-utils.try(function()
-    if req.method == "POST" and req.path == "/" then
-        response = create_document(req)
-    elseif req.method == "GET" and req.path:match("^/%a+/" .. utils.uuid_pattern .. "/?$") then
-        response = get_document(req)
-    elseif req.method == "GET" and req.path:match("^/%a+/?$") then
-        response = get_documents(req)
-    elseif req.method == "GET" and req.path == "/test-client" then
-        local new_todo = ClientRequest.build()
-            :method("POST")
-            :uri("http://jsonplaceholder.typicode.com/todos/")
-            :headers({ ["content-type"] = "application/json" })
-            :send()
+
+createDocument = luvent.newEvent()
+createDocument:addAction(
+    function(req)
+        return create_document(req)
+    end
+)
+
+getDocument = luvent.newEvent()
+getDocument:addAction(
+    function(req)
+        return get_document(req)
+    end
+)
+
+getDocuments = luvent.newEvent()
+getDocuments:addAction(
+    function(req)
+        return get_documents(req)
+    end
+)
+
+inspectEvent = luvent.newEvent()
+inspectEvent:addAction(
+    function(new_todo)
         print(inspect(new_todo))
         response = {
             body = inspect(new_todo)
         }
-    else
+    end
+)
+
+reqProcess = luvent.newEvent()
+reqProcess:addAction(
+    function(req)
+        if req.method == "POST" and req.path == "/" then
+            response = createDocument:trigger(req)
+        elseif req.method == "GET" and req.path:match("^/%a+/" .. utils.uuid_pattern .. "/?$") then
+            response = getDocument:trigger(req)
+        elseif req.method == "GET" and req.path:match("^/%a+/?$") then
+            response = getDocuments:trigger(req)
+        elseif req.method == "GET" and req.path == "/test-client" then
+            local new_todo = ClientRequest.build()
+                :method("POST")
+                :uri("http://jsonplaceholder.typicode.com/todos/")
+                :headers({ ["content-type"] = "application/json" })
+                :send()
+                inspectEvent:trigger(new_todo)
+        else
+            response = {
+                status = 404,
+            }
+        end
+    end, function(err)
         response = {
-            status = 404,
+            status = 500,
+            body = '{ "error": ' .. err .. ' }',
         }
     end
-end, function(err)
-    response = {
-        status = 500,
-        body = '{ "error": ' .. err .. ' }',
-    }
+)
+
+utils.try(function()
+    reqProcess:trigger(req)
 end)
 
 return response
