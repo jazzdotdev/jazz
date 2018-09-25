@@ -9,11 +9,13 @@ local get_documents_action = require "actions.get_documents_by_type"
 local req = ctx.msg -- get the request
 local response -- declare the response
 
+-- vars to store actions ids to set priority later
 local action_debug
 local action_test_client
 local action_post
 local action_get_docs
 local action_get_doc
+---
 
 reqProcess = luvent.newEvent() -- create event for request processing
 
@@ -42,16 +44,16 @@ action_get_doc = reqProcess:addAction(
 action_get_docs = reqProcess:addAction(
     function(req)
         response = get_documents_action.action(req) --this is for /post
-    end
+    end 
 )
 
-reqProcess:setActionPriority(action_get_doc, 1)
-reqProcess:setActionPriority(action_get_docs, 9)
-reqProcess:setActionPriority(action_post, 2)
-reqProcess:setActionPriority(action_test_client, 10)
-reqProcess:setActionPriority(action_debug, 6)
-
-
+-- setting priority of each action
+reqProcess:setActionPriority(action_get_doc, 0.1)
+reqProcess:setActionPriority(action_get_docs, 0.9)
+reqProcess:setActionPriority(action_post, 0.2)
+reqProcess:setActionPriority(action_test_client, 1)
+reqProcess:setActionPriority(action_debug, 0.6)
+---
 
 -- end of declaring actions
 
