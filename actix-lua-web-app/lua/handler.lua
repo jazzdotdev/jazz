@@ -1,5 +1,6 @@
 local utils = require "utils.utils"
 local luvent = require "utils.Luvent"
+local fs = require "utils.fs"
 local test_client_action = require "actions.test-client"
 local debug_action = require "actions.debug"
 local post_document_action = require "actions.post_document"
@@ -23,51 +24,23 @@ local startTime = os.clock()
 
 -- declare and add actions
 
-action_debug = reqProcess:addAction( 
-    function(req)
-        debug_action.action(req)
-    end
-)
-action_test_client = reqProcess:addAction( -- 
-    function(req)
-        possibleResponse = test_client_action.action(req)
-        if possibleResponse ~= nil then
-            if possibleResponse.body ~= nil then
-                response = possibleResponse
+local action_files = fs.get_all_files_in("lua/actions/")
+for _, file_name in ipairs(action_files) do
+    local action_require_name = "actions." .. string.sub( file_name, 0, string.len( file_name ) - 4 )
+    print(action_require_name)
+    local action_require = require(action_require_name)
+
+        reqProcess:addAction(
+            function(req)
+                possibleResponse = action_require.action(req)
+                if possibleResponse ~= nil then
+                    if possibleResponse.body ~= nil then
+                        response = possibleResponse
+                    end
+                end
             end
-        end
-    end
-)
-action_post = reqProcess:addAction(
-    function(req)
-        possibleResponse = post_document_action.action(req)
-        if possibleResponse ~= nil then
-            if possibleResponse.body ~= nil then
-                response = possibleResponse
-            end
-        end
-    end
-)
-action_get_docs = reqProcess:addAction(
-    function(req)
-        possibleResponse = get_documents_action.action(req) --this is for /post
-        if possibleResponse ~= nil then
-            if possibleResponse.body ~= nil then
-                response = possibleResponse
-            end
-        end
-    end 
-)
-action_get_doc = reqProcess:addAction(
-    function(req)
-        possibleResponse = get_document_action.action(req) -- this is for /post/something
-        if possibleResponse ~= nil then
-            if possibleResponse.body ~= nil then
-                response = possibleResponse
-            end
-        end
-    end
-)
+        )
+end
 
 -- order of actions in code doesn't matter if you set their priority
 
