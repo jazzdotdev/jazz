@@ -20,6 +20,7 @@ extern crate uuid;
 extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
+extern crate config;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -179,74 +180,45 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<
     Ok(())
 }
 
-pub struct ApplicationBuilder {
-    handler_path: Option<&'static str>,
-    templates_path: Option<&'static str>,
-    lua_modules_path: Option<&'static str>,
-    host: Option<&'static str>,
-}
+pub fn start_from_settings (path: &'static str) {
+    let mut settings = config::Config::new();
+    settings.merge(config::File::with_name(path)).unwrap();
 
-impl ApplicationBuilder {
-    pub fn new() -> Self {
-        ApplicationBuilder {
-            handler_path: None,
-            templates_path: None,
-            host: None,
-            lua_modules_path: None,
-        }
+    let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
+
+    fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
+        map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
     }
 
-    pub fn handler_path(mut self, path: &'static str) -> Self {
-        self.handler_path = Some(path);
-        self
-    }
+    let handler_path = get_or(&hashmap, "handler_path", "lua/handler.lua");
+    let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
+    let host = get_or(&hashmap, "host", "0.0.0.0:3000");
+    let lua_modules_path = get_or(&hashmap, "lua_modules_path", "./lua/?.lua");
 
-    pub fn host(mut self, host: &'static str) -> Self {
-        self.host = Some(&host);
-        self
-    }
+    let sys = actix::System::new("actix-lua-web");
+    let tera = Arc::new(compile_templates!(&templates_path));
 
-    pub fn templates_path(mut self, path: &'static str) -> Self {
-        self.templates_path = Some(path);
-        self
-    }
+    let shared_tera = tera.clone();
+    let addr = Arbiter::start(move |_| {
+        let tera = shared_tera;
+        let lua_actor = LuaActorBuilder::new()
+            .on_handle(&handler_path)
+            .with_vm(move |vm| {
+                set_vm_globals(vm, tera.clone(), &lua_modules_path)
+            })
+            .build()
+            .unwrap();
 
-    pub fn lua_modules_path(mut self, path: &'static str) -> Self {
-        self.lua_modules_path = Some(path);
-        self
-    }
+        lua_actor
+    });
 
-    pub fn start(self) {
-        let handler_path = self.handler_path.unwrap_or("lua/handler.lua");
-        let templates_path = self.templates_path.unwrap_or("templates/**/*");
-        let host = self.host.unwrap_or("0.0.0.0:3000");
-        let lua_modules_path = self.lua_modules_path.unwrap_or("./lua/?.lua");
+    server::new(move || {
+        App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
+            .default_resource(|r| r.with(handler))
+    }).bind(&host)
+        .unwrap()
+        .start();
 
-        let sys = actix::System::new("actix-lua-web");
-        let tera = Arc::new(compile_templates!(templates_path));
-
-        let shared_tera = tera.clone();
-        let addr = Arbiter::start(move |_| {
-            let tera = shared_tera;
-            let lua_actor = LuaActorBuilder::new()
-                .on_handle(handler_path)
-                .with_vm(move |vm| {
-                    set_vm_globals(vm, tera.clone(), lua_modules_path)
-                })
-                .build()
-                .unwrap();
-
-            lua_actor
-        });
-
-        server::new(move || {
-            App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
-                .default_resource(|r| r.with(handler))
-        }).bind(host)
-            .unwrap()
-            .start();
-
-        println!("Started http server: localhost:3000");
-        let _ = sys.run();
-    }
+    println!("Started http server: localhost:3000");
+    let _ = sys.run();
 }
