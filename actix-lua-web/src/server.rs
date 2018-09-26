@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use actix::prelude::*;
 use actix_lua::{LuaMessage};
 use actix_web::{
     http, AsyncResponder,

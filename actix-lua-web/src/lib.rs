@@ -23,7 +23,7 @@ extern crate base64;
 
 use std::sync::Arc;
 use actix::prelude::*;
-use actix_lua::{LuaActor, LuaActorBuilder};
+use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
 use tera::{Tera};
 use rlua::prelude::*;
@@ -32,14 +32,9 @@ mod lua_bindings;
 mod server;
 
 mod app_state {
-    use std::sync::Arc;
-    use actix::Addr;
-    use actix_lua::{LuaActor};
-    use tera::{Tera};
-
     pub struct AppState {
-        pub lua: Addr<LuaActor>,
-        pub tera: Arc<Tera>,
+        pub lua: ::actix::Addr<::actix_lua::LuaActor>,
+        pub tera: ::std::sync::Arc<::tera::Tera>,
     }
 }
 
