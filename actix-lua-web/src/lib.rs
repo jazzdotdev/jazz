@@ -24,12 +24,12 @@ extern crate base64;
 use std::sync::Arc;
 use actix::prelude::*;
 use actix_lua::{LuaActor, LuaActorBuilder};
-use actix_web::{server, App};
+use actix_web::{server as actix_server, App};
 use tera::{Tera};
 use rlua::prelude::*;
 
 mod lua_bindings;
-mod handler;
+mod server;
 
 pub struct AppState {
     lua: Addr<LuaActor>,
@@ -110,9 +110,9 @@ impl ApplicationBuilder {
             lua_actor
         });
 
-        server::new(move || {
+        actix_server::new(move || {
             App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
-                .default_resource(|r| r.with(handler::handler))
+                .default_resource(|r| r.with(server::handler))
         }).bind(host)
             .unwrap()
             .start();
