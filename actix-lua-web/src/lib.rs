@@ -31,9 +31,16 @@ use rlua::prelude::*;
 mod lua_bindings;
 mod server;
 
-pub struct AppState {
-    lua: Addr<LuaActor>,
-    tera: Arc<Tera>,
+mod app_state {
+    use std::sync::Arc;
+    use actix::Addr;
+    use actix_lua::{LuaActor};
+    use tera::{Tera};
+
+    pub struct AppState {
+        pub lua: Addr<LuaActor>,
+        pub tera: Arc<Tera>,
+    }
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<(), LuaError> {
@@ -111,7 +118,7 @@ impl ApplicationBuilder {
         });
 
         actix_server::new(move || {
-            App::with_state(AppState { lua: addr.clone(), tera: tera.clone() })
+            App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
                 .default_resource(|r| r.with(server::handler))
         }).bind(host)
             .unwrap()

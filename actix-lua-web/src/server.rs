@@ -8,7 +8,7 @@ use actix_web::{
 use futures::Future;
 use serde_urlencoded;
 
-use ::AppState;
+use ::app_state::AppState;
 
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
