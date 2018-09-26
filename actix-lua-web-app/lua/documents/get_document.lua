@@ -22,7 +22,7 @@ local function get_document(req)
     end
 
     template_params = helpers.split_document(file_content, id)
-    
+    print("[DEBUG]" .. render("document.json", { document = template_params }))
     return {
         headers = {
             ["content-type"] = "application/json",
@@ -31,4 +31,6 @@ local function get_document(req)
     }
 end
 
-return get_document
+return {
+    get_document = get_document
+}
