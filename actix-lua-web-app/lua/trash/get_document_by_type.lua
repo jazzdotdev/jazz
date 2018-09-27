@@ -1,6 +1,8 @@
-local get_document = require "documents.get_document"
+local get_document = require "actions.get_document"
 local utils = require "utils.utils"
 local debug = require "utils.debug"
+local event = {1}
+
 
 function action(req)
     if req.method == "GET" and string.match( req.headers["accept"], "html" ) and req.path:match("^/%a+/" .. utils.uuid_pattern .. "/?$") then
@@ -14,5 +16,6 @@ function action(req)
 end
 
 return{
+    event = event,
     action = action
 }

@@ -1,5 +1,7 @@
 local get_documents = require "documents.get_documents"
 
+local event = {1}
+
 function action(req)
     if req.method == "GET" and req.path:match("^/%a+/?$" ) then
         response = get_documents(req)
@@ -10,5 +12,6 @@ function action(req)
 end
 
 return{
+    event = event,
     action = action
 }

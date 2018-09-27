@@ -1,5 +1,9 @@
-local helpers = require "documents.helpers"
+local helpers = require "utils.helpers"
 local fs = require "utils.fs"
+
+local event = {4}
+local priority = 1
+
 
 -- GET /[type]
 local function get_documents(req)
@@ -29,4 +33,9 @@ local function get_documents(req)
     }
 end
 
-return get_documents
+return {
+    get_documents = get_documents,
+    action = get_documents,
+    event = event,
+    priority = priority
+}

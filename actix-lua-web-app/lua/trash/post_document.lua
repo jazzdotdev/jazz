@@ -1,5 +1,8 @@
 local create_document = require "documents.create_document"
 
+local event = {1}
+local priority = 1
+
 function action(req)
     if req.method == "POST" and req.path == "/" then
         response = create_document(req)
@@ -10,5 +13,7 @@ function action(req)
 end
 
 return{
-    action = action
+    event = event,
+    action = action,
+    priority = priority
 }

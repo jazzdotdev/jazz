@@ -1,4 +1,7 @@
-local helpers = require("documents.helpers")
+local helpers = require("utils.helpers")
+
+local event = {5}
+local priority = 1
 
 -- POST /
 local function create_document(req)
@@ -19,9 +22,15 @@ local function create_document(req)
     return {
         headers = {
             ["content-type"] = "application/json",
+            ["X-Request-ID"] = post_uuid 
         },
         body = render("document.json", { document = document_params }),
     }
 end
 
-return create_document
+return {
+    create_document = create_document,
+    action = create_document,
+    event = event,
+    priority = priority
+}

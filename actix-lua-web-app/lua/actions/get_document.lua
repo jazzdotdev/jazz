@@ -1,6 +1,8 @@
-local helpers = require "documents.helpers"
+local helpers = require "utils.helpers"
 local fs = require "utils.fs"
 
+local event = {3}
+local priority = 1
 -- GET /[type]/[uuid]
 local function get_document(req)
     local type, id = req.path:match("/(%a*)/(.*)")
@@ -32,5 +34,8 @@ local function get_document(req)
 end
 
 return {
-    get_document = get_document
+    get_document = get_document,
+    action = get_document,
+    event = event,
+    priority = priority
 }
