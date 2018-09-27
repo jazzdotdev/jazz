@@ -1,5 +1,5 @@
 use rlua::prelude::*;
-use rlua::{UserDataMethods, UserData, MetaMethod};
+use rlua::{UserDataMethods, UserData, MetaMethod, Value, Table, Lua, FromLua};
 use std::collections::HashSet;
 
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl UserData for StringSet {
             Ok(StringSet(result))
         });
 
-        methods.add_method("symmetric_difference", |_, this, other: StringSet| {
+        methods.add_method("symmetric", |_, this, other: StringSet| {
             let result: HashSet<String> = this.0.symmetric_difference(&other.0).cloned().collect();
             Ok(StringSet(result))
         });
@@ -84,11 +84,63 @@ impl UserData for StringSet {
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
-    let create_fn = lua.create_function( |_, _: ()|  Ok(StringSet(HashSet::new())) )?;
+    type Set = HashSet<String>;
+
+    fn from_table (table: Table) -> Result<Set, LuaError> {
+        let mut set = HashSet::new();
+        for elem in table.sequence_values() {
+            set.insert(elem?);
+        }
+        Ok(set)
+    }
+
+    fn get_sets (lua: &Lua, args: (Value, Value)) -> Result<(Set, Set), LuaError> {
+        fn from_value (a: Value, lua: &Lua) -> Result<Set, LuaError> {
+            Ok(match a {
+                Value::Table(t) => from_table(t)?,
+                a@_ => StringSet::from_lua(a, lua)?.0
+            })
+        }
+        let (a, b) = args;
+        Ok((from_value(a, lua)?, from_value(b, lua)?))
+    }
 
     let module = lua.create_table()?;
-    module.set("create", create_fn)?;
-    lua.globals().set("stringset", module)?;
+
+    module.set("create", lua.create_function(
+        |_, _: ()|  Ok(StringSet(HashSet::new()))
+    )? )?;
+
+    module.set("from_table", lua.create_function(
+        |_, t: Table|  Ok(StringSet(from_table(t)?))
+    )? )?;
+
+    let g = lua.globals();
+    g.set("stringset", module)?;
+
+    g.set("difference", lua.create_function( |lua, args: (Value, Value)| {
+        let (a, b) = get_sets(lua, args)?;
+        let c = a.difference(&b).cloned().collect();
+        Ok(StringSet(c))
+    })? )?;
+
+    g.set("symmetric", lua.create_function( |lua, args: (Value, Value)| {
+        let (a, b) = get_sets(lua, args)?;
+        let c = a.symmetric_difference(&b).cloned().collect();
+        Ok(StringSet(c))
+    })? )?;
+
+    g.set("intersection", lua.create_function( |lua, args: (Value, Value)| {
+        let (a, b) = get_sets(lua, args)?;
+        let c = a.intersection(&b).cloned().collect();
+        Ok(StringSet(c))
+    })? )?;
+
+    g.set("union", lua.create_function( |lua, args: (Value, Value)| {
+        let (a, b) = get_sets(lua, args)?;
+        let c = a.union(&b).cloned().collect();
+        Ok(StringSet(c))
+    })? )?;
 
     Ok(())
 }
@@ -98,10 +150,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn stringset() {
+    fn direct_methods() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        lua.exec::<LuaValue>(r#"
+        lua.exec::<Value>(r#"
             local a = stringset.create()
             a:insert("Colombia")
             a:insert("Canada")
@@ -148,6 +200,27 @@ mod tests {
             for i, v in ipairs(t) do
                 print(i, v)
             end
+        "#, None).unwrap();
+    }
+
+    #[test]
+    fn shortcut_syntax() {
+        let lua = Lua::new();
+        init(&lua).unwrap();
+        lua.exec::<Value>(r#"
+            local a = stringset.create()
+            a:insert("Canada")
+            a:insert("China")
+            a:insert("Colombia")
+
+            local b = {"Colombia", "Brazil", "Venezuela"}
+            local c = intersection(a, b)
+            assert(c:contains("Colombia"))
+            assert(not c:contains("Canada"))
+
+            union(a, b)
+            difference(a, b)
+            symmetric(a, b)
         "#, None).unwrap();
     }
 }
