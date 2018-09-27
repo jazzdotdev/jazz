@@ -118,6 +118,7 @@ utils.try(function()
     ---
 
 end, function(err)
+    print("[ERROR]")
     print(err)
     response = { 
         status = 500,
@@ -127,5 +128,13 @@ end)
 
 events[2]:trigger(req)
 print("detla time" .. os.clock() - startTime)
+
+-- test of printing directory list function
+
+    for k, v in pairs (fs.directory_list("")) do
+        print(v)
+    end
+--
+
 return response
 

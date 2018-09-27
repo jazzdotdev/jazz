@@ -3,16 +3,16 @@ POST / HTTP/1.1
 
 HTTP headers:
 connection: keep-alive
-postman-token: 3812aa75-66a8-53cf-53d3-c315fbca4a4c
-user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36
-content-length: 40
 accept-language: en-US,en;q=0.9
-accept: */*
-accept-encoding: gzip, deflate, br
-origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
-host: localhost:3000
+user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36
 content-type: application/x-www-form-urlencoded
+content-length: 40
+accept-encoding: gzip, deflate, br
 cache-control: no-cache
+accept: */*
+host: localhost:3000
+origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
+postman-token: 9413d8be-4d99-95cc-7cf9-848439a9a104
 
 Request body:
 title=Test Post&type=blog&text=Some text

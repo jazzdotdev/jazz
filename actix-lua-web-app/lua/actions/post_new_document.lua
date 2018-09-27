@@ -2,18 +2,20 @@ local inspect = require "utils.inspect"
 local event = {5}
 local priority = 1
 local function action (req)
-        local new_doc = ClientRequest.build()
-            :method("POST")
-            :uri("http://localhost:3000/test-new-document")
-            :headers({ ["content-type"] = "application/json" })
-            --:body( req.body )
-            :send()
-            --print(inspect(new_todo))
-                response = {
-                    body = inspect(new_doc)
-                }        
 
-                 return response
+    local new_todo = ClientRequest.build()
+    :method("GET")
+    :uri("http://google.com/")
+    :headers({ ["content-type"] = "application/json" })
+    :body("new_todo")
+    :send()
+    
+    --print(inspect(new_todo))
+        response = {
+            body = inspect(new_todo)
+        }        
+
+         return response
 end
 
 return {

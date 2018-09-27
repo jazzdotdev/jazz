@@ -1,5 +1,5 @@
 local inspect = require "utils.inspect"
-local event = {5}
+local event = {1}
 local priority = 1
 local function action (req)
         print("test-client action")
