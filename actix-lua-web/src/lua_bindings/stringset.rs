@@ -22,23 +22,32 @@ impl UserData for StringSet {
             Ok(this.0.contains(&elem))
         });
 
+        methods.add_method_mut("clear", |_, this, _: ()| {
+            this.0.clear();
+            Ok(())
+        });
+
+        methods.add_method("is_empty", |_, this, _: ()| {
+            Ok(this.0.is_empty())
+        });
+
         methods.add_method("difference", |_, this, other: StringSet| {
-            let result: HashSet<String> = this.0.difference(&other.0).map(|s| s.clone()).collect();
+            let result: HashSet<String> = this.0.difference(&other.0).cloned().collect();
             Ok(StringSet(result))
         });
 
         methods.add_method("symmetric_difference", |_, this, other: StringSet| {
-            let result: HashSet<String> = this.0.symmetric_difference(&other.0).map(|s| s.clone()).collect();
+            let result: HashSet<String> = this.0.symmetric_difference(&other.0).cloned().collect();
             Ok(StringSet(result))
         });
 
         methods.add_method("intersection", |_, this, other: StringSet| {
-            let result: HashSet<String> = this.0.intersection(&other.0).map(|s| s.clone()).collect();
+            let result: HashSet<String> = this.0.intersection(&other.0).cloned().collect();
             Ok(StringSet(result))
         });
 
         methods.add_method("union", |_, this, other: StringSet| {
-            let result: HashSet<String> = this.0.union(&other.0).map(|s| s.clone()).collect();
+            let result: HashSet<String> = this.0.union(&other.0).cloned().collect();
             Ok(StringSet(result))
         });
 
@@ -60,6 +69,15 @@ impl UserData for StringSet {
 
         methods.add_meta_method(MetaMethod::Len, |_, this, _: ()| {
             Ok(this.0.len())
+        });
+
+        methods.add_method("clone", |lua, this, _: ()| {
+            Ok(StringSet(this.0.clone()))
+        });
+
+        methods.add_method("into_table", |lua, this, _: ()| {
+            let table = lua.create_sequence_from(this.0.iter().cloned())?;
+            Ok(table)
         });
     }
 }
@@ -83,7 +101,7 @@ mod tests {
     fn stringset() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<LuaValue>(r#"
+        lua.exec::<LuaValue>(r#"
             local a = stringset.create()
             a:insert("Colombia")
             a:insert("Canada")
@@ -116,9 +134,20 @@ mod tests {
             assert(c:contains("Venezuela"))
             assert(not c:contains("Colombia"))
 
-            a:foo(bar)
-        "#, None);
+            d = a:clone()
+            d:remove("Canada")
+            assert(a:is_superset(d))
+            assert(d:is_subset(a))
+            assert(not a:is_disjoint(b))
+            assert(a:is_disjoint(b:difference(a)))
 
-        result.unwrap();
+            d:clear()
+            assert(d:is_empty())
+
+            local t = a:union(b):into_table()
+            for i, v in ipairs(t) do
+                print(i, v)
+            end
+        "#, None).unwrap();
     }
 }
