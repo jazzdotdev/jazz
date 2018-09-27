@@ -176,6 +176,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<
     lua_bindings::uuid::init(lua)?;
     lua_bindings::markdown::init(lua)?;
     lua_bindings::client::init(lua)?;
+    lua_bindings::stringset::init(lua)?;
 
     Ok(())
 }
