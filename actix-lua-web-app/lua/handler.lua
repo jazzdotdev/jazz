@@ -9,17 +9,6 @@ local get_documents_action = require "actions.get_documents_by_type"
 local req = ctx.msg -- get the request
 local response -- declare the response
 
--- Test the set module
-local a = stringset.create()
-a:insert("Colombia")
-a:insert("Caracas")
-a:insert("Curaçao")
-local b = stringset.create()
-b:insert("Venezuela")
-b:insert("Colombia")
-b:insert("Brazil")
-print(a:union(b))
-
 reqProcess = luvent.newEvent() -- create event for request processing
 
 -- declare and add actions
