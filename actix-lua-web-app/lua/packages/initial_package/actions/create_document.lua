@@ -1,6 +1,6 @@
 local helpers = require("utils.helpers")
 
-local event = {5}
+local event = {"reqProcess_post_document"}
 local priority = 1
 
 -- POST /

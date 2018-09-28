@@ -1,7 +1,7 @@
 local helpers = require "utils.helpers"
 local fs = require "utils.fs"
 
-local event = {3}
+local event = {"reqProcess_document_json"}
 local priority = 1
 -- GET /[type]/[uuid]
 local function get_document(req)

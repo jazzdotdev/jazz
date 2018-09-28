@@ -1,6 +1,6 @@
 local debug = require "utils.debug"
 
-local event = {1, 2}
+local event = {"reqProcess", "reqProcess2"}
 local priority = 1
 
 

@@ -1,5 +1,5 @@
 local inspect = require "utils.inspect"
-local event = {5}
+local event = {"reqProcess_post_document"}
 local priority = 1
 local function action (req)
 

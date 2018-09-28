@@ -1,6 +1,6 @@
 function rule(req, events)
     if req.method == "POST" and req.path == "/" then
-        events[5]:trigger(req)
+        events["reqProcess_post_document"]:trigger(req)
     end
 end
 

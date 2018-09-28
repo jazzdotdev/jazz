@@ -1,7 +1,7 @@
 local helpers = require "utils.helpers"
 local fs = require "utils.fs"
 
-local event = {4}
+local event = {"reqProcess_documents"}
 local priority = 1
 
 

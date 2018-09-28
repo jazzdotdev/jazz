@@ -35,23 +35,24 @@ local packages_path_length = #packages_path_modules
 
 for k, v in pairs (fs.directory_list(packages_path)) do
     local package_name = v:split( "/" )[packages_path_length+1] -- split package path in "/" places and get the last word 
+    local events_strings = { } -- events names table
     local event_count = 0
     -- read events file
     local events_file = fs.read_file(v .. "events.txt")
-    -- put each line into an array
+    -- put each line into an strings array
     local s = ""
     for i=1, string.len(events_file) do
         if string.sub( events_file, i, i ) ~= '\n' then
             s = s .. string.sub( events_file, i, i )
         else
-            table.insert( events, s)
+            table.insert( events_strings, s)
             s = ""
         end
     end
     
     -- count the lines
     
-    for _ in pairs(events) do
+    for _ in pairs(events_strings) do
         event_count = event_count + 1
         print("counting")
     end
@@ -59,7 +60,7 @@ for k, v in pairs (fs.directory_list(packages_path)) do
     -- create events
     
     for i=1, event_count do
-        events[i] = luvent.newEvent()
+        events[events_strings[i]] = luvent.newEvent()
     end
     
     -- read disabled actions
@@ -112,11 +113,13 @@ for k, v in pairs (fs.directory_list(packages_path)) do
     end
 
     -- rule loader
-    for k, v in pairs(fs.directory_list("lua/packages")) do
+    for k, v in pairs(fs.directory_list(packages_path)) do
+        local package_name = v:split( "/" )[packages_path_length+1] -- split package path in "/" places and get the last word 
         local rule_files = fs.get_all_files_in(v .. "rules/")
         for _, file_name in ipairs(rule_files) do
             local rule_require_name = "packages." .. package_name .. ".rules." .. string.sub(file_name, 0, string.len( file_name ) - 4)
             local rule_require = require(rule_require_name)
+            print("[rule loading] " .. file_name)
             table.insert(rules, rule_require)
         end
     end
@@ -127,8 +130,7 @@ end
 -- try/catch in case of errors 
 
 utils.try(function()
-    
-    events[1]:trigger(req) -- try to process request and give response
+    events["reqProcess"]:trigger(req) -- try to process request and give response
     for k, v in pairs(rules) do -- rule trigger
         v.rule(req, events)
     end
@@ -141,8 +143,6 @@ end, function(err)
          body = '{ "error": ' .. "try-catch error" .. ' }',  -- if something go wrong give error 500 in response
     }
 end)
-
-events[2]:trigger(req)
 print("detla time" .. os.clock() - startTime)
 
 return response
