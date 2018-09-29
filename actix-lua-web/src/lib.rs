@@ -55,7 +55,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<
     Ok(())
 }
 
-pub fn start_from_settings (path: &'static str) {
+pub fn start_from_settings (path: &str) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name(path)).unwrap();
 
