@@ -1,0 +1,18 @@
+Host: 0.0.0.0
+POST / HTTP/1.1
+
+HTTP headers:
+connection: keep-alive
+cache-control: no-cache
+accept: */*
+origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
+postman-token: 903c3fdd-641c-f92e-8374-7e03be874c33
+accept-encoding: gzip, deflate, br
+content-length: 40
+user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36
+accept-language: en-US,en;q=0.9
+host: localhost:3000
+content-type: application/x-www-form-urlencoded
+
+Request body:
+title=Test Post&type=blog&text=Some text
