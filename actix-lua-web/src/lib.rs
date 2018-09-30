@@ -40,10 +40,11 @@ mod app_state {
     }
 }
 
-fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_modules_path: &str) -> Result<(), LuaError> {
+fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) -> Result<(), LuaError> {
     lua.exec::<()>(&format!(r#"
-        package.path = package.path..";{}"
-    "#, lua_modules_path), None)?;
+        package.path = package.path..";{}?.lua;{}?.lua"
+        require "torchbear"
+    "#, lib_path, app_path), None)?;
 
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
@@ -68,7 +69,8 @@ pub fn start_from_settings (path: &str) {
     let handler_path = get_or(&hashmap, "handler_path", "lua/handler.lua");
     let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-    let lua_modules_path = get_or(&hashmap, "lua_modules_path", "./lua/?.lua");
+    let application_path = get_or(&hashmap, "application", "./"); // suffix ?.lua
+    let lua_lib_path = get_or(&hashmap, "lua_library", "./");
 
     let sys = actix::System::new("actix-lua-web");
     let tera = Arc::new(compile_templates!(&templates_path));
@@ -77,9 +79,9 @@ pub fn start_from_settings (path: &str) {
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
-            .on_handle(&handler_path)
+            //.on_handle(&handler_path)
             .with_vm(move |vm| {
-                set_vm_globals(vm, tera.clone(), &lua_modules_path)
+                set_vm_globals(vm, tera.clone(), &lua_lib_path, &application_path)
             })
             .build()
             .unwrap();

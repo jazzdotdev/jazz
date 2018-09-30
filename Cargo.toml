@@ -1,3 +1,0 @@
-[workspace]
-members = ["actix-lua-web", "actix-lua-web-app"]
-default-members = ["actix-lua-web-app"]

@@ -5,8 +5,8 @@ extern crate clap;
 use clap::{Arg, App as ClapApp, SubCommand};
 
 fn main() {
-    let matches = ClapApp::new("myapp")
-        .version("1.0")
+    let matches = ClapApp::new("actix-lua-web")
+        .version("0.1")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
         .arg(Arg::with_name("setting")

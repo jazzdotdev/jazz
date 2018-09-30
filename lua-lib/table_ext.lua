@@ -1,4 +1,4 @@
-require "utils.underscore_alias"
+require "underscore_alias"
 
 _G.count = function (iter)
   return reduce(iter, 0, function (a, x) return a+1 end)

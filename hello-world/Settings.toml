@@ -1,0 +1,19 @@
+#[web-server]  # implies that lua_bindings/web_server.rs should be used
+host = "0.0.0.0:3000"
+
+#[markdown] # https://docs.rs/comrak/newest/comrak/struct.ComrakOptions.html
+ext_header_ids = 1
+
+#[yaml]
+strict = 1 # https://github.com/chyh1990/yaml-rust/issues/102
+
+# ?
+lua_library = "../lua-lib/"
+templates_path = "templates/**/*"  # expected by lib.rs
+
+# package builder bootstrapping phase
+application = "hello_world/"  # loads packages 
+
+# package related settings - paths for stuff
+content = "content"
+log = "log"
