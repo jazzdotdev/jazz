@@ -31,7 +31,6 @@ use rlua::prelude::*;
 use std::collections::HashMap;
 
 mod lua_bindings;
-mod server;
 
 mod app_state {
     pub struct AppState {
@@ -45,6 +44,8 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
         package.path = package.path..";{}?.lua;{}?.lua"
         require "torchbear"
     "#, lib_path, app_path), None)?;
+
+    //lua.exec::<()>(include_str!("managers/web_server.lua"), "web_server.lua").unwrap();
 
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
@@ -80,6 +81,7 @@ pub fn start_from_settings (path: &str) {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
             //.on_handle(&handler_path)
+            .on_handle_with_lua(include_str!("managers/web_server.lua"))
             .with_vm(move |vm| {
                 set_vm_globals(vm, tera.clone(), &lua_lib_path, &application_path)
             })
@@ -91,7 +93,7 @@ pub fn start_from_settings (path: &str) {
 
     actix_server::new(move || {
         App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-            .default_resource(|r| r.with(server::handler))
+            .default_resource(|r| r.with(lua_bindings::server::handler))
     }).bind(&host)
         .unwrap()
         .start();

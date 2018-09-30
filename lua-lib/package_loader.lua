@@ -5,9 +5,9 @@
 -- 'trigger' the loaders
 
 
-local rules = {} -- rules table to store them from all packages
-local events = { } -- events table
-local packages_path = "lua/packages" -- directory where packages are stored
+_G.rules = {} -- rules table to store them from all packages
+_G.events = { } -- events table
+local packages_path = "../hello-world" -- directory where packages are stored
 -- Splitting packages path to easier determine the name of current package later
 local packages_path_modules = packages_path:split( "/" )
 local packages_path_length = #packages_path_modules
@@ -20,6 +20,8 @@ for k, v in pairs (fs.directory_list(packages_path)) do
     -- read events file
     local events_file = fs.read_file(v .. "events.txt")
     -- put each line into an strings array
+
+    -- it does not register the events if they aren't followed by \n
     local s = ""
     for i=1, string.len(events_file) do
         if string.sub( events_file, i, i ) ~= '\n' then
@@ -67,20 +69,24 @@ for k, v in pairs (fs.directory_list(packages_path)) do
         return false
     end
     -- actions loader
+
+    print("Event list")
+    for k, v in pairs(events) do print("", k, v) end
     
     local action_files = fs.get_all_files_in(v .. "actions/")
     for _, file_name in ipairs(action_files) do
-        local action_require_name = "packages." .. package_name .. ".actions." .. string.sub( file_name, 0, string.len( file_name ) - 4 )
+        local action_require_name = package_name .. ".actions." .. string.sub( file_name, 0, string.len( file_name ) - 4 )
         print(action_require_name)
         local action_require = require(action_require_name)
         
         for k, v in pairs(action_require.event) do
+            print("event:", v, events[v])
             local action = events[v]:addAction(
                 function(req)
                     possibleResponse = action_require.action(req)
                     if possibleResponse ~= nil then
                         if possibleResponse.body ~= nil then
-                            response = possibleResponse
+                            _G.torchbear_response = possibleResponse
                         end
                     end
                 end
@@ -97,7 +103,7 @@ for k, v in pairs (fs.directory_list(packages_path)) do
         local package_name = v:split( "/" )[packages_path_length+1] -- split package path in "/" places and get the last word 
         local rule_files = fs.get_all_files_in(v .. "rules/")
         for _, file_name in ipairs(rule_files) do
-            local rule_require_name = "packages." .. package_name .. ".rules." .. string.sub(file_name, 0, string.len( file_name ) - 4)
+            local rule_require_name = package_name .. ".rules." .. string.sub(file_name, 0, string.len( file_name ) - 4)
             local rule_require = require(rule_require_name)
             print("[rule loading] " .. file_name)
             table.insert(rules, rule_require)

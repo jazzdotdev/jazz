@@ -27,7 +27,7 @@ end
 
 local rules = {} -- rules table to store them from all packages
 local events = { } -- events table
-local packages_path = "lua/packages" -- directory where packages are stored
+local packages_path = "main/packages" -- directory where packages are stored
 -- Splitting packages path to easier determine the name of current package later
 local packages_path_modules = packages_path:split( "/" )
 local packages_path_length = #packages_path_modules

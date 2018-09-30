@@ -1,7 +1,9 @@
 function rule(req, events)
-    if req.method == "GET" and req.path:match("*") then
+    print("rule respond_to_any_request")
+    --if req.method == "GET" and req.path:match("*") then
+        print("respond_to_any_request triggered the event")
         events["request_received"]:trigger(req)
-    end
+    --end
 end
 return {
     rule = rule
