@@ -60,6 +60,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
 pub fn start_from_settings (path: &str) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name(path)).unwrap();
+    settings.merge(config::Environment::with_prefix("torchbear"));
 
     let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
 
@@ -71,7 +72,7 @@ pub fn start_from_settings (path: &str) {
     let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let application_path = get_or(&hashmap, "application", "./"); // suffix ?.lua
-    let lua_lib_path = get_or(&hashmap, "lua_library", "./");
+    let lua_lib_path = hashmap.get("lua_library").map(|s| s.to_string()).unwrap();
 
     let sys = actix::System::new("actix-lua-web");
     let tera = Arc::new(compile_templates!(&templates_path));
