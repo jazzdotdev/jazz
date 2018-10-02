@@ -1,4 +1,4 @@
-extern crate actix_lua_web;
+extern crate torchbear_lib;
 extern crate env_logger;
 extern crate clap;
 
@@ -20,5 +20,5 @@ fn main() {
     let setting_dir = matches.value_of("setting").unwrap_or("Setting.toml");
 
     env_logger::init();
-    actix_lua_web::start_from_settings(setting_dir);
+    torchbear_lib::start_from_settings(setting_dir);
 }
