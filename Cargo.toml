@@ -4,17 +4,20 @@ version = "0.1.0"
 authors = ["Dmitry Vdovin <voidxnull@gmail.com>"]
 
 [lib]
-name = "actix_lua_web"
+name = "torchbear_lib"
 path = "src/lib.rs"
 
 [[bin]]
-name = "actix_lua_web_app"
+name = "torchbear"
 path = "src/main.rs"
+
+[patch.crates-io]
+openssl = { git = "https://github.com/ishitatsuyuki/rust-openssl", branch = "0.9.x" }
 
 [dependencies]
 actix = "0.7.3"
 actix-web = "0.7.4"
-actix-lua = { git = "https://github.com/voidxnull/actix-lua", branch = "error-handling" }
+actix-lua = "0.3.1"
 futures = "0.1.23"
 env_logger = "0.5.13"
 tera = "0.11.12"
