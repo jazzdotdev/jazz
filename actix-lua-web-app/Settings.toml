@@ -1,4 +1,0 @@
-templates_path = "templates/**/*"
-handler_path = "lua/handler.lua"
-lua_modules_path = "./lua/?.lua"
-host = "0.0.0.0:3000"
