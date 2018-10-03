@@ -9,16 +9,15 @@ fn main() {
         .version("0.1")
         .author("Kevin K. <kbknapp@gmail.com>")
         .about("Does awesome things")
-        .arg(Arg::with_name("setting")
-           .long("setting")
-           .value_name("SETTING_FILE")
+        .arg(Arg::with_name("path")
            .index(1)
-           .help("Selects the setting toml file")
-           .takes_value(true))
+           .help("The torchbear application path")
+           .takes_value(true)
+           .default_value("./"))
         .get_matches();
 
-    let setting_dir = matches.value_of("setting").unwrap_or("Setting.toml");
+    let path = matches.value_of("path").unwrap();
 
     env_logger::init();
-    torchbear_lib::start_from_settings(setting_dir);
+    torchbear_lib::start(path);
 }
