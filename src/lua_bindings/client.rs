@@ -40,21 +40,19 @@ fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaValue> {
 }
 
 /// For POST and PUT requests.
-fn set_body(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaResult<()> {
+fn set_body(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaResult<ClientRequest> {
     match value {
         LuaValue::Table(_) => {
             let json_value: JsonValue = rlua_serde::from_value(value)
                 .map_err(LuaError::external)?;
-            req_builder.json(&json_value).map_err(map_actix_err)?;
+            req_builder.json(&json_value).map_err(map_actix_err)
         },
         LuaValue::String(string) => {
             let string = string.to_str()?.to_owned();
-            req_builder.body(&string).map_err(map_actix_err)?;
+            req_builder.body(&string).map_err(map_actix_err)
         },
-        _ => return Err(LuaError::external(format_err!("Unsupported POST body: {:?}", value))),
+        _ => Err(LuaError::external(format_err!("Unsupported POST body: {:?}", value))),
     }
-
-    Ok(())
 }
 
 fn set_headers(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaResult<()> {
@@ -98,9 +96,14 @@ impl UserData for Builder {
             Ok(this.clone())
         });
 
-        methods.add_method_mut("body", |_, this, body: LuaValue| {
-            set_body(body, &mut this.0.borrow_mut())?;
-            Ok(this.clone())
+        methods.add_method_mut("send_with_body", |lua, this, body: LuaValue| {
+            let response = set_body(body, &mut this.0.borrow_mut())?
+                .send()
+                .wait().map_err(|err| {
+                    LuaError::external(format_err!("Request failed: {}", err))
+                })?;
+
+            parse_response(lua, response)
         });
 
         methods.add_method_mut("headers", |_, this, headers: LuaValue| {

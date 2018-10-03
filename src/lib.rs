@@ -42,7 +42,6 @@ mod app_state {
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) -> Result<(), LuaError> {
-    println!("Lua lib: {}", &lib_path);
     lua.exec::<()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
         require "torchbear"
@@ -60,25 +59,9 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     Ok(())
 }
 
-pub fn start (path_str: &str) {
-    let path = PathBuf::from(path_str);
-
-    if !path.is_dir() {
-        eprintln!("{} is not a directory", path_str);
-        exit(1);
-    }
-
-    let mut settings_path = path.clone();
-    settings_path.push("Settings.toml");
-
+pub fn start () {
     let mut settings = config::Config::new();
-    match settings.merge(config::File::with_name(settings_path.to_str().unwrap())) {
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(1);
-        }
-        Ok(_) => {}
-    };
+    settings.merge(config::File::with_name("Settings.toml")).unwrap();
     settings.merge(config::Environment::with_prefix("torchbear"));
 
     let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
@@ -90,12 +73,8 @@ pub fn start (path_str: &str) {
     let handler_path = get_or(&hashmap, "handler_path", "lua/handler.lua");
     let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-
-    let mut app_path = path.clone();
-    app_path.push(get_or(&hashmap, "application", "./"));
-
-    let mut lib_path = path.clone();
-    lib_path.push(get_or(&hashmap, "torchbear_ext", "torchbear-ext/"));
+    let app_path = get_or(&hashmap, "application", "./");
+    let lib_path = get_or(&hashmap, "torchbear_ext", "torchbear-ext/");
 
     let sys = actix::System::new("actix-lua-web");
     let tera = Arc::new(compile_templates!(&templates_path));
@@ -107,7 +86,7 @@ pub fn start (path_str: &str) {
             //.on_handle(&handler_path)
             .on_handle_with_lua(include_str!("managers/web_server.lua"))
             .with_vm(move |vm| {
-                set_vm_globals(vm, tera.clone(), lib_path.to_str().unwrap(), app_path.to_str().unwrap())
+                set_vm_globals(vm, tera.clone(), &lib_path, &app_path)
             })
             .build()
             .unwrap();
