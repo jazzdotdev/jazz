@@ -6,6 +6,7 @@ use actix_web::{
 };
 use futures::Future;
 use serde_urlencoded;
+use serde_json;
 
 use ::app_state::AppState;
 
@@ -49,22 +50,32 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
         )
     };
 
-    let body_table: Result<HashMap<String, LuaMessage>, _> = serde_urlencoded::from_str(&body)
-        .map(|parsed_body: HashMap<String, String>| {
-            parsed_body
-                .into_iter()
-                .map(|(k, v)| (k, LuaMessage::String(v)))
-                .collect()
-        });
+    let body_hashmap: Option<HashMap<String, String>> =
+        match req.headers().get(::actix_web::http::header::CONTENT_TYPE).map(|h| h.to_str()) {
+            Some(Ok("application/x-www-form-urlencoded")) => serde_urlencoded::from_str(&body).ok(),
+            Some(Ok("application/json")) => serde_json::from_str(&body).ok(),
+            Some(Ok(header)) => {
+                eprintln!("content type {} not supported", header);
+                None
+            },
+            Some(err@Err(_)) => {
+                eprintln!("could not parse content type into a valid string: {:?}", err);
+                None
+            },
+            _ => None
+        };
 
-    match body_table {
-        Ok(body_table) => {
-            table.insert("body".to_owned(), LuaMessage::Table(body_table));
+    table.insert("body".to_owned(), match body_hashmap {
+        Some(body_hashmap) => {
+            LuaMessage::Table(
+                body_hashmap
+                    .into_iter()
+                    .map(|(k, v)| (k, LuaMessage::String(v)))
+                    .collect()
+            )
         },
-        Err(_) => {
-            table.insert("body".to_owned(), LuaMessage::String(body.clone()));
-        }
-    }
+        _ => LuaMessage::String(body.clone())
+    });
 
     table.insert("req_line".to_owned(), LuaMessage::String(req_line));
     table.insert("method".to_owned(), LuaMessage::String(req.method().to_string()));
