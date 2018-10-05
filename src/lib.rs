@@ -25,6 +25,7 @@ extern crate chrono;
 #[macro_use]
 extern crate log;
 extern crate fern;
+extern crate log_panics;
 
 use std::sync::Arc;
 use actix::prelude::*;
@@ -82,7 +83,8 @@ pub fn start (log_level: logger::LevelFilter) {
     let lib_path = get_or(&hashmap, "torchbear_ext", "torchbear-ext/");
     let log_path = get_or(&hashmap, "log_path", "log");
 
-    logger::init(::std::path::Path::new("./"), log_level);
+    logger::init(::std::path::Path::new(&log_path), log_level);
+    log_panics::init();
 
     let sys = actix::System::new("actix-lua-web");
     let tera = Arc::new(compile_templates!(&templates_path));
