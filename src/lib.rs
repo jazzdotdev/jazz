@@ -21,6 +21,7 @@ extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
 extern crate config;
+extern crate chrono;
 
 use std::sync::Arc;
 use actix::prelude::*;
@@ -55,6 +56,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     lua_bindings::markdown::init(lua)?;
     lua_bindings::client::init(lua)?;
     lua_bindings::stringset::init(lua)?;
+    lua_bindings::time::init(lua)?;
 
     Ok(())
 }

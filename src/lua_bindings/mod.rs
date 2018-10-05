@@ -6,3 +6,4 @@ pub mod client;
 pub mod crypto;
 pub mod stringset;
 pub mod server;
+pub mod time;
