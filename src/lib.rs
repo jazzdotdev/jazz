@@ -22,6 +22,10 @@ extern crate rust_sodium;
 extern crate base64;
 extern crate config;
 extern crate chrono;
+#[macro_use]
+extern crate log;
+extern crate fern;
+extern crate log_panics;
 
 use std::sync::Arc;
 use actix::prelude::*;
@@ -30,10 +34,10 @@ use actix_web::{server as actix_server, App};
 use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::process::exit;
 
 mod lua_bindings;
+mod logger;
 
 mod app_state {
     pub struct AppState {
@@ -61,7 +65,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     Ok(())
 }
 
-pub fn start () {
+pub fn start (log_level: logger::LevelFilter) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name("Settings.toml")).unwrap();
     settings.merge(config::Environment::with_prefix("torchbear"));
@@ -77,6 +81,10 @@ pub fn start () {
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let app_path = get_or(&hashmap, "application", "./");
     let lib_path = get_or(&hashmap, "torchbear_ext", "torchbear-ext/");
+    let log_path = get_or(&hashmap, "log_path", "log");
+
+    logger::init(::std::path::Path::new(&log_path), log_level);
+    log_panics::init();
 
     let sys = actix::System::new("actix-lua-web");
     let tera = Arc::new(compile_templates!(&templates_path));
@@ -103,6 +111,6 @@ pub fn start () {
         .unwrap()
         .start();
 
-    println!("Started http server: localhost:3000");
+    info!("Started http server: {}", &host);
     let _ = sys.run();
 }
