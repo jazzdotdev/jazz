@@ -119,7 +119,7 @@ pub fn get_keys(_lua: &Lua, this: &KeyPair, _: ()) -> Result<(String, String), L
 }
 
 impl UserData for KeyPair {
-    fn add_methods(methods: &mut UserDataMethods<Self>) {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("get_keys", get_keys);
         methods.add_method("seal", seal);
         methods.add_method("open", open);
@@ -135,7 +135,7 @@ pub fn nonce_to_string(_lua: &Lua, this: &Nonce, _: ()) -> Result<String, LuaErr
 }
 
 impl UserData for Nonce {
-    fn add_methods(methods: &mut UserDataMethods<Self>) {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("tostring", nonce_to_string);
     }
 }

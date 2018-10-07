@@ -63,7 +63,7 @@ pub fn verify_detached(_lua: &Lua, this: &KeyPair, (msg, base64_signature): (Str
 }
 
 impl UserData for KeyPair {
-    fn add_methods(methods: &mut UserDataMethods<Self>) {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("get_keys", get_keys);
         methods.add_method("sign", sign);
         methods.add_method("verify", verify);

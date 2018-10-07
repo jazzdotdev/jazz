@@ -47,12 +47,12 @@ mod app_state {
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) -> Result<(), LuaError> {
-    lua.exec::<()>(&format!(r#"
+    lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
         require "torchbear"
     "#, lib_path, app_path), None)?;
 
-    //lua.exec::<()>(include_str!("managers/web_server.lua"), "web_server.lua").unwrap();
+    //lua.exec::<_, ()>(include_str!("managers/web_server.lua"), "web_server.lua").unwrap();
 
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;

@@ -81,7 +81,7 @@ mod tests {
     fn test_markdown_to_html() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<LuaValue>(r#"return markdown_to_html("Hello, **世界**!")"#, None);
+        let result = lua.exec::<_, LuaValue>(r#"return markdown_to_html("Hello, **世界**!")"#, None);
 
         match result {
             Ok(LuaValue::String(html)) => {
@@ -95,7 +95,7 @@ mod tests {
     fn test_markdown_to_html_with_options() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<LuaValue>(
+        let result = lua.exec::<_, LuaValue>(
             r#"return markdown_to_html("Hello, **世界**!<script></script>", {safe = true})"#,
             None,
         );

@@ -82,7 +82,7 @@ struct Builder(Rc<RefCell<ClientRequestBuilder>>);
 unsafe impl Send for Builder {}
 
 impl UserData for Builder {
-    fn add_methods(methods: &mut UserDataMethods<Self>) {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         use std::str::FromStr;
         use actix_web::http::Method;
 

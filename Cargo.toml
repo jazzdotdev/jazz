@@ -16,7 +16,7 @@ openssl = { git = "https://github.com/ishitatsuyuki/rust-openssl", branch = "0.9
 
 [dependencies]
 actix = "0.7"
-actix-lua = "0.3"
+actix-lua = { git = "https://github.com/Arnaz87/actix-lua.git", branch = "update_crates" }
 actix-web = "0.7"
 futures = "0.1"
 log = "0.4"
@@ -27,7 +27,7 @@ failure = "0.1"
 failure_derive = "0.1"
 serde = "1.0"
 serde_yaml = "0.8"
-rlua_serde = { git = "https://github.com/voidxnull/rlua_serde", branch = "update_rlua" }
+rlua_serde = { git = "https://github.com/Arnaz87/rlua_serde", branch = "update_rlua" }
 uuid = "0.6"
 serde_urlencoded = "0.5"
 comrak = "0.2"

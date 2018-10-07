@@ -48,7 +48,7 @@ mod tests {
     fn test_box_() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<Value>(
+        let result = lua.exec::<_, Value>(
             r#"
                 local nonce1 = crypto.box.new_nonce()
                 local nonce_str = nonce1:tostring()
@@ -83,7 +83,7 @@ mod tests {
     fn test_crypto() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<Value>(
+        let result = lua.exec::<_, Value>(
             r#"
                 local random_bytes = crypto.random_bytes(8)
                 print("random_bytes length=" .. #random_bytes)
@@ -103,7 +103,7 @@ mod tests {
     fn test_sign() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<Value>(
+        let result = lua.exec::<_, Value>(
             r#"
                 local keypair = crypto.sign.new_keypair()
                 local secret, public = keypair:get_keys()

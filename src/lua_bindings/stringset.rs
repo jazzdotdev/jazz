@@ -6,7 +6,7 @@ use std::collections::HashSet;
 struct StringSet (HashSet<String>);
 
 impl UserData for StringSet {
-    fn add_methods(methods: &mut UserDataMethods<Self>) {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
 
         methods.add_method_mut("insert", |_, this, elem: String| {
             this.0.insert(elem);
@@ -153,7 +153,7 @@ mod tests {
     fn direct_methods() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        lua.exec::<Value>(r#"
+        lua.exec::<_, Value>(r#"
             local a = stringset.create()
             a:insert("Colombia")
             a:insert("Canada")
@@ -207,7 +207,7 @@ mod tests {
     fn shortcut_syntax() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        lua.exec::<Value>(r#"
+        lua.exec::<_, Value>(r#"
             local a = stringset.create()
             a:insert("Canada")
             a:insert("China")
