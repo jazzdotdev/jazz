@@ -1,7 +1,7 @@
 [package]
-name = "actix-lua-web"
+name = "torchbear"
 version = "0.1.0"
-authors = ["Dmitry Vdovin <voidxnull@gmail.com>"]
+authors = ["Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>"]
 
 [lib]
 name = "torchbear_lib"
@@ -17,7 +17,7 @@ openssl = { git = "https://github.com/ishitatsuyuki/rust-openssl", branch = "0.9
 [dependencies]
 actix = "0.7.3"
 actix-web = "0.7.4"
-actix-lua = "0.3.1"
+actix-lua = "0.3"
 futures = "0.1.23"
 log = "0.4.5"
 env_logger = "0.5.13"
