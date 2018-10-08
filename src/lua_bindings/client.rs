@@ -6,7 +6,7 @@ use actix_web::client::{ClientRequest, ClientRequestBuilder, ClientResponse};
 use futures::Future;
 use rlua::prelude::*;
 use rlua_serde;
-use serde_json::{self, Value as JsonValue};
+use serde_json::{Value as JsonValue};
 use rlua::{UserDataMethods, UserData};
 
 fn map_actix_err(err: actix_web::Error) -> LuaError {

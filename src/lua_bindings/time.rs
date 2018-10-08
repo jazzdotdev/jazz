@@ -1,6 +1,5 @@
 use rlua::prelude::*;
 use rlua::{UserDataMethods, UserData, MetaMethod, Lua};
-use std::collections::HashSet;
 use chrono::prelude::*;
 
 #[derive(Clone)]
@@ -17,11 +16,11 @@ impl UserData for LuaTime {
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let module = lua.create_table()?;
 
-    module.set("now", lua.create_function( |lua, _: ()| {
+    module.set("now", lua.create_function( |_, _: ()| {
         Ok(LuaTime(Utc::now()))
     })? )?;
 
-    module.set("new", lua.create_function( |lua, s: String| {
+    module.set("new", lua.create_function( |_, s: String| {
         DateTime::parse_from_rfc2822(&s).map(
             |t| LuaTime(t.with_timezone(&Utc))
         ).map_err(
@@ -29,7 +28,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         )
     })? )?;
 
-    let g = lua.globals().set("time", module)?;
+    lua.globals().set("time", module)?;
 
     Ok(())
 }

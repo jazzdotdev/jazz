@@ -34,7 +34,6 @@ use actix_web::{server as actix_server, App};
 use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
-use std::process::exit;
 
 mod lua_bindings;
 mod logger;
@@ -62,6 +61,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     lua_bindings::crypto::init(lua)?;
     lua_bindings::stringset::init(lua)?;
     lua_bindings::time::init(lua)?;
+    lua_bindings::log::init(lua)?;
 
     Ok(())
 }
@@ -69,7 +69,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
 pub fn start (log_level: logger::LevelFilter) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name("Settings.toml")).unwrap();
-    settings.merge(config::Environment::with_prefix("torchbear"));
+    settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
     let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
 
@@ -77,7 +77,6 @@ pub fn start (log_level: logger::LevelFilter) {
         map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
     }
 
-    let handler_path = get_or(&hashmap, "handler_path", "lua/handler.lua");
     let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let app_path = get_or(&hashmap, "application", "./");
@@ -94,7 +93,6 @@ pub fn start (log_level: logger::LevelFilter) {
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
-            //.on_handle(&handler_path)
             .on_handle_with_lua(include_str!("managers/web_server.lua"))
             .with_vm(move |vm| {
                 set_vm_globals(vm, tera.clone(), &lib_path, &app_path)

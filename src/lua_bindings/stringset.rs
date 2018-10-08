@@ -71,7 +71,7 @@ impl UserData for StringSet {
             Ok(this.0.len())
         });
 
-        methods.add_method("clone", |lua, this, _: ()| {
+        methods.add_method("clone", |_, this, _: ()| {
             Ok(StringSet(this.0.clone()))
         });
 
