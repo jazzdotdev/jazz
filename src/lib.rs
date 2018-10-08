@@ -59,6 +59,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     lua_bindings::uuid::init(lua)?;
     lua_bindings::markdown::init(lua)?;
     lua_bindings::client::init(lua)?;
+    lua_bindings::crypto::init(lua)?;
     lua_bindings::stringset::init(lua)?;
     lua_bindings::time::init(lua)?;
 
