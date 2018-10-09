@@ -5,6 +5,12 @@ use std::fs::{File, create_dir, OpenOptions};
 
 pub use log::{Level, LevelFilter};
 
+#[derive(Copy, Clone)]
+pub struct Settings {
+    pub level: LevelFilter,
+    pub everything: bool,
+}
+
 pub fn get_log_file (path: &Path) -> Result<File, String> {
     let now = ::chrono::Local::now().format("%Y_%m_%d__%H_%M_%S");
 
@@ -31,12 +37,16 @@ pub fn get_log_file (path: &Path) -> Result<File, String> {
         .map_err(|e| format!("could not log to {:?}: {}", &path_buf, e))
 }
 
-pub fn init (path: &Path, level: LevelFilter) {
+pub fn init (path: &Path, settings: Settings) {
 
     let colors = ::fern::colors::ColoredLevelConfig::new();
 
     // CMD Logging (colored, with user specified level)
     let mut dispatch = Dispatch::new()
+        .filter(move |metadata| {
+            settings.everything || &metadata.target()[0..9] == "torchbear"
+        })
+        .level(settings.level)
         .chain(Dispatch::new()
             .format(move |out, message, record| {
                 out.finish(format_args!(
@@ -46,7 +56,6 @@ pub fn init (path: &Path, level: LevelFilter) {
                     message
                 ))
             })
-            .level(level)
             .chain(::std::io::stdout())
         );
 
@@ -62,7 +71,6 @@ pub fn init (path: &Path, level: LevelFilter) {
                         message
                     ))
                 })
-                .level(LevelFilter::Info)
                 .chain(file)
             );
             None

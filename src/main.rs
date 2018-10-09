@@ -15,6 +15,12 @@ fn main() {
            .help("Prints messages with log level <LEVEL>")
            .default_value("info")
            .takes_value(true))
+        .arg(Arg::with_name("log scope")
+           .long("log-scope")
+           .value_name("SCOPE")
+           .help("Wether to log everything in the dependency tree")
+           .default_value("torchbear")
+           .takes_value(true))
         .get_matches();
 
     let log_level = match matches.value_of("log").unwrap() {
@@ -29,5 +35,17 @@ fn main() {
         }
     };
 
-    torchbear_lib::start(log_level);
+    let log_everything = match matches.value_of("log scope").unwrap() {
+        "torchbear" => false,
+        "everything" => true,
+        l => {
+            println!("{} is not a valid log scope, available levels are 'torchbear' and 'everything'", l);
+            std::process::exit(1)
+        }
+    };
+
+    torchbear_lib::start(torchbear_lib::logger::Settings{
+      level: log_level,
+      everything: log_everything,
+    });
 }

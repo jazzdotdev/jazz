@@ -36,7 +36,7 @@ use rlua::prelude::*;
 use std::collections::HashMap;
 
 mod lua_bindings;
-mod logger;
+pub mod logger;
 
 mod app_state {
     pub struct AppState {
@@ -46,13 +46,6 @@ mod app_state {
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) -> Result<(), LuaError> {
-    lua.exec::<_, ()>(&format!(r#"
-        package.path = package.path..";{}?.lua;{}?.lua"
-        require "torchbear"
-    "#, lib_path, app_path), None)?;
-
-    //lua.exec::<_, ()>(include_str!("managers/web_server.lua"), "web_server.lua").unwrap();
-
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
     lua_bindings::uuid::init(lua)?;
@@ -63,10 +56,16 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     lua_bindings::time::init(lua)?;
     lua_bindings::log::init(lua)?;
 
+    // Lua Bridge
+    lua.exec::<_, ()>(&format!(r#"
+        package.path = package.path..";{}?.lua;{}?.lua"
+        require "torchbear"
+    "#, lib_path, app_path), None)?;
+
     Ok(())
 }
 
-pub fn start (log_level: logger::LevelFilter) {
+pub fn start (log_settings: logger::Settings) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name("Settings.toml")).unwrap();
     settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
@@ -83,7 +82,7 @@ pub fn start (log_level: logger::LevelFilter) {
     let lib_path = get_or(&hashmap, "torchbear_ext", "torchbear-ext/");
     let log_path = get_or(&hashmap, "log_path", "log");
 
-    logger::init(::std::path::Path::new(&log_path), log_level);
+    logger::init(::std::path::Path::new(&log_path), log_settings);
     log_panics::init();
 
     let sys = actix::System::new("actix-lua-web");
