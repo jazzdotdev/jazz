@@ -25,7 +25,8 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     let sign = lua.create_table()?;
     sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;
-    sign.set("load_keypair", lua.create_function(sign::load_keypair)?)?;
+    sign.set("load_secret", lua.create_function(sign::load_secret)?)?;
+    sign.set("load_public", lua.create_function(sign::load_public)?)?;
     crypto.set("sign", sign)?;
 
     let box_ = lua.create_table()?;
@@ -100,39 +101,43 @@ mod tests {
     }
 
     #[test]
-    fn test_sign() {
+    fn lua_sign() {
         let lua = Lua::new();
         init(&lua).unwrap();
         let result = lua.exec::<_, Value>(
             r#"
-                local keypair = crypto.sign.new_keypair()
-                local secret, public = keypair:get_keys()
-                print( "secret=" .. secret )
-                print( "public=" .. public )
+                local secret, public = crypto.sign.new_keypair()
+                print( "secret", secret )
+                print( "public", public )
 
-                local keypair2 = crypto.sign.load_keypair(secret, public)
+                local secret2 = crypto.sign.load_secret( tostring(secret) )
+                local public2 = crypto.sign.load_public( tostring(public) )
                 local source = "this is a test!"
                 print( "source=" .. source )
-                local signed = keypair2:sign(source)
+                local signed = secret2:sign(source)
                 print("signed=" .. signed)
 
-                local verified = keypair2:verify(signed)
+                local verified = public2:verify(signed)
                 print("verified=" .. verified)
 
-                local signature = keypair:sign_detached(source)
+                local signature = secret:sign_detached(source)
                 print("signature=" .. signature)
 
-                local is_sig_valid = keypair:verify_detached(source, signature)
+                local is_sig_valid = public:verify_detached(source, signature)
                 print("is_sig_valid=" .. tostring(is_sig_valid))
 
-                local secret3 = "+qEY1pRSYy7gTfJ58GLrDQTuhgiTf49Cy9yEgvix3vHGkq2b5t55E36RPtVYgnTn+2SF0Of8nEeVOyTvcvlnnQ=="
-                local public3 = "xpKtm+beeRN+kT7VWIJ05/tkhdDn/JxHlTsk73L5Z50="
-                local keypair3 = crypto.sign.load_keypair(secret3, public3)
+                local secret3 = crypto.sign.load_secret(
+                    "+qEY1pRSYy7gTfJ58GLrDQTuhgiTf49Cy9yEgvix3vHGkq2b5t55E36RPtVYgnTn+2SF0Of8nEeVOyTvcvlnnQ=="
+                )
+                local public3 = crypto.sign.load_secret(
+                    "xpKtm+beeRN+kT7VWIJ05/tkhdDn/JxHlTsk73L5Z50="
+                )
+
                 source = "I'm going to get signed"
                 print( "source=" .. source )
-                local signed = keypair3:sign(source)
+                local signed = secret3:sign(source)
                 print("signed=" .. signed)
-                local verified = keypair3:verify(signed)
+                local verified = public3:verify(signed)
                 print("verified=" .. verified)
 
                 return true
