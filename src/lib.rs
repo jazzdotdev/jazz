@@ -45,7 +45,7 @@ mod app_state {
     }
 }
 
-fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) -> Result<(), LuaError> {
+fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<(), LuaError> {
     lua_bindings::tera::init(lua, tera)?;
     lua_bindings::yaml::init(lua)?;
     lua_bindings::uuid::init(lua)?;
@@ -59,8 +59,8 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lib_path: &str, app_path: &str) ->
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
-        require "torchbear"
-    "#, lib_path, app_path), None)?;
+        require "init"
+    "#, lua_prelude, app_path), None)?;
 
     Ok(())
 }
@@ -79,13 +79,13 @@ pub fn start (log_settings: logger::Settings) {
     let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let app_path = get_or(&hashmap, "application", "./");
-    let lib_path = get_or(&hashmap, "torchbear_ext", "torchbear-ext/");
+    let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
     let log_path = get_or(&hashmap, "log_path", "log");
 
     logger::init(::std::path::Path::new(&log_path), log_settings);
     log_panics::init();
 
-    let sys = actix::System::new("actix-lua-web");
+    let sys = actix::System::new("torchbear");
     let tera = Arc::new(compile_templates!(&templates_path));
 
     let shared_tera = tera.clone();
@@ -94,7 +94,7 @@ pub fn start (log_settings: logger::Settings) {
         let lua_actor = LuaActorBuilder::new()
             .on_handle_with_lua(include_str!("managers/web_server.lua"))
             .with_vm(move |vm| {
-                set_vm_globals(vm, tera.clone(), &lib_path, &app_path)
+                set_vm_globals(vm, tera.clone(), &lua_prelude, &app_path)
             })
             .build()
             .unwrap();
