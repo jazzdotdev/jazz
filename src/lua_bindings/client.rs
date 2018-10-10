@@ -40,22 +40,22 @@ fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaValue> {
 }
 
 /// For POST and PUT requests.
-fn set_body(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaResult<ClientRequest> {
+fn set_body(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> LuaResult<ClientRequest> {
     match value {
         LuaValue::Table(_) => {
             let json_value: JsonValue = rlua_serde::from_value(value)
                 .map_err(LuaError::external)?;
-            req_builder.json(&json_value).map_err(map_actix_err)
+            request_builder.json(&json_value).map_err(map_actix_err)
         },
         LuaValue::String(string) => {
             let string = string.to_str()?.to_owned();
-            req_builder.body(&string).map_err(map_actix_err)
+            request_builder.body(&string).map_err(map_actix_err)
         },
         _ => Err(LuaError::external(format_err!("Unsupported POST body: {:?}", value))),
     }
 }
 
-fn set_headers(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaResult<()> {
+fn set_headers(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> LuaResult<()> {
     if let LuaValue::Table(headers) = value.clone() {
         for pair in headers.pairs() {
             let (key, value): (String, LuaValue) = pair?;
@@ -65,7 +65,7 @@ fn set_headers(value: LuaValue, req_builder: &mut ClientRequestBuilder) -> LuaRe
                 LuaValue::Integer(number) => number.to_string(),
                 ref value @ _ => unimplemented!("Header value is not supported: {:?}", value),
             };
-            req_builder.header(&key as &str, value);
+            request_builder.header(&key as &str, value);
         }
     } else {
         return Err(LuaError::external(format_err!("Invalid client headers {:?}", &value)))

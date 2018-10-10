@@ -11,47 +11,47 @@ use serde_json;
 use ::app_state::AppState;
 
 /// Creates a lua table from a HttpRequest
-fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
+fn extract_table_from_request(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
     let mut table = HashMap::new();
 
-    let query: HashMap<_, _> = req.query().iter()
+    let query: HashMap<_, _> = request.query().iter()
         .map(|(key, value)| (key.clone(), LuaMessage::String(value.clone())))
         .collect();
-    let headers: HashMap<_, _> = req.headers().iter()
+    let headers: HashMap<_, _> = request.headers().iter()
         .map(|(key, value)| (
             key.as_str().to_owned(),
             LuaMessage::String(value.to_str().unwrap().to_owned()),
         ))
         .collect();
-    let host = req.uri().host()
+    let host = request.uri().host()
         .map(|host| LuaMessage::String(host.to_owned()))
         .unwrap_or(LuaMessage::Nil);
-    let fragment = req.uri().to_string()
+    let fragment = request.uri().to_string()
         .rsplit("#")
         .next()
         .map(|fragment| LuaMessage::String(fragment.to_owned()))
         .unwrap_or(LuaMessage::Nil);
-    let path = req.path().to_string();
+    let path = request.path().to_string();
 
-    let req_line = if req.query_string().is_empty() {
+    let request_line = if request.query_string().is_empty() {
         format!(
             "{} {} {:?}",
-            req.method(),
-            req.path(),
-            req.version()
+            request.method(),
+            request.path(),
+            request.version()
         )
     } else {
         format!(
             "{} {}?{} {:?}",
-            req.method(),
-            req.path(),
-            req.query_string(),
-            req.version()
+            request.method(),
+            request.path(),
+            request.query_string(),
+            request.version()
         )
     };
 
     let body_hashmap: Option<HashMap<String, String>> =
-        match req.headers().get(::actix_web::http::header::CONTENT_TYPE).map(|h| h.to_str()) {
+        match request.headers().get(::actix_web::http::header::CONTENT_TYPE).map(|h| h.to_str()) {
             Some(Ok("application/x-www-form-urlencoded")) => serde_urlencoded::from_str(&body).ok(),
             Some(Ok("application/json")) => serde_json::from_str(&body).ok(),
             Some(Ok(header)) => {
@@ -77,8 +77,8 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
         _ => LuaMessage::String(body.clone())
     });
 
-    table.insert("req_line".to_owned(), LuaMessage::String(req_line));
-    table.insert("method".to_owned(), LuaMessage::String(req.method().to_string()));
+    table.insert("request_line".to_owned(), LuaMessage::String(request_line));
+    table.insert("method".to_owned(), LuaMessage::String(request.method().to_string()));
     table.insert("headers".to_owned(), LuaMessage::Table(headers));
     table.insert("query".to_owned(), LuaMessage::Table(query));
     table.insert("host".to_owned(), host);
@@ -90,9 +90,9 @@ fn extract_table_from_req(req: &HttpRequest<AppState>, body: String) -> HashMap<
 }
 
 pub fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
-    let table = extract_table_from_req(&req, body);
+    let table = extract_table_from_request(&req, body);
 
-    req.state()
+    request.state()
         .lua
         .send(LuaMessage::Table(table))
         .from_err()

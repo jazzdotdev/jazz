@@ -1,21 +1,21 @@
-local req = ctx.msg -- get the request
-local possibleResponse
+-- declare request and possible response
+local request = ctx.msg
+local possible_response
 
 require "package_loader"
 
+-- try to trigger every rule. If the process failed give error 500
 utils.try(function()
-    events["reqProcess"]:trigger(req) -- try to process request and give response
-    for k, v in pairs(rules) do -- rule trigger
-        v.rule(req, events)
+    for k, v in pairs(rules) do 
+        v.rule(request, events)
     end
 
 end, function(err)
-    print("[ERROR]")
-    print(err)
+    log.err(err)
     response = { 
         status = 500,
-         body = '{ "error": ' .. "try-catch error" .. ' }',  -- if something go wrong give error 500 in response
+         body = '{ "error": ' .. "try-catch error" .. ' }',
     }
 end)
 
-return torchbear_response
+return returned_response
