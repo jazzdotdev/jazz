@@ -2,6 +2,8 @@
 use fern::Dispatch;
 use std::path::Path;
 use std::fs::{File, create_dir, OpenOptions};
+use std::fmt::Display;
+use colored::*;
 
 pub use log::{Level, LevelFilter};
 
@@ -39,7 +41,40 @@ pub fn get_log_file (path: &Path) -> Result<File, String> {
 
 pub fn init (path: &Path, settings: Settings) {
 
-    let colors = ::fern::colors::ColoredLevelConfig::new();
+    let colors = ::fern::colors::ColoredLevelConfig::new()
+        .trace(Color::Blue)
+        .debug(Color::BrightBlue)
+        .info(Color::BrightGreen)
+        .warn(Color::BrightYellow)
+        .error(Color::BrightRed);
+
+    fn white <T: Display> (msg: T, colored: bool) -> String {
+        if colored {
+            format!("{}", format!("{}", msg).white())
+        } else {
+            format!("{}", msg)
+        }   
+    }
+
+    macro_rules! format_msg {
+        ($colored:expr) => {
+            move |out, message, record| {
+                out.finish(format_args!(
+                    "{} {}:{} {}",
+                    white(::chrono::Local::now().format("%Y-%m-%d %H:%M:%S"), $colored),
+                    if $colored {
+                        format!("{}", colors.color(record.level()))
+                    } else {
+                        format!("{}", record.level())
+                    },
+                    if settings.everything {
+                        white(format!(" {}", record.target()), $colored)
+                    } else { "".to_owned() },
+                    message
+                ))
+            }
+        }
+    }
 
     // CMD Logging (colored, with user specified level)
     let mut dispatch = Dispatch::new()
@@ -48,14 +83,7 @@ pub fn init (path: &Path, settings: Settings) {
         })
         .level(settings.level)
         .chain(Dispatch::new()
-            .format(move |out, message, record| {
-                out.finish(format_args!(
-                    "{} {}: {}",
-                    ::chrono::Local::now().format("[%Y-%m-%d %H:%M:%S]"),
-                    colors.color(record.level()),
-                    message
-                ))
-            })
+            .format( format_msg!(true) )
             .chain(::std::io::stdout())
         );
 
@@ -63,14 +91,7 @@ pub fn init (path: &Path, settings: Settings) {
     let file_err = match get_log_file(path) {
         Ok(file) => {
             dispatch = dispatch.chain(Dispatch::new()
-                .format(move |out, message, record| {
-                    out.finish(format_args!(
-                        "{} {}: {}",
-                        ::chrono::Local::now().format("[%Y-%m-%d %H:%M:%S]"),
-                        record.level(),
-                        message
-                    ))
-                })
+                .format( format_msg!(false) )
                 .chain(file)
             );
             None

@@ -38,4 +38,5 @@ config = "0.9"
 clap = "2.32"
 chrono = "0.4"
 fern = { version = "0.5", features = ["colored"] }
+colored = "1.6.1"
 log-panics = "2.0"

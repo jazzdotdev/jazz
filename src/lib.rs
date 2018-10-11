@@ -25,6 +25,7 @@ extern crate chrono;
 #[macro_use]
 extern crate log;
 extern crate fern;
+extern crate colored;
 extern crate log_panics;
 
 use std::sync::Arc;
