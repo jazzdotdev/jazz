@@ -59,7 +59,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
-        require "init"
+        require "prelude"
     "#, lua_prelude, app_path), None)?;
 
     Ok(())
