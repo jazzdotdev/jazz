@@ -129,7 +129,7 @@ mod tests {
                 local secret3 = crypto.sign.load_secret(
                     "+qEY1pRSYy7gTfJ58GLrDQTuhgiTf49Cy9yEgvix3vHGkq2b5t55E36RPtVYgnTn+2SF0Of8nEeVOyTvcvlnnQ=="
                 )
-                local public3 = crypto.sign.load_secret(
+                local public3 = crypto.sign.load_public(
                     "xpKtm+beeRN+kT7VWIJ05/tkhdDn/JxHlTsk73L5Z50="
                 )
 
