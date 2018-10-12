@@ -11,7 +11,7 @@ use serde_json;
 use ::app_state::AppState;
 
 /// Creates a lua table from a HttpRequest
-fn extract_table_from_request(req: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
+fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
     let mut table = HashMap::new();
 
     let query: HashMap<_, _> = request.query().iter()
@@ -89,8 +89,8 @@ fn extract_table_from_request(req: &HttpRequest<AppState>, body: String) -> Hash
     table
 }
 
-pub fn handler((req, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
-    let table = extract_table_from_request(&req, body);
+pub fn handler((request, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
+    let table = extract_table_from_request(&request, body);
 
     request.state()
         .lua
