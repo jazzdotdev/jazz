@@ -13,30 +13,55 @@ fn map_actix_err(err: actix_web::Error) -> LuaError {
     LuaError::external(format_err!("actix_web error: {}", &err))
 }
 
-fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaValue> {
+fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaTable> {
+    trace!("A");
+    let body_data = res.body()
+        .wait()
+        .map_err(|err| {
+            LuaError::external(format_err!("Invalid body {}", err))
+        })?;
+    trace!("B");
+
+    let body_string = String::from_utf8(body_data.iter().cloned().collect())
+        .map_err(|err| {
+            LuaError::external(format_err!("Invalid body {}", err))
+        })?;
+    trace!("C");
+
     let body = match res.content_type() {
         "application/json" => {
+            trace!("C1");
             let json: JsonValue = res.json().wait()
                 .map_err(|err| LuaError::external(err))?;
+            trace!("C2");
             rlua_serde::to_value(lua, json)
                 .map_err(|err| LuaError::external(err))
         },
         _ => {
-            let body = res.body()
-                .wait()
-                .map_err(|err| {
-                    LuaError::external(format_err!("Invalid body {}", err))
-                })?;
-            let body_string = String::from_utf8(body.iter().cloned().collect())
-                .map_err(|err| {
-                    LuaError::external(format_err!("Invalid body {}", err))
-                })?;
-
-            rlua_serde::to_value(lua, body_string)
+            trace!("C3");
+            rlua_serde::to_value(lua, body_string.clone())
         }
-    };
+    }?;
+    trace!("D");
 
-    body
+    let headers = lua.create_table()?;
+    trace!("E");
+
+    for (key, value) in res.headers().iter() {
+        if let Ok(value) = value.to_str() {
+            headers.set(key.as_str(), value)?;
+        }
+    }
+    trace!("F");
+
+    let lres = lua.create_table()?;
+    lres.set("status", res.status().as_u16())?;
+    lres.set("headers", headers)?;
+    lres.set("body", body)?;
+    lres.set("body_raw", body_string)?;
+    trace!("G");
+
+    Ok(lres)
 }
 
 /// For POST and PUT requests.
