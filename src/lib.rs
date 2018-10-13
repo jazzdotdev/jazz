@@ -54,7 +54,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     lua_bindings::crypto::init(lua)?;
     lua_bindings::stringset::init(lua)?;
     lua_bindings::time::init(lua)?;
-    lua_bindings::log::init(lua)?;
+    //lua_bindings::log::init(lua)?;
 
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
