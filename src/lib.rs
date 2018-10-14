@@ -70,7 +70,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     Ok(())
 }
 
-pub fn start () {
+pub fn start (log_settings: logger::Settings) {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name("Settings.toml")).unwrap();
     settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
@@ -85,7 +85,10 @@ pub fn start () {
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let app_path = get_or(&hashmap, "application", "./");
     let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
-
+    let log_path = get_or(&hashmap, "log_path", "log");
+    
+    logger::init(::std::path::Path::new(&log_path), log_settings);
+    log_panics::init();
 
     let sys = actix::System::new("torchbear");
     let tera = Arc::new(compile_templates!(&templates_path));
