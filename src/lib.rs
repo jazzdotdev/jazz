@@ -56,9 +56,10 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     bindings::stringset::init(lua)?;
     bindings::time::init(lua)?;
 
-    if cfg!(feature = "log_bindings") {
+    // Torchbear crashes if there's no log binding
+    //if cfg!(feature = "log_bindings") {
         bindings::log::init(lua)?;
-    }
+    //}
 
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"

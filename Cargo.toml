@@ -14,9 +14,9 @@ path = "src/main.rs"
 [patch.crates-io]
 openssl = { git = "https://github.com/ishitatsuyuki/rust-openssl", branch = "0.9.x" }
 
-[features]
-default = []
-log_bindings = []
+#[features]
+#default = []
+#log_bindings = []
 
 [dependencies]
 actix = "0.7"
