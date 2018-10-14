@@ -7,7 +7,7 @@ require "package_loader"
 
 -- try to trigger every rule. If the process failed give error 500
 utils.try(function()
-    events["requestProcess"]:trigger(request)
+    events["request_process"]:trigger(request)
     for k, v in pairs(rules) do
         v.rule(request, events)
     end
