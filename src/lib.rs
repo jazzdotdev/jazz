@@ -23,8 +23,6 @@ extern crate base64;
 extern crate config;
 extern crate chrono;
 #[macro_use]
-extern crate log;
-extern crate fern;
 extern crate log_panics;
 
 use std::sync::Arc;
@@ -36,7 +34,6 @@ use rlua::prelude::*;
 use std::collections::HashMap;
 
 mod lua_bindings;
-pub mod logger;
 
 mod app_state {
     pub struct AppState {
@@ -54,8 +51,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     lua_bindings::crypto::init(lua)?;
     lua_bindings::stringset::init(lua)?;
     lua_bindings::time::init(lua)?;
-    //lua_bindings::log::init(lua)?;
-
+    
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
@@ -65,7 +61,7 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     Ok(())
 }
 
-pub fn start (log_settings: logger::Settings) {
+pub fn start () {
     let mut settings = config::Config::new();
     settings.merge(config::File::with_name("Settings.toml")).unwrap();
     settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
@@ -80,10 +76,7 @@ pub fn start (log_settings: logger::Settings) {
     let host = get_or(&hashmap, "host", "0.0.0.0:3000");
     let app_path = get_or(&hashmap, "application", "./");
     let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
-    let log_path = get_or(&hashmap, "log_path", "log");
 
-    logger::init(::std::path::Path::new(&log_path), log_settings);
-    log_panics::init();
 
     let sys = actix::System::new("torchbear");
     let tera = Arc::new(compile_templates!(&templates_path));
@@ -109,6 +102,6 @@ pub fn start (log_settings: logger::Settings) {
         .unwrap()
         .start();
 
-    info!("Started http server: {}", &host);
+    println!("Started http server: localhost:3000");
     let _ = sys.run();
 }

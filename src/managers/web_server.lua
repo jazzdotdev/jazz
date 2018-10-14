@@ -1,6 +1,7 @@
 -- declare request and possible response
 local request = ctx.msg
 local possible_response
+local log = require "log"
 
 require "package_loader"
 
@@ -12,7 +13,7 @@ utils.try(function()
     end
 
 end, function(err)
-    log.err(err)
+    log.error(err)
     response = { 
         status = 500,
          body = '{ "error": ' .. "try-catch error" .. ' }',
