@@ -36,7 +36,7 @@ use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
 
-mod lua_bindings;
+mod bindings;
 pub mod logger;
 
 mod app_state {
@@ -47,15 +47,18 @@ mod app_state {
 }
 
 fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<(), LuaError> {
-    lua_bindings::tera::init(lua, tera)?;
-    lua_bindings::yaml::init(lua)?;
-    lua_bindings::uuid::init(lua)?;
-    lua_bindings::markdown::init(lua)?;
-    lua_bindings::client::init(lua)?;
-    lua_bindings::crypto::init(lua)?;
-    lua_bindings::stringset::init(lua)?;
-    lua_bindings::time::init(lua)?;
-    lua_bindings::log::init(lua)?;
+    bindings::tera::init(lua, tera)?;
+    bindings::yaml::init(lua)?;
+    bindings::uuid::init(lua)?;
+    bindings::markdown::init(lua)?;
+    bindings::client::init(lua)?;
+    bindings::crypto::init(lua)?;
+    bindings::stringset::init(lua)?;
+    bindings::time::init(lua)?;
+
+    if cfg!(feature = "log_bindings") {
+        bindings::log::init(lua)?;
+    }
 
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
@@ -105,7 +108,7 @@ pub fn start (log_settings: logger::Settings) {
 
     actix_server::new(move || {
         App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-            .default_resource(|r| r.with(lua_bindings::server::handler))
+            .default_resource(|r| r.with(bindings::server::handler))
     }).bind(&host)
         .unwrap()
         .start();

@@ -31,6 +31,7 @@ fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaTable> {
     let body = match res.content_type() {
         "application/json" => {
             trace!("C1");
+            // TODO: It's panicing for some reason. Grave.
             let json: JsonValue = res.json().wait()
                 .map_err(|err| LuaError::external(err))?;
             trace!("C2");

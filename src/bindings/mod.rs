@@ -7,4 +7,6 @@ pub mod crypto;
 pub mod stringset;
 pub mod server;
 pub mod time;
+
+//#[cfg(feature = "log_bindings")]
 pub mod log;
