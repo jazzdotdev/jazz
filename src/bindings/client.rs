@@ -8,59 +8,53 @@ use rlua::prelude::*;
 use rlua_serde;
 use serde_json::{Value as JsonValue};
 use rlua::{UserDataMethods, UserData};
+use actix_web::http::Method;
+use std::str::FromStr;
 
 fn map_actix_err(err: actix_web::Error) -> LuaError {
     LuaError::external(format_err!("actix_web error: {}", &err))
 }
 
 fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaTable> {
-    trace!("A");
     let body_data = res.body()
         .wait()
         .map_err(|err| {
             LuaError::external(format_err!("Invalid body {}", err))
         })?;
-    trace!("B");
 
     let body_string = String::from_utf8(body_data.iter().cloned().collect())
         .map_err(|err| {
             LuaError::external(format_err!("Invalid body {}", err))
         })?;
-    trace!("C");
 
-    let body = match res.content_type() {
+    /*let body = match res.content_type() {
         "application/json" => {
-            trace!("C1");
-            // TODO: It's panicing for some reason. Grave.
+            // TODO: When it reaches here it panics for some reason. Grave.
             let json: JsonValue = res.json().wait()
                 .map_err(|err| LuaError::external(err))?;
-            trace!("C2");
+    
             rlua_serde::to_value(lua, json)
                 .map_err(|err| LuaError::external(err))
         },
         _ => {
-            trace!("C3");
+    
             rlua_serde::to_value(lua, body_string.clone())
         }
-    }?;
-    trace!("D");
+    }?;*/
 
     let headers = lua.create_table()?;
-    trace!("E");
 
     for (key, value) in res.headers().iter() {
         if let Ok(value) = value.to_str() {
             headers.set(key.as_str(), value)?;
         }
     }
-    trace!("F");
 
     let lres = lua.create_table()?;
     lres.set("status", res.status().as_u16())?;
     lres.set("headers", headers)?;
-    lres.set("body", body)?;
+    //lres.set("body", body)?;
     lres.set("body_raw", body_string)?;
-    trace!("G");
 
     Ok(lres)
 }
@@ -109,8 +103,6 @@ unsafe impl Send for Builder {}
 
 impl UserData for Builder {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
-        use std::str::FromStr;
-        use actix_web::http::Method;
 
         methods.add_method_mut("method", |_, this, method: String| {
             this.0.borrow_mut().method(Method::from_str(&method).map_err(LuaError::external)?);
@@ -150,15 +142,108 @@ impl UserData for Builder {
     }
 }
 
+fn send_lua_request <'a> (lua: &'a Lua, val: LuaValue<'a>) -> LuaResult<LuaTable<'a>> {
+
+    let mut builder = ClientRequest::build();
+
+    let body = match val {
+        LuaValue::String(s) => {
+            builder.uri(s.to_str()?).method(Method::GET);
+            None
+        },
+        LuaValue::Table(table) => {
+            if let Some(method) = table.get::<_, Option<String>>("method")? {
+                builder.method(Method::from_str(&method).map_err(LuaError::external)?);
+            }
+
+            if let Some(uri) = table.get::<_, Option<String>>("uri")? {
+                builder.uri(&uri);
+            }
+
+            if let Some(headers) = table.get("headers")? {
+                set_headers(headers, &mut builder)?;
+            }
+
+            table.get("body")?
+        },
+        _ => {
+            return Err(LuaError::RuntimeError("Invalid arguments".to_string()))
+        }
+    };
+
+    let response = (match body {
+        Some(body) => set_body(body, &mut builder)?,
+        None => builder.finish().map_err(map_actix_err)?
+    }).send().wait().map_err(|err| {
+        LuaError::external(format_err!("Request failed: {}", err))
+    })?;
+
+    parse_response(lua, response)
+}
+
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     let table = lua.create_table()?;
-    table.set("build", lua.create_function(|_, _: ()| {
-        Ok(Builder(Rc::new(RefCell::new(ClientRequest::build()))))
-    })?)?;
+    table.set("send", lua.create_function(send_lua_request)?)?;
 
-    lua.globals().set("ClientRequest", table)?;
+    lua.globals().set("client_request", table)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lua_client_request () {
+        // TODO: I don't know how to make this work
+
+        use actix_lua::{LuaMessage, LuaActorBuilder};
+        use actix::Actor;
+
+        println!("A");
+        let code = ::actix::System::run(|| {
+            println!("B");
+            let addr = LuaActorBuilder::new().on_handle_with_lua(r#"
+                assert(false)
+
+                local response = client_request.send("https://jsonplaceholder.typicode.com/todos/1")
+
+                print("response", response)
+                for k, v in pairs(response) do
+                    print("", k, v)
+                    if type(v) == "table" then
+                        for k, v in pairs(v) do
+                            print("", "", k, v)
+                        end
+                    end
+                end
+
+                assert(response.status == 200)
+                assert(response.body.title == "delectus aut autem")
+
+                local response = client_request.send{
+                    uri = "https://jsonplaceholder.typicode.com/posts",
+                    method = "post",
+                    body = [[{
+                        "title": "foo",
+                        "body": "bar",
+                        "userId": "1"
+                    }]]
+                }
+                assert(response.status == 201)
+                assert(response.body.id == 101)
+                assert(response.body.title == "foo")
+
+                local response = client_request.send("https://jsonplaceholder.typicode.com/foo/bar")
+                assert(response.status == 404)
+            "#).build().unwrap().start();
+            println!("C");
+            let req = addr.send(LuaMessage::Nil).wait().unwrap();
+            println!("D");
+        });
+        println!("E");
+    }
 }

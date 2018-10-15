@@ -1,13 +1,12 @@
--- declare request and possible response
+-- declare request
 local request = ctx.msg
-local possible_response
 local log = require "log"
 
 require "package_loader"
 
 -- try to trigger every rule. If the process failed give error 500
 utils.try(function()
-    events["request_process"]:trigger(request)
+    events["incoming_request_received"]:trigger(request)
     for k, v in pairs(rules) do
         v.rule(request, events)
     end
@@ -20,10 +19,4 @@ end, function(err)
     }
 end)
 
-return returned_response
-
---- Rules priorities algorithm ---
---- 1. 1st line of rule file would be its priority in yaml
---- 2. Add this priority to rules table somehow
---- 3. Sort rules table from high to low
---- 4. Invoke it in proper order
+return response
