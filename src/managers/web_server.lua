@@ -8,6 +8,9 @@ require "package_loader"
 -- try to trigger every rule. If the process failed give error 500
 utils.try(function()
     for k, v in pairs(rules) do
+        -- v is rule require
+        -- so we can create method in rule file that returns info about parameters/arguments
+        -- with this info we could create object/table with all necessary parameters/arguments
         v.rule(request, events)
     end
 
