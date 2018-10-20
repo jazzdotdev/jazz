@@ -22,7 +22,7 @@ end)
 return returned_response
 
 --- Rules priorities algorithm ---
---- 1. 1st line of rule file would be its priority in yaml
---- 2. Add this priority to rules table somehow
+--- 1. 1st line of rule file would be its weight in yaml
+--- 2. Add this weight to rules table somehow
 --- 3. Sort rules table from high to low
 --- 4. Invoke it in proper order
