@@ -93,15 +93,15 @@ pub fn start (log_settings: logger::Settings) {
     let sys = actix::System::new("torchbear");
     let tera = Arc::new(compile_templates!(&templates_path));
 
+    let vm = Lua::new();
+    set_vm_globals(&vm, tera.clone(), &lua_prelude, &app_path);
+
     let shared_tera = tera.clone();
     let addr = Arbiter::start(move |_| {
         let tera = shared_tera;
         let lua_actor = LuaActorBuilder::new()
             .on_handle_with_lua(include_str!("managers/web_server.lua"))
-            .with_vm(move |vm| {
-                set_vm_globals(vm, tera.clone(), &lua_prelude, &app_path)
-            })
-            .build()
+            .build_with_vm(vm)
             .unwrap();
 
         lua_actor
