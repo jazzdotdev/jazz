@@ -85,8 +85,8 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
     table.insert("method".to_owned(), LuaMessage::String(request.method().to_string()));
     table.insert("headers".to_owned(), LuaMessage::Table(headers));
     table.insert("query".to_owned(), LuaMessage::Table(query));
-    table.insert("uri_host".to_owned(), host);
-    table.insert("uri_port".to_owned(), port);
+    table.insert("address".to_owned(), host);
+    table.insert("port".to_owned(), port);
 
     {
         let info = request.connection_info();
