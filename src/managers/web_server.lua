@@ -11,6 +11,7 @@ utils.try(function()
         -- v is rule require
         -- so we can create method in rule file that returns info about parameters/arguments
         -- with this info we could create object/table with all necessary parameters/arguments
+        
         v.rule(request, events)
     end
 
