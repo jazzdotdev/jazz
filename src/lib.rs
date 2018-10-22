@@ -70,50 +70,82 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
     Ok(())
 }
 
-pub fn start (log_settings: logger::Settings) {
-    let mut settings = config::Config::new();
-    settings.merge(config::File::with_name("Settings.toml")).unwrap();
-    settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
+pub struct ApplicationBuilder {
+    log_settings: logger::Settings,
+    with_debug: bool,
+}
 
-    let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
-
-    fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
-        map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
+impl ApplicationBuilder {
+    pub fn new () -> Self {
+        Self {
+            log_settings: logger::Settings{
+                level: logger::LevelFilter::Info,
+                everything: false,
+            },
+            with_debug: false,
+        }
     }
 
-    let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
-    let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-    let app_path = get_or(&hashmap, "application", "./");
-    let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
-    let log_path = get_or(&hashmap, "log_path", "log");
-    
-    logger::init(::std::path::Path::new(&log_path), log_settings);
-    log_panics::init();
+    pub fn log_level (&mut self, level: logger::Level) -> &mut Self {
+        self.log_settings.level = level.to_level_filter(); self
+    }
 
-    let sys = actix::System::new("torchbear");
-    let tera = Arc::new(compile_templates!(&templates_path));
+    pub fn log_everything (&mut self, b: bool) -> &mut Self {
+        self.log_settings.everything = b; self
+    }
 
-    let vm = Lua::new();
-    set_vm_globals(&vm, tera.clone(), &lua_prelude, &app_path);
+    pub fn with_debug (&mut self, b: bool) -> &mut Self {
+        self.with_debug = b; self
+    }
 
-    let shared_tera = tera.clone();
-    let addr = Arbiter::start(move |_| {
-        let tera = shared_tera;
-        let lua_actor = LuaActorBuilder::new()
-            .on_handle_with_lua(include_str!("managers/web_server.lua"))
-            .build_with_vm(vm)
-            .unwrap();
+    pub fn start (&mut self) {
+        let mut settings = config::Config::new();
+        settings.merge(config::File::with_name("Settings.toml")).unwrap();
+        settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
-        lua_actor
-    });
+        let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
 
-    actix_server::new(move || {
-        App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-            .default_resource(|r| r.with(bindings::server::handler))
-    }).bind(&host)
-        .unwrap()
-        .start();
+        fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
+            map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
+        }
 
-    println!("Started http server: localhost:3000");
-    let _ = sys.run();
+        let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
+        let host = get_or(&hashmap, "host", "0.0.0.0:3000");
+        let app_path = get_or(&hashmap, "application", "./");
+        let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
+        let log_path = get_or(&hashmap, "log_path", "log");
+        
+        logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
+        log_panics::init();
+
+        let sys = actix::System::new("torchbear");
+        let tera = Arc::new(compile_templates!(&templates_path));
+
+        let vm = if self.with_debug {
+            warn!("Lua debug library enabled. By default it's disabled because it can have unpredictable behaviour.");
+            unsafe { Lua::new_with_debug() }
+        } else { Lua::new() };
+        set_vm_globals(&vm, tera.clone(), &lua_prelude, &app_path);
+
+        let shared_tera = tera.clone();
+        let addr = Arbiter::start(move |_| {
+            let tera = shared_tera;
+            let lua_actor = LuaActorBuilder::new()
+                .on_handle_with_lua(include_str!("managers/web_server.lua"))
+                .build_with_vm(vm)
+                .unwrap();
+
+            lua_actor
+        });
+
+        actix_server::new(move || {
+            App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
+                .default_resource(|r| r.with(bindings::server::handler))
+        }).bind(&host)
+            .unwrap()
+            .start();
+
+        println!("Started http server: localhost:3000");
+        let _ = sys.run();
+    }
 }
