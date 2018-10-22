@@ -46,19 +46,43 @@ mod app_state {
     }
 }
 
-fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<(), LuaError> {
-    bindings::tera::init(lua, tera)?;
-    bindings::yaml::init(lua)?;
-    bindings::uuid::init(lua)?;
-    bindings::markdown::init(lua)?;
-    bindings::client::init(lua)?;
-    bindings::crypto::init(lua)?;
-    bindings::stringset::init(lua)?;
-    bindings::time::init(lua)?;
+fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, LuaError> {
+    let lua = unsafe { Lua::new_with_debug() };
+
+    lua.exec::<_, ()>(r#"
+        -- The debug library is unpredictable in some cases,
+        -- only include the safe parts.
+
+        -- Modify the table itself instead of setting the
+        -- global field, because it can also be required.
+
+        local to_remove = {}
+
+        for k, _ in pairs(debug) do
+            if  k ~= "traceback"
+            and k ~= "getinfo"
+            then
+                table.insert(to_remove, k)
+            end
+        end
+
+        for _, k in ipairs(to_remove) do
+            debug[k] = nil
+        end
+    "#, None)?;
+
+    bindings::tera::init(&lua, tera)?;
+    bindings::yaml::init(&lua)?;
+    bindings::uuid::init(&lua)?;
+    bindings::markdown::init(&lua)?;
+    bindings::client::init(&lua)?;
+    bindings::crypto::init(&lua)?;
+    bindings::stringset::init(&lua)?;
+    bindings::time::init(&lua)?;
 
     // Torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
-        bindings::log::init(lua)?;
+        bindings::log::init(&lua)?;
     //}
     
     // Lua Bridge
@@ -67,12 +91,11 @@ fn set_vm_globals(lua: &Lua, tera: Arc<Tera>, lua_prelude: &str, app_path: &str)
         require "prelude"
     "#, lua_prelude, app_path), None)?;
 
-    Ok(())
+    Ok(lua)
 }
 
 pub struct ApplicationBuilder {
     log_settings: logger::Settings,
-    with_debug: bool,
 }
 
 impl ApplicationBuilder {
@@ -81,8 +104,7 @@ impl ApplicationBuilder {
             log_settings: logger::Settings{
                 level: logger::LevelFilter::Info,
                 everything: false,
-            },
-            with_debug: false,
+            }
         }
     }
 
@@ -92,10 +114,6 @@ impl ApplicationBuilder {
 
     pub fn log_everything (&mut self, b: bool) -> &mut Self {
         self.log_settings.everything = b; self
-    }
-
-    pub fn with_debug (&mut self, b: bool) -> &mut Self {
-        self.with_debug = b; self
     }
 
     pub fn start (&mut self) {
@@ -121,11 +139,7 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = if self.with_debug {
-            warn!("Lua debug library enabled. By default it's disabled because it can have unpredictable behaviour.");
-            unsafe { Lua::new_with_debug() }
-        } else { Lua::new() };
-        set_vm_globals(&vm, tera.clone(), &lua_prelude, &app_path);
+        let vm = create_vm(tera.clone(), &lua_prelude, &app_path).unwrap();
 
         let shared_tera = tera.clone();
         let addr = Arbiter::start(move |_| {
@@ -134,7 +148,6 @@ impl ApplicationBuilder {
                 .on_handle_with_lua(include_str!("managers/web_server.lua"))
                 .build_with_vm(vm)
                 .unwrap();
-
             lua_actor
         });
 

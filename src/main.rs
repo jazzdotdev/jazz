@@ -21,10 +21,6 @@ fn main() {
            .help("Wether to log everything in the dependency tree")
            .default_value("torchbear")
            .takes_value(true))
-        .arg(Arg::with_name("with debug")
-           .long("with-debug")
-           .help("Enable the lua debug library (unsafe)")
-           .takes_value(false))
         .get_matches();
 
     torchbear_lib::ApplicationBuilder::new()
@@ -47,6 +43,5 @@ fn main() {
                 std::process::exit(1)
             }
         })
-        .with_debug(matches.is_present("with debug"))
         .start()
 }
