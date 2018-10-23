@@ -23,29 +23,25 @@ fn main() {
            .takes_value(true))
         .get_matches();
 
-    let log_level = match matches.value_of("log").unwrap() {
-        "error" => log::LevelFilter::Error,
-        "warn" => log::LevelFilter::Warn,
-        "info" => log::LevelFilter::Info,
-        "debug" => log::LevelFilter::Debug,
-        "trace" => log::LevelFilter::Trace,
-        l => {
-              println!("{} is not a valid log level, available levels are:\n\terror, warn, info, debug or trace", l);
-            std::process::exit(1)
-        }
-    };
-
-    let log_everything = match matches.value_of("log scope").unwrap() {
-          "torchbear" => false,
-        "everything" => true,
-        l => {
-              println!("{} is not a valid log scope, available levels are 'torchbear' and 'everything'", l);
-            std::process::exit(1)
-        }
-    };
-
-    torchbear_lib::start(torchbear_lib::logger::Settings{
-        level: log_level,
-      everything: log_everything,
-    });
+    torchbear_lib::ApplicationBuilder::new()
+        .log_level(match matches.value_of("log").unwrap() {
+            "error" => log::Level::Error,
+            "warn" => log::Level::Warn,
+            "info" => log::Level::Info,
+            "debug" => log::Level::Debug,
+            "trace" => log::Level::Trace,
+            l => {
+                println!("{} is not a valid log level, available levels are:\n\terror, warn, info, debug or trace", l);
+                std::process::exit(1)
+            }
+        })
+        .log_everything(match matches.value_of("log scope").unwrap() {
+            "torchbear" => false,
+            "everything" => true,
+            l => {
+                println!("{} is not a valid log scope, available levels are 'torchbear' and 'everything'", l);
+                std::process::exit(1)
+            }
+        })
+        .start()
 }
