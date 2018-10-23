@@ -26,6 +26,9 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
     let host = request.uri().host()
         .map(|host| LuaMessage::String(host.to_owned()))
         .unwrap_or(LuaMessage::Nil);
+    let port = request.uri().port()
+        .map(|port| LuaMessage::Number(port as f64))
+        .unwrap_or(LuaMessage::Nil);
     let fragment = request.uri().to_string()
         .rsplit("#")
         .next()
@@ -77,11 +80,23 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
         _ => LuaMessage::String(body.clone())
     });
 
+
     table.insert("request_line".to_owned(), LuaMessage::String(request_line));
     table.insert("method".to_owned(), LuaMessage::String(request.method().to_string()));
     table.insert("headers".to_owned(), LuaMessage::Table(headers));
     table.insert("query".to_owned(), LuaMessage::Table(query));
-    table.insert("host".to_owned(), host);
+    table.insert("address".to_owned(), host);
+    table.insert("port".to_owned(), port);
+
+    {
+        let info = request.connection_info();
+        table.insert("scheme".to_owned(), LuaMessage::String(info.scheme().to_string()));
+        table.insert("host".to_owned(), LuaMessage::String(info.host().to_string()));
+        if let Some(remote) = info.remote() {
+            table.insert("remote".to_owned(), LuaMessage::String(remote.to_string()));
+        }
+    }
+
     table.insert("fragment".to_owned(), fragment);
     table.insert("path".to_owned(), LuaMessage::String(path));
     table.insert("body_raw".to_owned(), LuaMessage::String(body));
