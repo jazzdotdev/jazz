@@ -51,10 +51,10 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
 
     lua.exec::<_, ()>(r#"
         -- The debug library is unpredictable in some cases,
-        -- only include the safe parts.
+        -- so we only include the safe parts.
 
         -- Modify the table itself instead of setting the
-        -- global field, because it can also be required.
+        -- global field, because debug can also be required.
 
         local to_remove = {}
 
@@ -84,11 +84,26 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
     //if cfg!(feature = "log_bindings") {
         bindings::log::init(&lua)?;
     //}
-    
+
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
-        require "prelude"
+
+        _G.torchbear = {{}}
+
+        xpcall(function ()
+            local handler = require("launcher")
+            if handler and handler ~= true then
+                torchbear.handler = handler
+            end
+        end, function (msg)
+            local trace = debug.traceback(msg, 3)
+            log.error(trace)
+        end)        
+
+        if not torchbear.handler then
+            log.error("No handler specified")
+        end
     "#, lua_prelude, app_path), None)?;
 
     Ok(lua)
