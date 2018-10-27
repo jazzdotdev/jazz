@@ -1,3 +1,5 @@
+
+
 -- Set the default response
 torchbear.response = nil
 
@@ -25,3 +27,4 @@ end, function (msg)
 end)
 
 -- The returned values from this handler is the response
+return torchbear.response
