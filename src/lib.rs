@@ -73,6 +73,7 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
 
     bindings::tera::init(&lua, tera)?;
     bindings::yaml::init(&lua)?;
+    bindings::json::init(&lua)?;
     bindings::uuid::init(&lua)?;
     bindings::markdown::init(&lua)?;
     bindings::client::init(&lua)?;
