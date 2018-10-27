@@ -39,6 +39,31 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         })
     })? )?;
 
+    module.set("metadata", lua.create_function( |lua, path: String| {
+        match metadata(path) {
+            Ok(md) => {
+                let table = lua.create_table()?;
+
+                table.set("type", {
+                    let file_type = md.file_type();
+                    if file_type.is_file() { "file" }
+                    else if file_type.is_dir() { "directory" }
+                    else { unreachable!() }
+                })?;
+
+                table.set("size", md.len())?;
+
+                // TODO: Unix permissions when in Unix
+                table.set("readonly", md.permissions().readonly())?;
+
+                // TODO: modified, created and accesed timestamps
+
+                Ok(Some(table))
+            },
+            _ => Ok(None)
+        }
+    })? )?;
+
     lua.globals().set("fs", module)?;
 
     Ok(())
@@ -55,7 +80,8 @@ mod tests {
 
         lua.exec::<_, ()>(r#"
             for entry in fs.entries("./") do
-                print(entry)
+                local md = fs.metadata(entry)
+                print(md.type .. ": " .. entry)
             end
         "#, None).unwrap();
     }
