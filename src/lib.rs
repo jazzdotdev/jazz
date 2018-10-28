@@ -151,7 +151,7 @@ impl ApplicationBuilder {
         let log_path = get_or(&hashmap, "log_path", "log");
         
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
-        log_panics::init();
+        //log_panics::init();
 
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(compile_templates!(&templates_path));
