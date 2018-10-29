@@ -62,36 +62,81 @@ impl Node {
     fn to_node<'a>(&'a self) -> select::node::Node<'a> {
         select::node::Node::new(&self.document.0, self.index).unwrap()
     }
-    fn parent(&self) -> Option<Self> {
-        self.to_node().parent().map(|p| Node {
+    fn with_index<'a>(&self, index: usize) -> Self {
+        Node {
             document: self.document.clone(),
-            index: p.index(),
-        })
+            index,
+        }
     }
+    fn parent(&self) -> Option<Self> {
+        self.to_node().parent().map(|p| self.with_index(p.index()))
+    }
+    fn prev(&self) -> Option<Self> {
+        self.to_node().prev().map(|p| self.with_index(p.index()))
+    }
+    fn next(&self) -> Option<Self> {
+        self.to_node().next().map(|p| self.with_index(p.index()))
+    }
+    fn first_child(&self) -> Option<Self> {
+        self.to_node()
+            .first_child()
+            .map(|p| self.with_index(p.index()))
+    }
+    fn last_child(&self) -> Option<Self> {
+        self.to_node()
+            .last_child()
+            .map(|p| self.with_index(p.index()))
+    }
+}
+
+fn to_owned(op: Option<&str>) -> Option<String> {
+    op.map(|s| s.to_owned())
 }
 
 impl UserData for Node {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_method("text", |_, this, _: ()| Ok(this.to_node().text()));
-
-        methods.add_method("attr", |_, this, s: String| match this.to_node().attr(&s) {
-            None => Ok(None),
-            Some(s) => Ok(Some(s.to_owned())),
+        methods.add_method("index", |_, this, _: ()| Ok(this.to_node().index()));
+        methods.add_method("name", |_, this, _: ()| Ok(to_owned(this.to_node().name())));
+        methods.add_method("attr", |_, this, s: String| {
+            Ok(to_owned(this.to_node().attr(&s)))
         });
-
-        methods.add_method("html", |_, this, _: ()| Ok(this.to_node().html()));
-
         methods.add_method("parent", |_, this, _: ()| Ok(this.parent()));
+        methods.add_method("prev", |_, this, _: ()| Ok(this.prev()));
+        methods.add_method("next", |_, this, _: ()| Ok(this.next()));
+        methods.add_method("first_child", |_, this, _: ()| Ok(this.first_child()));
+        methods.add_method("last_child", |_, this, _: ()| Ok(this.last_child()));
+        methods.add_method("text", |_, this, _: ()| Ok(this.to_node().text()));
+        methods.add_method("html", |_, this, _: ()| Ok(this.to_node().html()));
+        methods.add_method("inner_html", |_, this, _: ()| {
+            Ok(this.to_node().inner_html())
+        });
+        methods.add_method("as_text", |_, this, _: ()| {
+            Ok(to_owned(this.to_node().as_text()))
+        });
+        methods.add_method("as_comment", |_, this, _: ()| {
+            Ok(to_owned(this.to_node().as_comment()))
+        });
 
         methods.add_method("find", |_, this, val: rlua::Value| {
             let pred: Predicate = rlua_serde::from_value(val)?;
             let vec: Vec<_> = this
                 .to_node()
                 .find(pred)
-                .map(|node| Node {
-                    document: this.document.clone(),
-                    index: node.index(),
-                }).collect();
+                .map(|p| this.with_index(p.index()))
+                .collect();
+            Ok(vec)
+        });
+        methods.add_method("is", |_, this, val: rlua::Value| {
+            let pred: Predicate = rlua_serde::from_value(val)?;
+            Ok(this.to_node().is(pred))
+        });
+
+        methods.add_method("children", |_, this, _: ()| {
+            let vec: Vec<_> = this.to_node().children().map(|p| this.with_index(p.index())).collect();
+            Ok(vec)
+        });
+        methods.add_method("descendants", |_, this, _: ()| {
+            let vec: Vec<_> = this.to_node().descendants().map(|p| this.with_index(p.index())).collect();
             Ok(vec)
         });
     }
@@ -281,6 +326,7 @@ mod tests {
         let lua = Lua::new();
         super::init(&lua).unwrap();
         lua.globals().set("html", html).unwrap();
-        lua.exec::<_, Value>(include_str!("stackoverflow_scraper.lua"), None).unwrap();
+        lua.exec::<_, Value>(include_str!("stackoverflow_scraper.lua"), None)
+            .unwrap();
     }
 }
