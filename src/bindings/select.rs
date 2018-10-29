@@ -309,8 +309,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
 #[cfg(test)]
 mod tests {
-    use rlua::prelude::*;
-    use rlua::{FromLua, Lua, MetaMethod, Table, UserData, UserDataMethods, Value};
+    use rlua::{Lua, Value};
 
     #[test]
     fn test() {
