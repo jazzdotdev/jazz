@@ -1,5 +1,3 @@
-#![warn(warnings)]
-
 use rlua;
 use rlua::prelude::*;
 use rlua::{Lua, UserData, UserDataMethods};
@@ -59,10 +57,10 @@ struct Node {
 }
 
 impl Node {
-    fn to_node<'a>(&'a self) -> select::node::Node<'a> {
+    fn to_node(&self) -> select::node::Node {
         select::node::Node::new(&self.document.0, self.index).unwrap()
     }
-    fn with_index<'a>(&self, index: usize) -> Self {
+    fn with_index(&self, index: usize) -> Self {
         Node {
             document: self.document.clone(),
             index,
@@ -132,11 +130,19 @@ impl UserData for Node {
         });
 
         methods.add_method("children", |_, this, _: ()| {
-            let vec: Vec<_> = this.to_node().children().map(|p| this.with_index(p.index())).collect();
+            let vec: Vec<_> = this
+                .to_node()
+                .children()
+                .map(|p| this.with_index(p.index()))
+                .collect();
             Ok(vec)
         });
         methods.add_method("descendants", |_, this, _: ()| {
-            let vec: Vec<_> = this.to_node().descendants().map(|p| this.with_index(p.index())).collect();
+            let vec: Vec<_> = this
+                .to_node()
+                .descendants()
+                .map(|p| this.with_index(p.index()))
+                .collect();
             Ok(vec)
         });
     }
