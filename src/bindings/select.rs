@@ -74,6 +74,11 @@ impl UserData for Node {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("text", |_, this, _: ()| Ok(this.to_node().text()));
 
+        methods.add_method("attr", |_, this, s: String| match this.to_node().attr(&s) {
+            None => Ok(None),
+            Some(s) => Ok(Some(s.to_owned())),
+        });
+
         methods.add_method("html", |_, this, _: ()| Ok(this.to_node().html()));
 
         methods.add_method("parent", |_, this, _: ()| Ok(this.parent()));
@@ -156,6 +161,94 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    select.set(
+        "class",
+        lua.create_function(|lua, text: String| {
+            let pred = Predicate::Class(text);
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "attr",
+        lua.create_function(|lua, args: (String, Option<String>)| {
+            let pred = Predicate::Attr(args.0, args.1);
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+
+    select.set(
+        "any",
+        lua.create_function(|lua, _: ()| {
+            let pred = Predicate::Any;
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "text",
+        lua.create_function(|lua, _: ()| {
+            let pred = Predicate::Text;
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "element",
+        lua.create_function(|lua, _: ()| {
+            let pred = Predicate::Element;
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "comment",
+        lua.create_function(|lua, _: ()| {
+            let pred = Predicate::Comment;
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+
+    select.set(
+        "not",
+        lua.create_function(|lua, pred: rlua::Value| {
+            let pred: Predicate = rlua_serde::from_value(pred)?;
+            let pred = Predicate::Not(Box::new(pred));
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "and",
+        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+            let a: Predicate = rlua_serde::from_value(a)?;
+            let b: Predicate = rlua_serde::from_value(b)?;
+            let pred = Predicate::And(Box::new(a), Box::new(b));
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "or",
+        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+            let a: Predicate = rlua_serde::from_value(a)?;
+            let b: Predicate = rlua_serde::from_value(b)?;
+            let pred = Predicate::Or(Box::new(a), Box::new(b));
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "child",
+        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+            let a: Predicate = rlua_serde::from_value(a)?;
+            let b: Predicate = rlua_serde::from_value(b)?;
+            let pred = Predicate::Child(Box::new(a), Box::new(b));
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
+    select.set(
+        "descendant",
+        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+            let a: Predicate = rlua_serde::from_value(a)?;
+            let b: Predicate = rlua_serde::from_value(b)?;
+            let pred = Predicate::Descendant(Box::new(a), Box::new(b));
+            rlua_serde::to_value(lua, &pred)
+        })?,
+    )?;
 
     let globals = lua.globals();
     globals.set("select", select)?;
@@ -180,5 +273,14 @@ mod tests {
         "#,
             None,
         ).unwrap();
+    }
+
+    #[test]
+    fn stackoverflow_scraper() {
+        let html = include_str!("stackoverflow.html");
+        let lua = Lua::new();
+        super::init(&lua).unwrap();
+        lua.globals().set("html", html).unwrap();
+        lua.exec::<_, Value>(include_str!("stackoverflow_scraper.lua"), None).unwrap();
     }
 }
