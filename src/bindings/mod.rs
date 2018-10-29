@@ -9,6 +9,7 @@ pub mod stringset;
 pub mod server;
 pub mod time;
 pub mod fs;
+pub mod select;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]

@@ -27,6 +27,7 @@ extern crate log;
 extern crate fern;
 extern crate colored;
 extern crate log_panics;
+extern crate select;
 
 use std::sync::Arc;
 use actix::prelude::*;

@@ -41,3 +41,4 @@ log = "0.4.5"
 fern = { version = "0.5", features = ["colored"] }
 colored = "1.6.1"
 log-panics = "2.0"
+select = "0.4"
