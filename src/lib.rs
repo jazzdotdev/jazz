@@ -28,6 +28,8 @@ extern crate fern;
 extern crate colored;
 extern crate log_panics;
 extern crate select;
+#[macro_use]
+extern crate serde_derive;
 
 use std::sync::Arc;
 use actix::prelude::*;
