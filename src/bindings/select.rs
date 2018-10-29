@@ -6,6 +6,7 @@ use select::node::Raw;
 use std::mem;
 use std::sync::Arc;
 
+/// Please read `select`'s documentation to know the meanings of each variants.
 #[derive(Serialize, Deserialize)]
 enum Predicate {
     Any,
@@ -51,6 +52,12 @@ impl select::predicate::Predicate for Predicate {
     }
 }
 
+/// The way `select::node::Node` is defined makes it impossible to use it in LUA bindings.
+/// Therefore here we need to redefine it.
+/// The difference is:
+/// - In `select::node::Node`, `document` is a reference, so the lifetime is statically managed by
+/// Rust.
+/// - Here, `document` is a reference counter - `std::sync::Arc`.
 struct Node {
     document: Document,
     index: usize,
@@ -151,6 +158,11 @@ impl UserData for Node {
 #[derive(Clone)]
 struct Document(Arc<select::document::Document>);
 
+/// `select.rs` uses `Tendril`, a kind of shared buffer and is not `Send` by default.
+/// `rlua` requires `Document` and `Node` to be `Send`, so here we need to call `into_send()`
+/// to make the inner data `Send`.
+/// `into_send()` returns `SendTendril`, which is a wrapper of `Tendril`,
+/// so here we use transmute to convert the type.
 fn into_send(raw: &mut Raw) {
     use select::node::Data;
     match raw.data {
@@ -172,12 +184,14 @@ impl Document {
     fn from_str(text: &str) -> Document {
         let mut doc = select::document::Document::from(text);
         for raw in &mut doc.nodes {
+            // This line is important
             into_send(raw);
         }
         Document(Arc::new(doc))
     }
 }
 
+/// Each elements in `Document` must be passed through `into_send()` to make this safe.
 unsafe impl Send for Document {}
 
 impl UserData for Document {
@@ -205,6 +219,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         lua.create_function(|_, text: String| Ok(Document::from_str(text.as_str())))?,
     )?;
 
+    // Create `Name` predicate
     select.set(
         "name",
         lua.create_function(|lua, text: String| {
@@ -212,6 +227,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Class` predicate
     select.set(
         "class",
         lua.create_function(|lua, text: String| {
@@ -219,6 +235,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Attr` predicate
     select.set(
         "attr",
         lua.create_function(|lua, args: (String, Option<String>)| {
@@ -226,7 +243,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
-
+    // Create `Any` predicate
     select.set(
         "any",
         lua.create_function(|lua, _: ()| {
@@ -234,6 +251,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Text` predicate
     select.set(
         "text",
         lua.create_function(|lua, _: ()| {
@@ -241,6 +259,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Element` predicate
     select.set(
         "element",
         lua.create_function(|lua, _: ()| {
@@ -248,6 +267,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Comment` predicate
     select.set(
         "comment",
         lua.create_function(|lua, _: ()| {
@@ -256,6 +276,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         })?,
     )?;
 
+    // Create `Not` predicate
     select.set(
         "not",
         lua.create_function(|lua, pred: rlua::Value| {
@@ -264,6 +285,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `And` predicate
     select.set(
         "and",
         lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
@@ -273,6 +295,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Or` predicate
     select.set(
         "or",
         lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
@@ -282,6 +305,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Child` predicate
     select.set(
         "child",
         lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
@@ -291,6 +315,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             rlua_serde::to_value(lua, &pred)
         })?,
     )?;
+    // Create `Descendant` predicate
     select.set(
         "descendant",
         lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
