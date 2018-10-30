@@ -6,6 +6,7 @@ authors = ["Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>"]
 repository = "https://github.com/foundpatterns/torchbear"
 readme = "Readme.md"
 keywords = ["actix", "lua", "cryptography", "web", "frameworkd"]
+license = "none"
 categories = ["network-programming", "asynchronous",
               "web-programming::http-server",
               "web-programming::http-client"]
