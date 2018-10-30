@@ -5,10 +5,10 @@ extern crate log;
 use clap::{Arg, App as ClapApp};
 
 fn main() {
-    let matches = ClapApp::new("actix-lua-web")
-        .version("0.1")
-        .author("Kevin K. <kbknapp@gmail.com>")
-        .about("Does awesome things")
+    let matches = ClapApp::new("torchbear")
+        .version("0.2.0")
+        .author("Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>")
+        .about("TorchBear Application Framework")
                 .arg(Arg::with_name("log")
            .long("log")
            .value_name("LEVEL")
@@ -18,7 +18,7 @@ fn main() {
         .arg(Arg::with_name("log scope")
            .long("log-scope")
            .value_name("SCOPE")
-           .help("Wether to log everything in the dependency tree")
+           .help("Whether to log everything in the dependency tree")
            .default_value("torchbear")
            .takes_value(true))
         .get_matches();
