@@ -5,6 +5,7 @@ use select;
 use select::node::Raw;
 use std::mem;
 use std::sync::Arc;
+use rlua_serde;
 
 /// Please read `select`'s documentation to know the meanings of each variants.
 #[derive(Serialize, Deserialize)]
@@ -327,7 +328,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     )?;
 
     let globals = lua.globals();
-    globals.set("select", select)?;
+    globals.set("hquery", select)?;
 
     Ok(())
 }
@@ -342,21 +343,11 @@ mod tests {
         super::init(&lua).unwrap();
         lua.exec::<_, Value>(
             r#"
-        local doc = select.document("<p>hello</p>")
-        local vec = doc:find(select.name("p"))
+        local doc = hquery.document("<p>hello</p>")
+        local vec = doc:find(hquery.name("p"))
         assert(vec[1]:text() == "hello")
         "#,
             None,
         ).unwrap();
-    }
-
-    #[test]
-    fn stackoverflow_scraper() {
-        let html = include_str!("stackoverflow.html");
-        let lua = Lua::new();
-        super::init(&lua).unwrap();
-        lua.globals().set("html", html).unwrap();
-        lua.exec::<_, Value>(include_str!("stackoverflow_scraper.lua"), None)
-            .unwrap();
     }
 }
