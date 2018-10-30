@@ -2,7 +2,7 @@ extern crate torchbear_lib;
 extern crate clap;
 extern crate log;
 
-use clap::{Arg, App as ClapApp, SubCommand};
+use clap::{Arg, App as ClapApp};
 
 fn main() {
     let matches = ClapApp::new("actix-lua-web")

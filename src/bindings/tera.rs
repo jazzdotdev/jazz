@@ -9,16 +9,16 @@ fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<Tera
 
     for (key, value) in table.iter() {
         match value {
-            LuaValue::Integer(num) => context.add(key, num),
-            LuaValue::Number(num) => context.add(key, num),
-            LuaValue::String(string) => context.add(key, string.to_str()?),
-            LuaValue::Boolean(boolean) => context.add(key, boolean),
+            LuaValue::Integer(num) => context.insert(key, num),
+            LuaValue::Number(num) => context.insert(key, num),
+            LuaValue::String(string) => context.insert(key, string.to_str()?),
+            LuaValue::Boolean(boolean) => context.insert(key, boolean),
             value @ LuaValue::Table(_) => {
                 let value: JsonValue = rlua_serde::from_value(value.clone())
                     .map_err(|err| LuaError::external(err))?;
-                context.add(key, &value);
+                context.insert(key, &value);
             },
-            LuaValue::Nil => context.add(key, &()),
+            LuaValue::Nil => context.insert(key, &()),
             value @ _ => unimplemented!("Value {:?} is not implemented as a template parameter", value),
         }
     }

@@ -142,7 +142,7 @@ impl ApplicationBuilder {
         settings.merge(config::File::with_name("Settings.toml")).unwrap();
         settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
-        let hashmap = settings.deserialize::<HashMap<String, String>>().unwrap();
+        let hashmap = settings.try_into::<HashMap<String, String>>().unwrap();
 
         fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
             map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
@@ -162,9 +162,7 @@ impl ApplicationBuilder {
 
         let vm = create_vm(tera.clone(), &lua_prelude, &app_path).unwrap();
 
-        let shared_tera = tera.clone();
         let addr = Arbiter::start(move |_| {
-            let tera = shared_tera;
             let lua_actor = LuaActorBuilder::new()
                 .on_handle_with_lua(include_str!("managers/web_server.lua"))
                 .build_with_vm(vm)
