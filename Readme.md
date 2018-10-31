@@ -1,3 +1,3 @@
-# TorchBear
+# torchbear
 
 Rust Lua application framework
