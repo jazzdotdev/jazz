@@ -49,7 +49,7 @@ deploy:
   description: 'Torchbear deployment'
   artifact: /.*\.zip/
   auth_token:
-    secure: <KEY>
+    secure: 7/nootummDlhW0sADmBugjBYuF/GtNnnmwvT5PSztNWPpkyHU/wL6BAC/w5VHcJ9
   provider: GitHub
   tag: torchbear-v$(APPVEYOR_BUILD_VERSION)
   on:
