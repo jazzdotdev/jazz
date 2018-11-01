@@ -1,0 +1,62 @@
+os: Visual Studio 2015
+
+cache:
+  - c:\cargo\registry
+  - c:\cargo\git
+
+init:
+  - mkdir c:\cargo
+  - mkdir c:\rustup
+  - SET PATH=c:\cargo\bin;%PATH%
+
+clone_folder: c:\projects\torchbear
+
+environment:
+  CARGO_HOME: "c:\\cargo"
+  RUSTUP_HOME: "c:\\rustup"
+  CARGO_TARGET_DIR: "c:\\projects\\torchbear\\target"
+  global:
+    PROJECT_NAME: torchbear
+    RUST_BACKTRACE: full
+  matrix:
+    - TARGET: x86_64-pc-windows-msvc
+      CHANNEL: stable
+      BITS: 64
+      
+matrix:
+  fast_finish: true
+
+# (Based on from https://github.com/rust-lang/libc/blob/master/appveyor.yml)
+install:
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %TARGET%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
+  - rustc -V
+  - cargo -V
+  - set "RUSTFLAGS=-C target-feature=+crt-static"
+
+build: false
+
+before_deploy:
+  - cargo build --release
+  - mkdir release
+  - copy target\release\torchbear.exe release
+  - cd release
+  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *
+  - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip
+
+deploy:
+  description: 'Torchbear deployment'
+  artifact: /.*\.zip/
+  auth_token:
+    secure: <KEY>
+  provider: GitHub
+  tag: torchbear-v$(APPVEYOR_BUILD_VERSION)
+  on:
+    CHANNEL: stable
+    appveyor_repo_tag: false
+
+branches:
+  only:
+    - master
+    - /^v\d+\.\d+\.\d+.*$/

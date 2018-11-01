@@ -1,0 +1,22 @@
+language: rust
+sudo: required
+os:
+- linux
+rust:
+- stable
+services:
+- docker
+before_install:
+- chmod +x build.sh
+before_deploy: "./build.sh torchbear ${TRAVIS_OS_NAME}"
+deploy:
+  provider: releases
+  api_key:
+    secure: "<KEY>"
+  file_glob: true
+  file: "torchbear-${TRAVIS_OS_NAME}.*"
+  skip_cleanup: true
+  on:
+    repo: foundpatterns/torchbear
+    rust: stable
+  
