@@ -180,7 +180,7 @@ mod tests {
             assert(c:contains("Canada"))
             assert(not c:contains("Colombia"))
 
-            c = a:symmetric_difference(b)
+            c = a:symmetric(b)
             assert(#c == 4)
             assert(c:contains("Canada"))
             assert(c:contains("Venezuela"))
