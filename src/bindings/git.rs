@@ -15,6 +15,34 @@ fn git_add(repo: &str, paths: &Vec<String>) -> Result<(), git2::Error> {
     Ok(())
 }
 
+/// repo: Repository's path
+/// message: commit message
+/// sig: pair of (name, email). If is None, will try to use repo's config.
+fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> Result<(), git2::Error> {
+    let repo = git2::Repository::open(&repo)?;
+    let sig = if let Some((name, email)) = sig {
+        git2::Signature::now(&name, &email)?
+    } else {
+        repo.signature()?
+    };
+    if let Ok(head) = repo.head() {
+        // Not first commit
+        let head = head.target().unwrap();
+        let head = repo.find_commit(head)?;
+        let mut index = repo.index()?;
+        let id = index.write_tree()?;
+        let tree = repo.find_tree(id)?;
+        repo.commit(Some("HEAD"), &sig, &sig, message, &tree, &[&head])?;
+    } else {
+        // First commit
+        let mut index = repo.index()?;
+        let id = index.write_tree()?;
+        let tree = repo.find_tree(id)?;
+        repo.commit(Some("HEAD"), &sig, &sig, message, &tree, &[])?;
+    }
+    Ok(())
+}
+
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let git = lua.create_table()?;
 
@@ -28,6 +56,20 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         lua.create_function(|_, (repo, paths): (String, Vec<String>)| {
             Ok(git_add(&repo, &paths).is_ok())
         })?,
+    )?;
+
+    git.set(
+        "commit",
+        lua.create_function(
+            |_, (repo, message, name, email): (String, String, Option<String>, Option<String>)| {
+                let sig = if name.is_some() && email.is_some() {
+                    Some((name.unwrap(), email.unwrap()))
+                } else {
+                    None
+                };
+                Ok(git_commit(&repo, &message, sig).is_ok())
+            },
+        )?,
     )?;
 
     let globals = lua.globals();
@@ -54,5 +96,15 @@ mod tests {
         lua.exec::<_, Value>(r#"assert(git.add("repo", {"file"}) == true)"#, None)
             .unwrap();
         assert!(repo.status_file("file".as_ref()).unwrap().is_index_new());
+
+        lua.exec::<_, Value>(
+            r#"assert(git.commit("repo", "initial", "user", "user@gmail.com") == true)"#,
+            None,
+        ).unwrap();
+
+        lua.exec::<_, Value>(
+            r#"assert(git.commit("repo", "second", "user", "user@gmail.com") == true)"#,
+            None,
+        ).unwrap();
     }
 }
