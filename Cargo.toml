@@ -48,6 +48,10 @@ colored = "1.6.1"
 log-panics = "2.0"
 select = "0.4"
 serde_derive = "1.0"
+git2 = "0.7"
+
+[dev-dependencies]
+tempfile = "3"
 
 #[features]
 #default = []
