@@ -86,6 +86,7 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
     bindings::time::init(&lua)?;
     bindings::fs::init(&lua)?;
     bindings::select::init(&lua)?;
+    bindings::git::init(&lua)?;
 
     // Torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {

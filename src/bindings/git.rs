@@ -1,5 +1,5 @@
 use rlua::prelude::*;
-use rlua::{Lua, UserData, UserDataMethods};
+use rlua::Lua;
 
 /// git add
 ///
@@ -72,6 +72,39 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         )?,
     )?;
 
+    git.set(
+        "log",
+        lua.create_function(|lua, repo: String| {
+            let repo = match git2::Repository::open(&repo) {
+                Ok(repo) => repo,
+                Err(_) => return Ok(None),
+            };
+            let mut walk = match repo.revwalk() {
+                Ok(walk) => walk,
+                Err(_) => return Ok(None),
+            };
+            if walk.push_head().is_ok() {
+                let walk = walk.filter_map(|x| match x {
+                    Err(_) => None,
+                    Ok(id) => match repo.find_commit(id) {
+                        Err(_) => None,
+                        Ok(commit) => {
+                            let table = lua.create_table().unwrap();
+                            table.set("id", format!("{}", commit.id())).unwrap();
+                            table
+                                .set("message", commit.message().unwrap_or(""))
+                                .unwrap();
+                            Some(table)
+                        }
+                    },
+                });
+                Ok(Some(walk.collect::<Vec<_>>()))
+            } else {
+                Ok(Some(Vec::new()))
+            }
+        })?,
+    )?;
+
     let globals = lua.globals();
     globals.set("git", git)?;
     Ok(())
@@ -92,6 +125,9 @@ mod tests {
             .unwrap();
         let repo = git2::Repository::open("repo").unwrap();
 
+        lua.exec::<_, Value>(r#"assert(#git.log("repo") == 0)"#, None)
+            .unwrap();
+
         std::fs::write("repo/file", b"").unwrap();
         lua.exec::<_, Value>(r#"assert(git.add("repo", {"file"}) == true)"#, None)
             .unwrap();
@@ -104,6 +140,15 @@ mod tests {
 
         lua.exec::<_, Value>(
             r#"assert(git.commit("repo", "second", "user", "user@gmail.com") == true)"#,
+            None,
+        ).unwrap();
+
+        lua.exec::<_, Value>(
+            r#"
+            local log = git.log("repo")
+            assert(log[1].message == "second")
+            assert(log[2].message == "initial")
+            "#,
             None,
         ).unwrap();
     }
