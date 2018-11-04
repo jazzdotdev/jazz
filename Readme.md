@@ -1,3 +1,3 @@
 # torchbear
 
-Rust Lua application framework
+The Power of Rust, The Ease of Lua
