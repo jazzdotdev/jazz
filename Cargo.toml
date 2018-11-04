@@ -12,9 +12,13 @@ categories = ["network-programming", "asynchronous",
               "web-programming::http-client"]
 exclude = [".gitignore", ".travis.yml", ".cargo/config", "appveyor.yml"]
 
+[target.'cfg(target_os="android")'.dependencies]
+jni = { version = "0.5", default-features = false }
+
 [lib]
 name = "torchbear_lib"
 path = "src/lib.rs"
+crate-type = ["dylib", "rlib"]
 
 [[bin]]
 name = "torchbear"
@@ -48,6 +52,8 @@ colored = "1.6.1"
 log-panics = "2.0"
 select = "0.4"
 serde_derive = "1.0"
+openssl = { version = "0.10", features = ["vendored"] }
+log = "0.4"
 
 #[features]
 #default = []
