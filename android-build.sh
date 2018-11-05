@@ -1,12 +1,12 @@
 export RUNNING_HOME=$(pwd)
-apt-get update && \
-    apt-get install -yq sudo curl file build-essential wget git g++ cmake pkg-config bison flex \
+sudo apt-get update && \
+    sudo apt-get install -yq sudo curl file build-essential wget git g++ cmake pkg-config bison flex \
                         unzip lib32stdc++6 lib32z1 python autotools-dev automake autoconf libtool \
                         gperf xsltproc docbook-xsl
 
 # # Rust & Cargo
 curl https://sh.rustup.rs -sSf | sh -s -- -y
-PATH /root/.cargo/bin:$PATH
+export PATH="/root/.cargo/bin:$PATH"
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android
 
 # Android NDK and toolchain
