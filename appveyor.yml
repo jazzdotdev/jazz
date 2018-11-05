@@ -22,6 +22,9 @@ environment:
     - TARGET: x86_64-pc-windows-msvc
       CHANNEL: stable
       BITS: 64
+    - TARGET: i686-pc-windows-msvc
+      CHANNEL: stable
+      BITS: 32
       
 matrix:
   fast_finish: true
@@ -46,7 +49,7 @@ before_deploy:
   - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip
 
 deploy:
-  description: 'Torchbear deployment'
+  description: 'Release'
   artifact: /.*\.zip/
   auth_token:
     secure: 7/nootummDlhW0sADmBugjBYuF/GtNnnmwvT5PSztNWPpkyHU/wL6BAC/w5VHcJ9
@@ -54,7 +57,7 @@ deploy:
   tag: torchbear-v$(APPVEYOR_BUILD_VERSION)
   on:
     CHANNEL: stable
-    appveyor_repo_tag: false
+    appveyor_repo_tag: true
 
 branches:
   only:

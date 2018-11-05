@@ -1,22 +1,44 @@
 language: rust
-sudo: required
-os:
-- linux
-rust:
-- stable
+
+matrix:
+  include:
+    - os: linux
+      rust: stable
+      sudo: required
+      env: ARCH=x86_64
+    # TODO: Implement 32bit as musl builder doesnt support it. Maybe just have it compile normally since it will be running against trusty which
+    #       should be compatible with newer glibc
+    # - os: linux
+    #   rust: stable
+    #   sudo: required
+    #   env: ARCH=i686
+    # TODO: Complete android compiling with travis after making sure current way is stable.
+    # - os: linux
+    #   android:
+    #     components:
+    #       - tools
+    #       - platform-tools
+    #   install:
+    #     - echo y | sdkmanager "ndk-bundle"
+    #     - echo y | sdkmanager "lldb;3.1"
 services:
 - docker
 before_install:
 - chmod +x build.sh
-before_deploy: "./build.sh torchbear ${TRAVIS_OS_NAME}"
+before_deploy: "./build.sh torchbear ${TRAVIS_TAG}-${ARCH}-${TRAVIS_OS_NAME}"
 deploy:
   provider: releases
   api_key:
     secure: vs0t3O6fc/ZAquCwrypegZ7dZJtuH1UKbL74JVy24m/T0Pe9BWHVILc/7iusepBm4gz4ZKltfJWb4eq0MpZ3EXwwny/Sjrkz85yzXBLD5FDSCO794y2zzOrsuho6VyWIlbI2Vldno9qG+oKKuUvNL083Wi1bDwj5+mQAXy1fvDgivI5MuRcZyYAKgdzfGhKxfaTCu0gUFzhaOG10gAqYkhO7wYz9ddFpu2/laVHjYJnt2BhbZ7Nu5EfC/mssLiuKq34DBwGQO6nfgmH2P+s2y+KNm6rua8gf9kQXG6r+50lwJhH0bq2BtjO9tCrZxDnOunybU8M0bPXKp02XmtHyNdflYL1CJoWm6+jTELoY+30ndlk6xg2oneOiJ/QAPcuB6ONVz3dCVQNVKgSTJvgSQ+Mexbzq8n8cz3B07epk0sb9XZZn4yVbPkMjt98IeTewe1raKCkQlsLu217RV/b8UZce3e7YRFpXPqSJ5DxymshZpbXIttqlbw3y6InESagK07bwjzOJJj2Za/Jfi+YAfRBiY1+U2zZn2Jj/lOyFfyKhn9hD4J9cA3JLtopTvU/A1IfwfPKBlbsNtZu7+XAaEPRLmhw3XryrZs5/RfO2JFaf9T/gyvka4HzAoyG8Du3zAUQqrXRcM8rdD5iWpktnnjsBD/Lw/YLwnHh+dVW0A3c=
   file_glob: true
-  file: "torchbear-${TRAVIS_OS_NAME}.*"
+  file: "torchbear-${TRAVIS_TAG}-${ARCH}-${TRAVIS_OS_NAME}.*"
   skip_cleanup: true
   on:
     repo: foundpatterns/torchbear
-    rust: stable
-  
+    tags: true
+branches:
+  only:
+  - /^v\d+\.\d+\.\d+.*$/
+notifications:
+  email:
+    on_success: never  
