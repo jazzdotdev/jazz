@@ -17,7 +17,7 @@ cd /usr/local && \
 export NDK_HOME="/usr/local/android-ndk-r16b"
 
 # build toolchain for arm 
-/usr/local/android-ndk-r16b/build/tools/make-standalone-toolchain.sh \
+${NDK_HOME}/build/tools/make-standalone-toolchain.sh \
 --arch=arm --install-dir=/opt/NDK/arm --stl=libc++ --platform=android-26
 
 # build toolchain for aarch64 
