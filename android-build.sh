@@ -6,7 +6,7 @@ sudo apt-get update && \
 
 # # Rust & Cargo
 # curl https://sh.rustup.rs -sSf | sh -s -- -y
-# export PATH="~/.cargo/bin:$PATH"
+export PATH="~/.cargo/bin:$PATH"
 rustup target add aarch64-linux-android armv7-linux-androideabi
 
 # Android NDK and toolchain 
@@ -30,8 +30,6 @@ linker = "arm-linux-androideabi-clang"
 [target.aarch64-linux-android] 
 ar = "aarch64-linux-android-ar" 
 linker = "aarch64-linux-android-clang"' > ~/.cargo/config
-~
-~
 
 export PATH="$PATH:~/NDK/arm/bin" 
 export PATH="$PATH:~/NDK/aarch64/bin"
