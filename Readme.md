@@ -13,7 +13,7 @@ TorchBear is an extremely fast and capable Lua application framework.  It gives 
 * HTML scraping using Select-rs
 * Time/Date generation and verification using Chrono
 
-# Example*
+# Example
 launcher.lua
 ```lua
 print("Hello from TorchBear")
