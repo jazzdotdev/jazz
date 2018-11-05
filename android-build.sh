@@ -29,8 +29,6 @@ linker = \"arm-linux-androideabi-clang\"
  
 [target.aarch64-linux-android] 
 ar = \"aarch64-linux-android-ar\" 
-linker = \"aarch64-linux-android-clang\"' >> ~/.cargo/config"
+linker = \"aarch64-linux-android-clang\"' >> ~/.cargo/config" 
 
-export PATH="$PATH:~/NDK/arm/bin" 
-export PATH="$PATH:~/NDK/aarch64/bin"
 cd $RUNNING_HOME 
