@@ -12,3 +12,15 @@ TorchBear is an extremely fast and capable Lua application framework.  It gives 
 * Set theoretic operations using `std::collections::HashSet` Stringset
 * HTML scraping using Select-rs
 * Time/Date generation and verification using Chrono
+
+# Example*
+launcher.lua
+```lua
+print("Hello from TorchBear")
+```
+settings.toml
+```toml
+lua_prelude = "/"
+```
+Run
+`torchbear`
