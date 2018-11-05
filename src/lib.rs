@@ -164,7 +164,7 @@ impl ApplicationBuilder {
 
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
-                .on_handle_with_lua(include_str!("managers/web_server.lua"))
+                .on_handle_with_lua(include_str!("handlers/web_server.lua"))
                 .build_with_vm(vm)
                 .unwrap();
             lua_actor
