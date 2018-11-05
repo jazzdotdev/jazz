@@ -7,11 +7,10 @@ rust:
 services:
 - docker
 before_install:
-- chmod +x build.sh
-- chmod +x android-build.sh
+- chmod +x build.sh android-build.sh
+- ./android-build.sh 
 before_deploy: 
 - ./build.sh torchbear ${TRAVIS_OS_NAME}
-- ./android-build.sh
 deploy:
   provider: releases
   api_key:
