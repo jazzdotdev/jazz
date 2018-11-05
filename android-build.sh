@@ -21,7 +21,7 @@ ${NDK_HOME}/build/tools/make-standalone-toolchain.sh \
 --arch=arm --install-dir=/opt/NDK/arm --stl=libc++ --platform=android-26
 
 # build toolchain for aarch64 
-/usr/local/android-ndk-r16b/build/tools/make-standalone-toolchain.sh \
+${NDK_HOME}/build/tools/make-standalone-toolchain.sh \
 --arch=arm64 --install-dir=/opt/NDK/aarch64 --stl=libc++ --platform=android-26
 
 echo '[target.arm-linux-androideabi] 
