@@ -7,8 +7,7 @@ rust:
 services:
 - docker
 before_install:
-- chmod +x build.sh android-build.sh
-- ./android-build.sh 
+- chmod +x build.sh android-build.sh 
 before_deploy: 
 - ./build.sh torchbear ${TRAVIS_OS_NAME}
 deploy:
@@ -19,6 +18,6 @@ deploy:
   file: "torchbear-${TRAVIS_OS_NAME}.*"
   skip_cleanup: true
   on:
-    repo: foundpatterns/torchbear
+    repo: sh-zam/torchbear
     rust: stable
   
