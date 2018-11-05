@@ -36,8 +36,4 @@ linker = "aarch64-linux-android-clang"' > ~/.cargo/config
 
 export PATH="$PATH:/opt/NDK/arm/bin" 
 export PATH="$PATH:/opt/NDK/aarch64/bin"
-cd $RUNNING_HOME
-
-cargo build --target="arm-linux-androideabi" --release
-cargo build --target="aarch64-linux-android" --release
-
+cd $RUNNING_HOME 
