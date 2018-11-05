@@ -14,11 +14,11 @@ TorchBear is an extremely fast and featureful Lua application framework.  It giv
 * Time/Date generation and verification using Chrono
 
 # Example
-launcher.lua
+in `launcher.lua`
 ```lua
 print("Hello from TorchBear")
 ```
-settings.toml
+in `settings.toml`
 ```toml
 lua_prelude = "/"
 ```
