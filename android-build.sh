@@ -13,7 +13,7 @@ rustup target add aarch64-linux-android armv7-linux-androideabi
 wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip && \
         unzip -qq android-ndk-r16b-linux-x86_64.zip && \
         rm android-ndk-r16b-linux-x86_64.zip
-export NDK_HOME="android-ndk-r16b"
+export NDK_HOME="$PWD/android-ndk-r16b"
 
 mkdir NDK
 
@@ -33,14 +33,12 @@ linker = \"arm-linux-androideabi-clang\"
 ar = \"aarch64-linux-android-ar\" 
 linker = \"aarch64-linux-android-clang\"' > ~/.cargo/config" 
 
-export PATH="$PATH:NDK/arm/bin" 	
-export PATH="$PATH:NDK/aarch64/bin"
+export PATH="$PATH:$PWD/NDK/arm/bin" 	
+export PATH="$PATH:$PWD/NDK/aarch64/bin"
 
 # debug
-ls NDK/arm/bin
-ls NDK/aarch64/bin
-
-cd $RUNNING_HOME 
+# ls NDK/arm/bin
+# ls NDK/aarch64/bin
 
 cargo build --target="arm-linux-androideabi"
 cargo build --target="aarch64-linux-android"
