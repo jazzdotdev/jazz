@@ -39,7 +39,7 @@ use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
 
-mod bindings;
+pub mod bindings;
 pub mod logger;
 
 mod app_state {
