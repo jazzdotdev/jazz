@@ -1,8 +1,5 @@
-export RUNNING_HOME=$(pwd)
-sudo apt-get update && \
-    sudo apt-get install -yq file build-essential wget git g++ cmake pkg-config bison flex \
-                        unzip lib32stdc++6 lib32z1 python autotools-dev automake autoconf libtool \
-                        gperf
+sudo apt-get update && sudo apt-get install -yq file build-essential wget git g++ cmake pkg-config bison flex \
+                        lib32stdc++6
 
 # # Rust & Cargo
 # curl https://sh.rustup.rs -sSf | sh -s -- -y

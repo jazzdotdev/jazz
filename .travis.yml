@@ -11,15 +11,14 @@ before_install:
 - chmod +x build.sh android-build.sh
 - ./android-build.sh
 before_deploy:
-- ./build.sh torchbear ${TRAVIS_OS_NAME} 
+- "./build.sh torchbear ${TRAVIS_OS_NAME}"
 deploy:
   provider: releases
   api_key:
-    secure: joYKMGm3LRrPPlXGaQlgmWG26zU+70cBGzq+BPJtI4m6mNp51113pD/d0C3Fg9EzwemkApUQn9uZ7wQ8dvFgfGjqDBP6kA2LdTEV9L7P51YqaHp4VK5O6xuKMQuJwB1EVS5NB43YAK2Qax7f2Wkjg3Xmvc8GoJYCyF9yjRAWH8zdyBRibQq8q1dZCynXhnWBIMuJucHGojHTaehIPGQ+oi3pSWukGoWZ3gpBbDDlMmz9vS1Bp63yBtk8ITCgcJP98eRfnduG5hTuwxXprFgTxjJEN1QExqiF/gqld92P5zejsz5TMxf9Ks0r9VinWwWss/3NmhVPhWwoqfS5KT3RREXjG0k7/eorgt5HflyE6gXCDHfPVbJIVCFhJp8qnlSg8WHibw9yk66c4p5xrRnedhSJIGRwHeYfFUtJof+tmV9fNv6iOI1y+xi9qbFvIminU9lh+hbCByPg1owizALl8FZ/KGfEbQZKCEjhN0Xn6ZSUI10J3mOxQKlEBNB0nZwIeDqLJhxDWEeRc9fzybEFTxqupMhwQApVSEnyt19OEPKcxd2etvj1/yw9yPuIa7JDWu7n1jqEXjvOaUE8395vwzuvkGaSaFgQb0oTTUb2JhVd1vvDeDiJ7mb2w9A9WOZ2mFADo4nyq3rHBDhr2gl/dKyeTmbNn6TSOZ8qR+CoNQs=
+    secure: S5eWXpRpXRg+1HUcQZlDW4qkOh84JZjlXZj4W3eQMiubkesoiS1NlseGxFO0eW/cFDSxXyZ0OPwyK8BBdE0SFwYRKVzh7uMSTKv2AvqGrvlc1h2Bby6tPV5EFT5wlhU3RSynD8fPgjQGKc7dt/e/qh/3Psel44i5wnKwXpoXyPV8Pat/kG0AEAXTpJo3SutErzqqEmBrWhI6XivsLhSnPxRpcOQAG7E71E17lp3rI4DBYK/haYxKOWz81c5c6ZmGZj2vBm3LnQROasieWeH8GmW1OmFrfj0VV0PdGgoinwekhIJrda1s9kE1NsBREBpZPpn/ZT2XLL4MFD3hqoT2uhiKpIEu2q/H2As02wu1kTKoafZ9VrTmc17lLFZuPHFT92SObBdlhLs8alUe7JagN37bvarho2m6XqNMLSGNS1d7fcQR7timr9/YC5hZL4yT58wz8n4XaAvr5/mq68Xv0HYN8hbKWtwBQxInj9H/hVmUh50Uf4k5kwCxwISM6GFlg/eAM3ltVbXS3CW6gS4XyjwZa7jFndlUiJAs4QC4+3bKcU2eN3VyYUoXnqonfNETmdUVVUU4wfLGzmDFXjgqUhTQkcfTb4vK3BiFfmp89LwCIWo9F5OOGRQgJ6Jyb/5RMExIMYdlARALDlux4k6+kcNktid+ylyzCiW33nf4m18=
   file_glob: true
-  file: "torchbear-${TRAVIS_OS_NAME}.*"
+  file: aarch64-torchbear-${TRAVIS_OS_NAME}.*
   skip_cleanup: true
   on:
     repo: sh-zam/torchbear
     rust: stable
-  
