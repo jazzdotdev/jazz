@@ -54,7 +54,6 @@ deploy:
   auth_token:
     secure: 7/nootummDlhW0sADmBugjBYuF/GtNnnmwvT5PSztNWPpkyHU/wL6BAC/w5VHcJ9
   provider: GitHub
-  tag: torchbear-v$(APPVEYOR_BUILD_VERSION)
   on:
     CHANNEL: stable
     appveyor_repo_tag: true
