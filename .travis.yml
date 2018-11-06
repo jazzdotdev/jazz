@@ -25,6 +25,8 @@ services:
 - docker
 before_install:
 - chmod +x build.sh
+# Disable cargo test to decrease build time. 
+script: echo "cargo test temporarily disabled"
 before_deploy: "./build.sh torchbear ${TRAVIS_TAG}-${ARCH}-${TRAVIS_OS_NAME}"
 deploy:
   provider: releases
