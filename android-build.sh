@@ -40,5 +40,5 @@ export PATH="$PATH:$PWD/NDK/aarch64/bin"
 # ls NDK/arm/bin
 # ls NDK/aarch64/bin
 
-cargo build --target="arm-linux-androideabi"
-cargo build --target="aarch64-linux-android"
+cargo build --target="arm-linux-androideabi" --release
+cargo build --target="aarch64-linux-android" --release

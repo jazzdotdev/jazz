@@ -13,8 +13,6 @@ case `uname -s` in
     *)
         echo "Building standard release binaries"
         cargo build --release
-	cargo build --target="aarch64-linux-android" --release
-	cargo build --target="arm-linux-androideabi" --release 
 	zip -j "arm"-"$1"-"$2".zip target/arm-linux-androideabi/release --release
 	zip -j "aarch64"-"$1"-"$2".zip target/aarch64-linux-android/release--target
         zip -j "$1"-"$2".zip target/release/"$1"
