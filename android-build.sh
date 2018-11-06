@@ -5,7 +5,7 @@ sudo apt-get update && \
                         gperf
 
 # # Rust & Cargo
-curl https://sh.rustup.rs -sSf | sh -s -- -y
+# curl https://sh.rustup.rs -sSf | sh -s -- -y
 export PATH="~/.cargo/bin:$PATH"
 rustup target add aarch64-linux-android armv7-linux-androideabi arm-linux-androideabi
 
@@ -40,5 +40,5 @@ export PATH="$PATH:$PWD/NDK/aarch64/bin"
 # ls NDK/arm/bin
 # ls NDK/aarch64/bin
 
-cargo build --target="arm-linux-androideabi" --release
-cargo build --target="aarch64-linux-android" --release
+
+
