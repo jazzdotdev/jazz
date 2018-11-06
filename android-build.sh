@@ -39,3 +39,9 @@ export PATH="$PATH:$PWD/NDK/aarch64/bin"
 
 cargo build --target="arm-linux-androideabi" --release
 cargo build --target="aarch64-linux-android" --release
+
+zip -j  "torchbear-arm".zip target/arm-linux-androideabi/release/torchbear
+zip -j "torchbear-aarch64".zip target/aarch64-linux-android/release/torchbear
+
+
+
