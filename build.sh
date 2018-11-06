@@ -13,8 +13,8 @@ case `uname -s` in
     *)
         echo "Building standard release binaries"
         cargo build --release
-	zip -j "arm"-"$1"-"$2".zip target/arm-linux-androideabi/release/"$1"
-	zip -j "aarch64"-"$1"-"$2".zip target/aarch64-linux-android/release/"$1"
-        zip -j "$1"-"$2".zip target/release/"$1"
+	zip -j "arm"-"$1".zip target/arm-linux-androideabi/release/"$1"
+	zip -j "aarch64"-"$1".zip target/aarch64-linux-android/release/"$1"
+        zip -j "$1".zip target/release/"$1"
         ;;
 esac

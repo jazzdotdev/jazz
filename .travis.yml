@@ -17,7 +17,9 @@ deploy:
   api_key:
     secure: S5eWXpRpXRg+1HUcQZlDW4qkOh84JZjlXZj4W3eQMiubkesoiS1NlseGxFO0eW/cFDSxXyZ0OPwyK8BBdE0SFwYRKVzh7uMSTKv2AvqGrvlc1h2Bby6tPV5EFT5wlhU3RSynD8fPgjQGKc7dt/e/qh/3Psel44i5wnKwXpoXyPV8Pat/kG0AEAXTpJo3SutErzqqEmBrWhI6XivsLhSnPxRpcOQAG7E71E17lp3rI4DBYK/haYxKOWz81c5c6ZmGZj2vBm3LnQROasieWeH8GmW1OmFrfj0VV0PdGgoinwekhIJrda1s9kE1NsBREBpZPpn/ZT2XLL4MFD3hqoT2uhiKpIEu2q/H2As02wu1kTKoafZ9VrTmc17lLFZuPHFT92SObBdlhLs8alUe7JagN37bvarho2m6XqNMLSGNS1d7fcQR7timr9/YC5hZL4yT58wz8n4XaAvr5/mq68Xv0HYN8hbKWtwBQxInj9H/hVmUh50Uf4k5kwCxwISM6GFlg/eAM3ltVbXS3CW6gS4XyjwZa7jFndlUiJAs4QC4+3bKcU2eN3VyYUoXnqonfNETmdUVVUU4wfLGzmDFXjgqUhTQkcfTb4vK3BiFfmp89LwCIWo9F5OOGRQgJ6Jyb/5RMExIMYdlARALDlux4k6+kcNktid+ylyzCiW33nf4m18=
   file_glob: true
-  file: aarch64-torchbear-${TRAVIS_OS_NAME}.*
+  file:
+     - "aarch64-torchbear-${TRAVIS_OS_NAME}.*"
+     - "torchbear-${TRAVIS_OS_NAME}.*"
   skip_cleanup: true
   on:
     repo: sh-zam/torchbear
