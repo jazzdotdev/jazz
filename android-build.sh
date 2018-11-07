@@ -16,11 +16,11 @@ mkdir NDK
 
 # build toolchain for arm 
 ${NDK_HOME}/build/tools/make-standalone-toolchain.sh \
---arch=arm --install-dir=NDK/arm --stl=libc++ --platform=android-26
+--arch=arm --install-dir=NDK/arm --platform=android-26
 
 # build toolchain for aarch64 
 ${NDK_HOME}/build/tools/make-standalone-toolchain.sh \
---arch=arm64 --install-dir=NDK/aarch64 --stl=libc++ --platform=android-26
+--arch=arm64 --install-dir=NDK/aarch64 --platform=android-26
 
 sudo sh -c "echo '[target.arm-linux-androideabi] 
 ar = \"arm-linux-androideabi-ar\" 
