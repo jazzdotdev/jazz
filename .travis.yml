@@ -42,6 +42,7 @@ matrix:
       env: 
         - ARCH=arm
         - PLATFORM=android
+        - NDK_BUILD_32BIT=1
       script: echo "cargo test temporarily disabled"
       before_deploy:
         - export PATH="$HOME/.cargo/bin:$PATH"
