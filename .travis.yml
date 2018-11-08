@@ -47,7 +47,7 @@ matrix:
         - rustup target add arm-linux-androideabi
         - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
         - unzip -qq android-ndk-r18b-linux-x86_64.zip
-        - export NDK_HOME="$PWD/android-ndk-r16b"
+        - export NDK_HOME="$PWD/android-ndk-r18b"
         - mkdir NDK
         - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
         - export PATH="$PATH:$PWD/NDK/arm/bin" 	
