@@ -50,7 +50,7 @@ mod app_state {
     }
 }
 
-fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
+fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -97,18 +97,23 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashM
     {
         let tb_table = lua.create_table()?;
         tb_table.set("settings", settings)?;
+        tb_table.set("init_filename", init_path)?;
         lua.globals().set("torchbear", tb_table)?;
     }
 
     // Lua Bridge
-    lua.exec::<_, ()>(&format!(r#"
-        package.path = package.path..";{}?.lua;{}?.lua"
-
+    lua.exec::<_, ()>(r#"
         xpcall(function ()
-            local handler = require("launcher")
-            if handler and handler ~= true then
+
+            local init_f, err = loadfile(torchbear.init_filename)
+            if not init_f then error(err) end
+
+            local handler = init_f()
+
+            if handler then
                 torchbear.handler = handler
             end
+            
         end, function (msg)
             local trace = debug.traceback(msg, 3)
             log.error(trace)
@@ -117,7 +122,7 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashM
         if not torchbear.handler then
             log.error("No handler specified")
         end
-    "#, lua_prelude, app_path), None)?;
+    "#, None)?;
 
     Ok(lua)
 }
@@ -176,8 +181,7 @@ impl ApplicationBuilder {
 
         let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
         let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-        let app_path = get_or(&hashmap, "application", "./");
-        let lua_prelude = get_or(&hashmap, "lua_prelude", "lua_prelude/");
+        let init_path = get_or(&hashmap, "init", "init.lua");
         let log_path = get_or(&hashmap, "log_path", "log");
         
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
@@ -186,7 +190,7 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = create_vm(tera.clone(), &lua_prelude, &app_path, hashmap).unwrap();
+        let vm = create_vm(tera.clone(), &init_path, hashmap).unwrap();
 
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
