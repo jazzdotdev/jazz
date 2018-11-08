@@ -86,12 +86,12 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashM
     bindings::fs::init(&lua)?;
     bindings::select::init(&lua)?;
 
-    // Torchbear crashes if there's no log binding
+    // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
         bindings::log::init(&lua)?;
     //}
 
-    // Torchbear global table
+    // torchbear global table
     {
         let tb_table = lua.create_table()?;
         tb_table.set("settings", settings)?;
@@ -153,13 +153,13 @@ impl ApplicationBuilder {
 
                     if let Some(err) = err.downcast_ref::<IoErr>() {
                         if let ErrorKind::NotFound = err.kind() {
-                            println!("Error: TorchBear needs an app to run. Change to the directory containing your application and run torchbear again.");
+                            println!("Error: torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
                             std::process::exit(1);
                         };
                     };
                 };
 
-                println!("Error reading Settings.toml: {}", err);
+                println!("Error opening Settings.toml: {}", err);
                 std::process::exit(1);
             },
             _ => ()
