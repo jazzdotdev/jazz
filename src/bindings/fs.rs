@@ -20,7 +20,6 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(match fs::read_dir(path) {
             Ok(iter) => {
                 let mut arc_iter = Arc::new(Some(iter));
-                println!("step here");
                 let mut f = move |_, _: ()| {
                     let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
                         Some(iter) => match iter.next() {
@@ -32,7 +31,6 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
                     if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
                     Ok(result)
                 };
-                println!("step out");
                 Some(lua.create_function_mut(f)?)
             }, _ => None
         })

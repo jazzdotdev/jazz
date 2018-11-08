@@ -30,6 +30,7 @@ extern crate log_panics;
 extern crate select;
 #[macro_use]
 extern crate serde_derive;
+extern crate git2;
 
 use std::sync::Arc;
 use actix::prelude::*;
@@ -49,7 +50,7 @@ mod app_state {
     }
 }
 
-fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, LuaError> {
+fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -85,17 +86,23 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
     bindings::time::init(&lua)?;
     bindings::fs::init(&lua)?;
     bindings::select::init(&lua)?;
+    bindings::git::init(&lua)?;
 
-    // Torchbear crashes if there's no log binding
+    // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
         bindings::log::init(&lua)?;
     //}
 
+    // torchbear global table
+    {
+        let tb_table = lua.create_table()?;
+        tb_table.set("settings", settings)?;
+        lua.globals().set("torchbear", tb_table)?;
+    }
+
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
-
-        _G.torchbear = {{}}
 
         xpcall(function ()
             local handler = require("launcher")
@@ -138,8 +145,27 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self) {
+
         let mut settings = config::Config::new();
-        settings.merge(config::File::with_name("Settings.toml")).unwrap();
+
+        match settings.merge(config::File::with_name("Settings.toml")) {
+            Err(err) => {
+                if let config::ConfigError::Foreign(err) = &err {
+                    use std::io::{Error as IoErr, ErrorKind};
+
+                    if let Some(err) = err.downcast_ref::<IoErr>() {
+                        if let ErrorKind::NotFound = err.kind() {
+                            println!("Error: torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
+                            std::process::exit(1);
+                        };
+                    };
+                };
+
+                println!("Error opening Settings.toml: {}", err);
+                std::process::exit(1);
+            },
+            _ => ()
+        };
         settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
         let hashmap = settings.try_into::<HashMap<String, String>>().unwrap();
@@ -160,7 +186,7 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = create_vm(tera.clone(), &lua_prelude, &app_path).unwrap();
+        let vm = create_vm(tera.clone(), &lua_prelude, &app_path, hashmap).unwrap();
 
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
@@ -177,7 +203,6 @@ impl ApplicationBuilder {
             .unwrap()
             .start();
 
-        println!("Started http server: localhost:3000");
         let _ = sys.run();
     }
 }
