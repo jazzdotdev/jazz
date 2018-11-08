@@ -4,15 +4,15 @@
 
 TorchBear is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
 
-* *HTTP/1.x* and *HTTP/2.0* web servers and clients using Actix Web
+* *HTTP/1.x* and *HTTP/2.0* web servers and clients on Actix Web
 * Markdown output using Comrak
-* Jinja template rendering using Tera
-* Signatures and Encryption using Libsodium
-* Filesystem operations using `std::fs::*`
+* Jinja template rendering with Tera
+* Signatures and Encryption from Libsodium
+* Filesystem operations with `std::fs::*`
 * Set theoretic operations using `std::collections::HashSet` Stringset
-* YAML and JSON serializing/deserializing using Serde
-* UUID generation and verification using UUID-rs
-* HTML scraping using Select-rs
+* YAML and JSON serializing/deserializing with Serde
+* UUID generation and verification with UUID-rs
+* HTML scraping with Select-rs
 * Time/Date generation and verification using Chrono
 
 # Example
