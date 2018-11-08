@@ -10,6 +10,7 @@ pub mod server;
 pub mod time;
 pub mod fs;
 pub mod select;
+pub mod git;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
