@@ -145,11 +145,24 @@ impl ApplicationBuilder {
     pub fn start (&mut self) {
 
         let mut settings = config::Config::new();
+
         match settings.merge(config::File::with_name("Settings.toml")) {
-            Err(_) => {
-                println!("Error: TorchBear needs an app to run. Change to the directory containing your application and run torchbear again.");
+            Err(err) => {
+                if let config::ConfigError::Foreign(err) = &err {
+                    use std::io::{Error as IoErr, ErrorKind};
+
+                    if let Some(err) = err.downcast_ref::<IoErr>() {
+                        if let ErrorKind::NotFound = err.kind() {
+                            println!("Error: TorchBear needs an app to run. Change to the directory containing your application and run torchbear again.");
+                            std::process::exit(1);
+                        };
+                    };
+                };
+
+                println!("Error reading Settings.toml: {}", err);
                 std::process::exit(1);
-            }, _ => ()
+            },
+            _ => ()
         };
         settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
