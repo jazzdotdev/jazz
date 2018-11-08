@@ -1,6 +1,6 @@
 use rlua::prelude::*;
 use std::sync::Arc;
-use std::fs::*;
+use std::fs;
     
 //fn metadata_table (::std::DirEntry)
 
@@ -10,17 +10,16 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     module.set("create_dir", lua.create_function( |_, (path, all): (String, Option<bool>)| {
         let result = match all {
-            Some(true) => create_dir_all(path),
-            _ => create_dir(path)
+            Some(true) => fs::create_dir_all(path),
+            _ => fs::create_dir(path)
         };
         Ok(result.is_ok())
     })? )?;
 
     module.set("entries", lua.create_function( |lua, path: String| {
-        Ok(match read_dir(path) {
+        Ok(match fs::read_dir(path) {
             Ok(iter) => {
                 let mut arc_iter = Arc::new(Some(iter));
-
                 let mut f = move |_, _: ()| {
                     let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
                         Some(iter) => match iter.next() {
@@ -32,14 +31,25 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
                     if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
                     Ok(result)
                 };
-
                 Some(lua.create_function_mut(f)?)
             }, _ => None
         })
     })? )?;
 
+    module.set("exists", lua.create_function( |_, path: String| {
+        Ok(::std::path::Path::new(&path).exists())
+    })?)?;
+
+    module.set("is_file", lua.create_function( |_, path: String| {
+        Ok(::std::path::Path::new(&path).is_file())
+    })?)?;
+
+    module.set("is_dir", lua.create_function( |_, path: String| {
+        Ok(::std::path::Path::new(&path).is_dir())
+    })?)?;
+
     module.set("metadata", lua.create_function( |lua, path: String| {
-        match metadata(path) {
+        match fs::metadata(path) {
             Ok(md) => {
                 let table = lua.create_table()?;
 
@@ -56,7 +66,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
                 table.set("readonly", md.permissions().readonly())?;
 
                 // TODO: modified, created and accesed timestamps
-
+                
                 Ok(Some(table))
             },
             _ => Ok(None)
