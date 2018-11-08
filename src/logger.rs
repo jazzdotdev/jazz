@@ -88,23 +88,21 @@ pub fn init (path: &Path, settings: Settings) {
         );
 
     // File Logging (uncolored, only info or worse)
-    let file_err = match get_log_file(path) {
-        Ok(file) => {
-            dispatch = dispatch.chain(Dispatch::new()
-                .format( format_msg!(false) )
-                .chain(file)
-            );
-            None
-        },
-        Err(err) => Some(err)
+    match ::std::fs::create_dir_all(path) {
+        Err(err) => error!("{}", err),
+        _ => match get_log_file(path) {
+            Ok(file) => {
+                dispatch = dispatch.chain(Dispatch::new()
+                    .format( format_msg!(false) )
+                    .chain(file)
+                );
+            },
+            Err(err) => error!("{}", err)
+        }
     };
+
 
     if dispatch.apply().is_err() {
         panic!("A logger instance was already set");
-    }
-
-    match file_err {
-        Some(err) => error!("{}", err),
-        None => {}
     }
 }
