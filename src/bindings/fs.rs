@@ -1,5 +1,4 @@
 use rlua::prelude::*;
-use rlua::{Value, UserData};
 use std::sync::Arc;
 use std::fs::*;
     
@@ -9,7 +8,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     let module = lua.create_table()?;
 
-    module.set("create_dir", lua.create_function( |lua, (path, all): (String, Option<bool>)| {
+    module.set("create_dir", lua.create_function( |_, (path, all): (String, Option<bool>)| {
         let result = match all {
             Some(true) => create_dir_all(path),
             _ => create_dir(path)

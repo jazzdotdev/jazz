@@ -138,8 +138,14 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self) {
+
         let mut settings = config::Config::new();
-        settings.merge(config::File::with_name("Settings.toml")).unwrap();
+        match settings.merge(config::File::with_name("Settings.toml")) {
+            Err(_) => {
+                println!("Error: TorchBear needs an app to run. Change to the directory containing your application and run torchbear again.");
+                std::process::exit(1);
+            }, _ => ()
+        };
         settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
 
         let hashmap = settings.try_into::<HashMap<String, String>>().unwrap();
@@ -177,7 +183,6 @@ impl ApplicationBuilder {
             .unwrap()
             .start();
 
-        println!("Started http server: localhost:3000");
         let _ = sys.run();
     }
 }
