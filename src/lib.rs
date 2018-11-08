@@ -49,7 +49,7 @@ mod app_state {
     }
 }
 
-fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, LuaError> {
+fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -91,11 +91,16 @@ fn create_vm(tera: Arc<Tera>, lua_prelude: &str, app_path: &str) -> Result<Lua, 
         bindings::log::init(&lua)?;
     //}
 
+    // Torchbear global table
+    {
+        let tb_table = lua.create_table()?;
+        tb_table.set("settings", settings)?;
+        lua.globals().set("torchbear", tb_table)?;
+    }
+
     // Lua Bridge
     lua.exec::<_, ()>(&format!(r#"
         package.path = package.path..";{}?.lua;{}?.lua"
-
-        _G.torchbear = {{}}
 
         xpcall(function ()
             local handler = require("launcher")
@@ -166,7 +171,7 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = create_vm(tera.clone(), &lua_prelude, &app_path).unwrap();
+        let vm = create_vm(tera.clone(), &lua_prelude, &app_path, hashmap).unwrap();
 
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
