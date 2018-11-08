@@ -1161,12 +1161,21 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "openssl-src"
+version = "111.0.1+1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "cc 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "openssl-sys"
 version = "0.9.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cc 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-src 111.0.1+1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pkg-config 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1429,11 +1438,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rust_sodium"
 version = "0.10.1"
-source = "git+https://github.com/dariusc93/rust_sodium#9fc99bafba651dd34f2d71e9f448be2db17ccb0d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust_sodium-sys 0.10.1 (git+https://github.com/dariusc93/rust_sodium)",
+ "rust_sodium-sys 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.79 (registry+https://github.com/rust-lang/crates.io-index)",
  "unwrap 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1441,7 +1450,7 @@ dependencies = [
 [[package]]
 name = "rust_sodium-sys"
 version = "0.10.1"
-source = "git+https://github.com/dariusc93/rust_sodium#9fc99bafba651dd34f2d71e9f448be2db17ccb0d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cc 1.0.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2081,9 +2090,10 @@ dependencies = [
  "futures 0.1.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl 0.10.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlua 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlua_serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust_sodium 0.10.1 (git+https://github.com/dariusc93/rust_sodium)",
+ "rust_sodium 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "select 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.79 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2568,6 +2578,7 @@ dependencies = [
 "checksum num_cpus 1.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c51a3322e4bca9d212ad9a158a02abc6934d005490c054a2778df73a70aa0a30"
 "checksum openssl 0.10.15 (registry+https://github.com/rust-lang/crates.io-index)" = "5e1309181cdcbdb51bc3b6bedb33dfac2a83b3d585033d3f6d9e22e8c1928613"
 "checksum openssl-probe 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "77af24da69f9d9341038eba93a073b1fdaaa1b788221b00a69bce9e762cb32de"
+"checksum openssl-src 111.0.1+1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d1edaed888fd85a54a2646bf02992931ddefdda3b1a748fc79f088a8db27fcbe"
 "checksum openssl-sys 0.9.39 (registry+https://github.com/rust-lang/crates.io-index)" = "278c1ad40a89aa1e741a1eed089a2f60b18fab8089c3139b542140fc7d674106"
 "checksum owning_ref 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "cdf84f41639e037b484f93433aa3897863b561ed65c6e59c7073d7c561710f37"
 "checksum parking_lot 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)" = "f0802bff09003b291ba756dc7e79313e51cc31667e94afbe847def490424cde5"
@@ -2601,8 +2612,8 @@ dependencies = [
 "checksum rlua 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d8e8a3ae8a34f53f241c8e6b1f7c8c8c7768b7abb8db07efce45cbfe39a9e097"
 "checksum rlua_serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "78ba9f3fb6b174d50c5181937b246371b6811cab40821f57c3e25df72f2203bf"
 "checksum rust-ini 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)" = "ac66e816614e124a692b6ac1b8437237a518c9155a3aacab83a373982630c715"
-"checksum rust_sodium 0.10.1 (git+https://github.com/dariusc93/rust_sodium)" = "<none>"
-"checksum rust_sodium-sys 0.10.1 (git+https://github.com/dariusc93/rust_sodium)" = "<none>"
+"checksum rust_sodium 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "aae6b7adeb7ceeec0ac050d1eb2ca1e111a8e3b15a1be260dc3e61e731be46b7"
+"checksum rust_sodium-sys 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "acadd1e619c7616e2bad20d5cb2dc361cd20fa0a739f2b4bd7fbea99185dd496"
 "checksum rustc-demangle 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)" = "bcfe5b13211b4d78e5c2cadfebd7769197d95c639c35a50057eb4c05de811395"
 "checksum rustc-serialize 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)" = "dcf128d1287d2ea9d80910b5f1120d0b8eede3fbf1abe91c40d39ea7d51e6fda"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
