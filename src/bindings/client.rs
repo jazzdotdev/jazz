@@ -1,5 +1,3 @@
-use std::rc::Rc;
-use std::cell::RefCell;
 use actix_web;
 use actix_web::HttpMessage;
 use actix_web::client::{ClientRequest, ClientRequestBuilder, ClientResponse};
@@ -7,7 +5,6 @@ use futures::Future;
 use rlua::prelude::*;
 use rlua_serde;
 use serde_json::{self, Value as JsonValue};
-use rlua::{UserDataMethods, UserData};
 use actix_web::http::Method;
 use std::str::FromStr;
 

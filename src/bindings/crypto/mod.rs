@@ -1,4 +1,4 @@
-use rlua::{Error as LuaError, Lua, Value};
+use rlua::{Error as LuaError, Lua};
 use rust_sodium;
 
 mod hash;
@@ -44,6 +44,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rlua::Value;
 
     #[test]
     fn test_box_() {
