@@ -29,20 +29,25 @@ torchbear 🔥🐻 is an extremely fast and featureful Lua application framework
 
 - Download the [latest torchbear release](https://github.com/foundpatterns/torchbear/releases).
 - Unzip it in your application.
-- You're good to go.
+- Run `torchbear`.
 
 Windows, Android, and Linux builds available for primary architectures.  MacOS builds still to come.  OS Pacakge Managers support coming soon - contributions welcomed.
 
 Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
 
-## Example
+## Examples
 
-Download [torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver), run `torchbear` inside.
+#### Static Webserver
+[torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+
+#### Hello World
 
 in `init.lua`
+
 `print("hello from torchbear")`
 
 in `Settings.toml`
+
 `init = "init.lua"`
 
 run `torchbear`
