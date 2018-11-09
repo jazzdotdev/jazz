@@ -17,7 +17,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     })? )?;
 
     module.set("entries", lua.create_function( |lua, path: String| {
-        Ok(match fs::read_dir(path) {
+        match fs::read_dir(path) {
             Ok(iter) => {
                 let mut arc_iter = Arc::new(Some(iter));
                 let mut f = move |_, _: ()| {
@@ -31,9 +31,9 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
                     if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
                     Ok(result)
                 };
-                Some(lua.create_function_mut(f)?)
-            }, _ => None
-        })
+                Ok(lua.create_function_mut(f)?)
+            }, Err(err) => Err(LuaError::ExternalError(Arc::new(::failure::Error::from_boxed_compat(Box::new(err)))))
+        }
     })? )?;
 
     module.set("exists", lua.create_function( |_, path: String| {
