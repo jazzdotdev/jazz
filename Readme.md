@@ -17,13 +17,5 @@ torchbear is an extremely fast and featureful Lua application framework.  It giv
 * Git repo creation, commit staging, and log access from libgit2
 
 # Example
-in `launcher.lua`
-```lua
-print("hello from torchbear")
-```
-in `settings.toml`
-```toml
-lua_prelude = "/"
-```
-Run
-`torchbear`
+Download [torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+Run `torchbear` inside
