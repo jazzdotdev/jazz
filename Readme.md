@@ -8,7 +8,7 @@ torchbear is an extremely fast and featureful Lua application framework.  It giv
 * Markdown output using Comrak
 * Jinja template rendering with Tera
 * Signatures and Encryption from Libsodium
-* Filesystem operations with `std::fs::*`
+* Filesystem operations from `std::fs::*`
 * Set theoretic operations using `std::collections::HashSet` Stringset
 * YAML and JSON serializing/deserializing with Serde
 * UUID generation and verification with UUID-rs
