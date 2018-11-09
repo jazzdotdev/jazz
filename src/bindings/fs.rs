@@ -45,6 +45,11 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(lua_value)
     })?)?;
 
+    module.set("read_file", lua.create_function( |lua, path: String| {
+        let data = fs::read(path).map_err(|err| LuaError::external(err))?;
+        Ok(lua.create_string(&data)?)
+    })?)?;
+
     module.set("exists", lua.create_function( |_, path: String| {
         Ok(::std::path::Path::new(&path).exists())
     })?)?;
