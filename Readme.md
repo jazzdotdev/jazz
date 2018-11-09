@@ -37,17 +37,17 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 ## Examples
 
-#### Static Webserver
+### Static Webserver
 [torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
-#### Hello World
+### Hello World
 
-in `init.lua`
+- in `init.lua`
 
 `print("hello from torchbear")`
 
-in `Settings.toml`
+- in `Settings.toml`
 
 `init = "init.lua"`
 
-run `torchbear`
+- run `torchbear`
