@@ -40,7 +40,7 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 ### Static Webserver
 [torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
-### Hello World
+### Hello World App
 
 - in `init.lua`
 
