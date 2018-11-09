@@ -10,17 +10,17 @@
 
 torchbear 🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
 
-* *HTTP/1.x* and *HTTP/2.0* web servers and clients on Actix Web
-* Markdown output using Comrak
-* Jinja template rendering with Tera
-* Signatures and Encryption from Libsodium
-* Filesystem operations from `std::fs::*`
-* Set theoretic operations using `std::collections::HashSet` Stringset
-* YAML and JSON serializing/deserializing with Serde
-* UUID generation and verification with UUID-rs
-* HTML scraping with Select-rs
-* Time/Date generation and verification using Chrono
-* Git repo creation, commit staging, and log access from libgit2
+* *HTTP/1.x* and *HTTP/2.0* web servers and clients on [Actix Web](https://github.com/actix/actix-web)
+* Jinja template rendering with [Tera](https://github.com/Keats/tera)
+* Markdown output using [Comrak](https://github.com/kivikakk/comrak)
+* Signatures and Encryption from [Libsodium](https://github.com/maidsafe/rust_sodium)
+* Filesystem operations from [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html)
+* Set-theoretic operations using [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html)
+* YAML and JSON serializing/deserializing with [Serde](https://github.com/serde-rs/serde)
+* UUID generation and verification with [UUID-rs](https://github.com/uuid-rs/uuid)
+* HTML scraping with [Select-rs](https://github.com/utkarshkukreti/select.rs)
+* Time/Date generation and verification using [Chrono](https://github.com/chronotope/chrono)
+* Git repo creation, commit staging, and log access from [libgit2](https://github.com/alexcrichton/git2-rs)
 
 # Example
 Download [torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
