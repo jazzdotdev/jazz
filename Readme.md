@@ -8,7 +8,7 @@
   <a href="https://github.com/foundpatterns/torchbear/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
 </p>
 
-torchbear is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
+torchbear 🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
 
 * *HTTP/1.x* and *HTTP/2.0* web servers and clients on Actix Web
 * Markdown output using Comrak
