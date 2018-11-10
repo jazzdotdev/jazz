@@ -12,7 +12,7 @@ torchbear 🔥🐻 is an extremely fast and featureful Lua application framework
 
 ## Built-in Tools
 
-* [rlua](https://github.com/kyren/rlua) wrapped [Lua 5.3.5](https://www.lua.org/) and [traceback error messages](https://www.lua.org/pil/23.html)
+* [rlua](https://github.com/kyren/rlua) wrapped [Lua 5.3.5](https://www.lua.org/) with [traceback error messages](https://www.lua.org/pil/23.html)
 * [Actix Web](https://github.com/actix/actix-web) *HTTP/1.x* and *HTTP/2.0* web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
@@ -37,9 +37,6 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 ## Examples
 
-### Static Webserver
-[torchbear static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
-
 ### Hello World App
 
 - in `init.lua`
@@ -51,3 +48,7 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 `init = "init.lua"`
 
 - run `torchbear`
+
+### [static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+
+### [lighttouch application framework](https://github.com/foundpatterns/lighttouch)
