@@ -12,7 +12,7 @@ torchbear 🔥🐻 is an extremely fast and featureful Lua application framework
 
 ## Built-in Tools
 
-* [rlua](https://github.com/kyren/rlua) wrapped [Lua 5.3.5](https://www.lua.org/) with [traceback error messages](https://www.lua.org/pil/23.html)
+* [rlua](https://github.com/kyren/rlua) wrapped Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) *HTTP/1.x* and *HTTP/2.0* web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
