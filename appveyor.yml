@@ -25,6 +25,11 @@ environment:
     - TARGET: i686-pc-windows-msvc
       CHANNEL: stable
       BITS: 32
+    - TARGET: x86_64-pc-windows-msvc
+      CHANNEL: beta
+      BITS: 64
+    - TARGET: i686-pc-windows-msvc
+      CHANNEL: beta
       
 matrix:
   fast_finish: true
@@ -45,8 +50,8 @@ before_deploy:
   - mkdir release
   - copy target\release\torchbear.exe release
   - cd release
-  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip *
-  - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%.zip
+  - 7z a ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%-%CHANNEL%.zip *
+  - appveyor PushArtifact ../%PROJECT_NAME%-%APPVEYOR_REPO_TAG_NAME%-%TARGET%-%CHANNEL%.zip
 
 deploy:
   description: 'Release'
