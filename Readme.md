@@ -1,4 +1,4 @@
-<p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"></p>
+<p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"><br>Torchbear is Currently in Stealth Mode.<br>please do not post a news story until v1 is released very shortly.<br>thank you.</p>
 
 <p align="center">
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
@@ -51,4 +51,8 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 #### [Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
-#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch)
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) (👍👍 for Web Development!)
+
+## Contributions wanted
+
+Torchbear is very extensible throughout the Rust ecosystem. Developers are welcomed to make low impact contributions as well as high impact ones, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing community.
