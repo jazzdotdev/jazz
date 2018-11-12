@@ -26,10 +26,10 @@ environment:
       CHANNEL: stable
       BITS: 32
     - TARGET: x86_64-pc-windows-msvc
-      CHANNEL: beta
+      CHANNEL: nightly
       BITS: 64
     - TARGET: i686-pc-windows-msvc
-      CHANNEL: beta
+      CHANNEL: nightly
       
 matrix:
   fast_finish: true

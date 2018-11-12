@@ -1,5 +1,5 @@
 
-FROM ekidd/rust-musl-builder:beta
+FROM ekidd/rust-musl-builder:nightly
 
 ADD . ./
 RUN sudo chown -R rust:rust .
