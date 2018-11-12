@@ -3,57 +3,80 @@ rust: stable
 sudo: required
 env:
   global:
-    - PROJECT: torchbear
+  - PROJECT: torchbear
 matrix:
   include:
     - os: linux
-      env: 
-        - ARCH=x86_64
-        - PLATFORM=linux
+      rust: stable
+      env:
+      - ARCH=x86_64
+      - PLATFORM=linux
+      - CHANNEL=stable
       services: docker
       script: echo "cargo test temporarily disabled"
       before_deploy:
-        - docker build -t build-${PROJECT}-image .
-        - docker run -it --name build-${PROJECT} build-${PROJECT}-image
-        - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
-        - docker rm build-${PROJECT}
-        - docker rmi build-${PROJECT}-image
-        - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}.zip ${PROJECT}
+      - docker build -t build-${PROJECT}-image .
+      - docker run -it --name build-${PROJECT} build-${PROJECT}-image
+      - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
+      - docker rm build-${PROJECT}
+      - docker rmi build-${PROJECT}-image
+      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
-      env: 
-        - ARCH=arm64
-        - PLATFORM=android
+      rust: nightly
+      env:
+      - ARCH=x86_64
+      - PLATFORM=linux
+      - CHANNEL=nightly
+      services: docker
       script: echo "cargo test temporarily disabled"
       before_deploy:
-        - export PATH="$HOME/.cargo/bin:$PATH"
-        - rustup target add aarch64-linux-android
-        - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-        - unzip -qq android-ndk-r18b-linux-x86_64.zip
-        - export NDK_HOME="$PWD/android-ndk-r18b"
-        - mkdir NDK
-        - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
-        - export PATH="$PATH:$PWD/NDK/aarch64/bin"
-        - cargo build --target="aarch64-linux-android" --release
-        - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}.zip target/aarch64-linux-android/release/${PROJECT}
-    # Reason we are doing a seperate build is to make sure a arch-base build is not bound to one specific platform
-    # So if for whatever reason one job is canceled is failed, the next can continue. 
+      - docker build -f Dockerfile.nightly -t build-${PROJECT}-image .
+      - docker run -it --name build-${PROJECT} build-${PROJECT}-image
+      - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
+      - docker rm build-${PROJECT}
+      - docker rmi build-${PROJECT}-image
+      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
+      env:
+      - ARCH=arm64
+      - PLATFORM=android
+      - CHANNEL=stable
+      script: echo "cargo test temporarily disabled"
+      before_deploy:
+      - export PATH="$HOME/.cargo/bin:$PATH"
+      - rustup target add aarch64-linux-android
+      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
+      - unzip -qq android-ndk-r18b-linux-x86_64.zip
+      - export NDK_HOME="$PWD/android-ndk-r18b"
+      - mkdir NDK
+      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
+      - export PATH="$PATH:$PWD/NDK/aarch64/bin"
+      - cargo build --target="aarch64-linux-android" --release
+      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/aarch64-linux-android/release/${PROJECT}
+    - os: linux
+<<<<<<< HEAD
       env: 
         - ARCH=arm32
         - PLATFORM=android
         - NDK_BUILD_32BIT=1
+=======
+      env:
+      - ARCH=arm32
+      - PLATFORM=android
+      - CHANNEL=stable
+>>>>>>> upstream/master
       script: echo "cargo test temporarily disabled"
       before_deploy:
-        - export PATH="$HOME/.cargo/bin:$PATH"
-        - rustup target add arm-linux-androideabi
-        - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-        - unzip -qq android-ndk-r18b-linux-x86_64.zip
-        - export NDK_HOME="$PWD/android-ndk-r18b"
-        - mkdir NDK
-        - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
-        - export PATH="$PATH:$PWD/NDK/arm/bin" 	
-        - cargo build --target="arm-linux-androideabi" --release
-        - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}.zip target/arm-linux-androideabi/release/${PROJECT}
+      - export PATH="$HOME/.cargo/bin:$PATH"
+      - rustup target add arm-linux-androideabi
+      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
+      - unzip -qq android-ndk-r18b-linux-x86_64.zip
+      - export NDK_HOME="$PWD/android-ndk-r18b"
+      - mkdir NDK
+      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
+      - export PATH="$PATH:$PWD/NDK/arm/bin" 	
+      - cargo build --target="arm-linux-androideabi" --release
+      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/arm-linux-androideabi/release/${PROJECT}
     # TODO: Implement windows jobs into travis. 
     # TODO: Implement 32bit as musl builder doesnt support it. Maybe just have it compile normally since it will be running against trusty which
     #       should be compatible with newer glibc
@@ -66,7 +89,7 @@ deploy:
   api_key:
     secure: vs0t3O6fc/ZAquCwrypegZ7dZJtuH1UKbL74JVy24m/T0Pe9BWHVILc/7iusepBm4gz4ZKltfJWb4eq0MpZ3EXwwny/Sjrkz85yzXBLD5FDSCO794y2zzOrsuho6VyWIlbI2Vldno9qG+oKKuUvNL083Wi1bDwj5+mQAXy1fvDgivI5MuRcZyYAKgdzfGhKxfaTCu0gUFzhaOG10gAqYkhO7wYz9ddFpu2/laVHjYJnt2BhbZ7Nu5EfC/mssLiuKq34DBwGQO6nfgmH2P+s2y+KNm6rua8gf9kQXG6r+50lwJhH0bq2BtjO9tCrZxDnOunybU8M0bPXKp02XmtHyNdflYL1CJoWm6+jTELoY+30ndlk6xg2oneOiJ/QAPcuB6ONVz3dCVQNVKgSTJvgSQ+Mexbzq8n8cz3B07epk0sb9XZZn4yVbPkMjt98IeTewe1raKCkQlsLu217RV/b8UZce3e7YRFpXPqSJ5DxymshZpbXIttqlbw3y6InESagK07bwjzOJJj2Za/Jfi+YAfRBiY1+U2zZn2Jj/lOyFfyKhn9hD4J9cA3JLtopTvU/A1IfwfPKBlbsNtZu7+XAaEPRLmhw3XryrZs5/RfO2JFaf9T/gyvka4HzAoyG8Du3zAUQqrXRcM8rdD5iWpktnnjsBD/Lw/YLwnHh+dVW0A3c=
   file_glob: true
-  file: "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}.*"
+  file: "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
   skip_cleanup: true
   on:
     repo: foundpatterns/torchbear

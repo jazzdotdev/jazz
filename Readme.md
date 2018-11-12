@@ -1,4 +1,4 @@
-<p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"></p>
+<p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"><br>This Project is Currently in Stealth Mode.<br>please do not post a news story until v1 is released very shortly.<br>thank you.</p>
 
 <p align="center">
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
@@ -8,11 +8,11 @@
   <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-torchbear 🔥🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
+Torchbear 🔥🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
 
 ## Built-in Tools
 
-* [rlua](https://github.com/kyren/rlua) wrapped Lua 5.3.5 with traceback error messages
+* [rlua](https://github.com/kyren/rlua) safely wrapped Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) *HTTP/1.x* and *HTTP/2.0* web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
@@ -27,7 +27,7 @@ torchbear 🔥🐻 is an extremely fast and featureful Lua application framework
 
 ## Installation
 
-- Download the [latest torchbear release](https://github.com/foundpatterns/torchbear/releases).
+- Download the [latest Torchbear release](https://github.com/foundpatterns/torchbear/releases).
 - Unzip it in your application.
 - Run `torchbear`.
 
@@ -37,11 +37,11 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 ## Examples
 
-### Hello World App
+#### Hello World App
 
 - in `init.lua`
 
-`print("hello from torchbear")`
+`print("hello from Torchbear")`
 
 - in `Settings.toml`
 
@@ -49,6 +49,10 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 - run `torchbear`
 
-### [static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+#### [Torchbear Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
-### [lighttouch application framework](https://github.com/foundpatterns/lighttouch)
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) (👍👍 for Web Development!)
+
+## Contributions wanted
+
+Torchbear extends Rust's burgeoning ecosystem of libraries. Developers are welcomed to [make small changes](https://github.com/foundpatterns/torchbear/issues?q=is%3Aopen+is%3Aissue+label%3Asize%2F0.25) as well as high impact contributions, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from in the bindings directory, each with an interesting history.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing userbase.
