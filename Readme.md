@@ -37,7 +37,7 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 ## Examples
 
-### Hello World App
+#### Hello World App
 
 - in `init.lua`
 
@@ -49,6 +49,6 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 - run `torchbear`
 
-### [static webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+#### [Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
-### [lighttouch application framework](https://github.com/foundpatterns/lighttouch)
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch)
