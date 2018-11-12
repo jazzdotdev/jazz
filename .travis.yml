@@ -26,11 +26,11 @@ matrix:
       env:
       - ARCH=x86_64
       - PLATFORM=linux
-      - CHANNEL=beta
+      - CHANNEL=nightly
       services: docker
       script: echo "cargo test temporarily disabled"
       before_deploy:
-      - docker build -f Dockerfile.beta -t build-${PROJECT}-image .
+      - docker build -f Dockerfile.nightly -t build-${PROJECT}-image .
       - docker run -it --name build-${PROJECT} build-${PROJECT}-image
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
