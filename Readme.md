@@ -8,7 +8,7 @@
   <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-torchbear 🔥🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
+Torchbear 🔥🐻 is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.
 
 ## Built-in Tools
 
@@ -27,7 +27,7 @@ torchbear 🔥🐻 is an extremely fast and featureful Lua application framework
 
 ## Installation
 
-- Download the [latest torchbear release](https://github.com/foundpatterns/torchbear/releases).
+- Download the [latest Torchbear release](https://github.com/foundpatterns/torchbear/releases).
 - Unzip it in your application.
 - Run `torchbear`.
 
@@ -41,7 +41,7 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 - in `init.lua`
 
-`print("hello from torchbear")`
+`print("hello from Torchbear")`
 
 - in `Settings.toml`
 
