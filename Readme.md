@@ -49,7 +49,7 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 - run `torchbear`
 
-#### [Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+#### [Torchbear Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
 
 #### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) (👍👍 for Web Development!)
 
