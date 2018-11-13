@@ -10,6 +10,18 @@ impl UserData for LuaTime {
         methods.add_meta_method(MetaMethod::ToString, |_, this, _: ()| {
             Ok(this.0.to_rfc2822())
         });
+
+        methods.add_meta_method(MetaMethod::Eq, |_, this, that: LuaTime| {
+            Ok(this.0 == that.0)
+        });
+
+        methods.add_meta_method(MetaMethod::Lt, |_, this, that: LuaTime| {
+            Ok(this.0 < that.0)
+        });
+
+        methods.add_meta_method(MetaMethod::Le, |_, this, that: LuaTime| {
+            Ok(this.0 <= that.0)
+        });
     }
 }
 
