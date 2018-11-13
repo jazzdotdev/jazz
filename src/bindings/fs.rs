@@ -2,8 +2,6 @@ use rlua::prelude::*;
 use std::sync::Arc;
 use std::fs;
     
-//fn metadata_table (::std::DirEntry)
-
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     let module = lua.create_table()?;
@@ -35,6 +33,22 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             }, Err(err) => Err(LuaError::ExternalError(Arc::new(::failure::Error::from_boxed_compat(Box::new(err)))))
         }
     })? )?;
+
+    module.set("read_dir", lua.create_function( |lua, path: String| {
+        let mut _list: Vec<String> = Vec::new();
+        for entry in fs::read_dir(path).map_err(|err| LuaError::external(err))? {
+            let entry = entry.map_err(|err| LuaError::external(err))?;
+            _list.push(entry.path().file_name().unwrap_or_default().to_string_lossy().to_string());      
+        }
+        let list_value: serde_json::Value = serde_json::to_value(_list).map_err(|err| LuaError::external(err) )?;
+        let lua_value = rlua_serde::to_value(lua, &list_value)?;
+        Ok(lua_value)
+    })?)?;
+
+    module.set("read_file", lua.create_function( |lua, path: String| {
+        let data = fs::read(path).map_err(|err| LuaError::external(err))?;
+        Ok(lua.create_string(&data)?)
+    })?)?;
 
     module.set("exists", lua.create_function( |_, path: String| {
         Ok(::std::path::Path::new(&path).exists())
