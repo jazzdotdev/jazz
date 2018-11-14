@@ -14,8 +14,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     module.set("replace_all", lua.create_function(|lua, (expr, val, patt): (String, String, String)| {
         let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
-        let res: String = re.replace_all(&val, patt.as_str()).into_owned();
-        Ok(res)
+        Ok(re.replace_all(&val, patt.as_str()).into_owned())
     })?)?;
 
     lua.globals().set("regex", module)?;
@@ -33,11 +32,11 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local expr = "(%d+)-(%d+)-(%d+)"
+            local expr = [[(?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})]]
             local before = "2012-03-14, 2013-01-01 and 2014-07-05"
             local result = regex.replace_all(expr, before, "$m/$d/$y")
 
-            print(result)
+            assert(result == "03/14/2012, 01/01/2013 and 07/05/2014")
         "#, None).unwrap();
     }
 
@@ -47,11 +46,11 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local expr = "(%d+)-(%d+)-(%d+)"
-            local date = "2012-03-14"
+            local expr = [[^\d{4}-\d{2}-\d{2}$]]
+            local date = "2014-01-01"
             local result = regex.match(expr, date)
 
-            print(result)
+            assert(result == true)
         "#, None).unwrap();
     }
 }
