@@ -11,7 +11,7 @@ pub mod time;
 pub mod fs;
 pub mod select;
 pub mod git;
-
+pub mod regex;
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
 pub mod log;
