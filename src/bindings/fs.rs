@@ -14,6 +14,10 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(result.is_ok())
     })? )?;
 
+    //TODO: 'fs.entries' works sometimes, while at random it fails to work and returns
+    //      a nil value in test as well as in actual use
+    //      Sort out and correct the issues in relations to this problem
+    //      Possibly related to https://github.com/foundpatterns/torchbear/issues/84
     module.set("entries", lua.create_function( |lua, path: String| {
         match fs::read_dir(path) {
             Ok(iter) => {
