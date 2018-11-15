@@ -10,8 +10,7 @@
   <br>
   <a href="https://github.com/rust-lang/crates.io/issues/704"><img src="https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg" alt="Actively Maintained"></a>
   <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License:Apache"></a>
+  <a href="https://camo.githubusercontent.com/d85c53a38fb4fae94f3c319af4e98c34bf3ba107/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6c6963656e73652d4d4954253246417061636865322d626c75652e737667" alt="License: MIT/Apache"></a>
 </p>
 
 Torchbear is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
