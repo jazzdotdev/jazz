@@ -2,7 +2,16 @@ use rlua::prelude::*;
 use rlua::UserData;
 use rlua::UserDataMethods;
 
-#[derive(Serialize, Deserialize)]
+fn combine<T: std::ops::BitOr<Output = T> + Clone>(vec: Vec<T>) -> T {
+    assert!(!vec.is_empty());
+    let mut res = vec[0].clone();
+    for i in vec {
+        res = res | i;
+    }
+    res
+}
+
+#[derive(Clone)]
 struct IntOptions(tantivy::schema::IntOptions);
 
 impl std::ops::BitOr for IntOptions {
@@ -12,18 +21,12 @@ impl std::ops::BitOr for IntOptions {
     }
 }
 
-fn to_int_option(vec: Vec<rlua::Value>) -> rlua::Result<IntOptions> {
-    assert!(!vec.is_empty());
-    let mut res = rlua_serde::from_value(vec[0].clone())?;
-    for op in vec {
-        let op = rlua_serde::from_value(op)?;
-        res = res | op;
-    }
-    Ok(res)
-}
+impl UserData for IntOptions {}
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone)]
 struct TextOptions(tantivy::schema::TextOptions);
+
+impl UserData for TextOptions {}
 
 impl std::ops::BitOr for TextOptions {
     type Output = TextOptions;
@@ -32,29 +35,18 @@ impl std::ops::BitOr for TextOptions {
     }
 }
 
-fn to_text_option(vec: Vec<rlua::Value>) -> rlua::Result<TextOptions> {
-    assert!(!vec.is_empty());
-    let mut res = rlua_serde::from_value(vec[0].clone())?;
-    for op in vec {
-        let op = rlua_serde::from_value(op)?;
-        res = res | op;
-    }
-    Ok(res)
-}
-
+#[derive(Clone)]
 struct Field(tantivy::schema::Field);
 impl UserData for Field {}
 
 struct SchemaBuilder(Option<tantivy::schema::SchemaBuilder>);
 
-impl UserData for IntOptions {}
-
 impl UserData for SchemaBuilder {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method_mut(
             "add_u64_field",
-            |_, this, (name, options): (String, Vec<rlua::Value>)| {
-                let option = to_int_option(options)?;
+            |_, this, (name, options): (String, Vec<IntOptions>)| {
+                let option = combine(options);
                 let this = this.0.as_mut().expect("Value already moved");
                 let field = this.add_u64_field(&name, option.0);
                 Ok(Field(field))
@@ -63,8 +55,8 @@ impl UserData for SchemaBuilder {
 
         methods.add_method_mut(
             "add_i64_field",
-            |_, this, (name, options): (String, Vec<rlua::Value>)| {
-                let option = to_int_option(options)?;
+            |_, this, (name, options): (String, Vec<IntOptions>)| {
+                let option = combine(options);
                 let this = this.0.as_mut().expect("Value already moved");
                 let field = this.add_i64_field(&name, option.0);
                 Ok(Field(field))
@@ -73,8 +65,8 @@ impl UserData for SchemaBuilder {
 
         methods.add_method_mut(
             "add_text_field",
-            |_, this, (name, options): (String, Vec<rlua::Value>)| {
-                let option = to_text_option(options)?;
+            |_, this, (name, options): (String, Vec<TextOptions>)| {
+                let option = combine(options);
                 let this = this.0.as_mut().expect("Value already moved");
                 let field = this.add_text_field(&name, option.0);
                 Ok(Field(field))
@@ -113,7 +105,9 @@ struct Index(tantivy::Index);
 impl UserData for Index {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("writer", |_, this, size: usize| {
-            Ok(IndexWriter(this.0.writer(size).expect("Error getting writer")))
+            Ok(IndexWriter(
+                this.0.writer(size).expect("Error getting writer"),
+            ))
         });
     }
 }
@@ -124,9 +118,10 @@ impl UserData for IndexWriter {}
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let tan = lua.create_table()?;
-    tan.set("new_schema_builder", lua.create_function(|_, _: ()| {
-        Ok(SchemaBuilder(Default::default()))
-    })?)?;
+    tan.set(
+        "new_schema_builder",
+        lua.create_function(|_, _: ()| Ok(SchemaBuilder(Default::default())))?,
+    )?;
 
     let globals = lua.globals();
     globals.set("tan", tan)?;
