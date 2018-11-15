@@ -89,6 +89,7 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
     bindings::select::init(&lua)?;
     bindings::git::init(&lua)?;
     bindings::regex::init(&lua)?;
+    bindings::tantivy::init(&lua)?;
 
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
