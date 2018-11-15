@@ -31,6 +31,7 @@ extern crate select;
 #[macro_use]
 extern crate serde_derive;
 extern crate git2;
+extern crate regex;
 
 use std::sync::Arc;
 use actix::prelude::*;
@@ -87,6 +88,7 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
     bindings::fs::init(&lua)?;
     bindings::select::init(&lua)?;
     bindings::git::init(&lua)?;
+    bindings::regex::init(&lua)?;
 
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {

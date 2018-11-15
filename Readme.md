@@ -41,6 +41,8 @@ Windows, Android, and Linux builds available for primary architectures.  MacOS b
 
 Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
 
+Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
+
 ## Examples
 
 #### Hello World App
