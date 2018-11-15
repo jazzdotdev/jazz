@@ -120,8 +120,16 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let tan = lua.create_table()?;
     tan.set(
         "new_schema_builder",
-        lua.create_function(|_, _: ()| Ok(SchemaBuilder(Default::default())))?,
+        lua.create_function(|_, _: ()| Ok(SchemaBuilder(Some(Default::default()))))?,
     )?;
+
+    tan.set("TEXT", TextOptions(tantivy::schema::TEXT))?;
+    tan.set("STRING", TextOptions(tantivy::schema::STRING))?;
+    tan.set("STORED", TextOptions(tantivy::schema::STORED))?;
+    tan.set("INT_STORED", IntOptions(tantivy::schema::INT_STORED))?;
+    tan.set("INT_INDEXED", IntOptions(tantivy::schema::INT_INDEXED))?;
+    tan.set("FAST", IntOptions(tantivy::schema::FAST))?;
+    tan.set("FACET_SEP_BYTE", tantivy::schema::FACET_SEP_BYTE)?;
 
     let globals = lua.globals();
     globals.set("tan", tan)?;
@@ -133,6 +141,9 @@ mod tests {
     use rlua::{Lua, Value};
     static SCRIPT: &str = r##"
     local builder = tan.new_schema_builder()
+    builder:add_text_field("title", {tan.TEXT, tan.STORED})
+    builder:add_text_field("body", {tan.TEXT})
+    local schema = builder:build()
     "##;
     #[test]
     fn test() {
