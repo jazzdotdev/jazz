@@ -115,7 +115,25 @@ impl UserData for Index {
 
 struct IndexWriter(tantivy::IndexWriter);
 
-impl UserData for IndexWriter {}
+impl UserData for IndexWriter {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method_mut("add_document", |_, this, doc: Document| {
+            Ok(this.0.add_document(doc.0))
+        });
+    }
+}
+
+#[derive(Clone)]
+struct Document(tantivy::Document);
+
+impl UserData for Document {
+    fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method_mut("add_text", |_, this, (f, t): (Field, String)| {
+            this.0.add_text(f.0, &t);
+            Ok(())
+        })
+    }
+}
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let tan = lua.create_table()?;
@@ -139,6 +157,10 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(Index(tantivy::Index::create_in_dir(&path ,schema.0).expect("create_in_dir failed")))
     })?)?;
 
+    tan.set("new_document", lua.create_function(|_, _: ()| {
+        Ok(Document(Default::default()))
+    })?)?;
+
     let globals = lua.globals();
     globals.set("tan", tan)?;
     Ok(())
@@ -156,6 +178,18 @@ mod tests {
     local index_writer = index:writer(50000000)
     local title = schema:get_field("title")
     local body = schema:get_field("body")
+
+    local doc
+    doc = tan.new_document()
+    doc:add_text(title, "Lorem ipsum dolor sit amet")
+    doc:add_text(body, "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+    index_writer:add_document(doc)
+
+    doc = tan.new_document()
+    doc:add_text(title, "Ut enim ad minim veniam")
+    doc:add_text(body, "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
+    index_writer:add_document(doc)
+
     "##;
     #[test]
     fn test() {
