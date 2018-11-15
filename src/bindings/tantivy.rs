@@ -90,6 +90,7 @@ impl UserData for SchemaBuilder {
     }
 }
 
+#[derive(Clone)]
 struct Schema(tantivy::schema::Schema);
 
 impl UserData for Schema {
@@ -131,6 +132,13 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     tan.set("FAST", IntOptions(tantivy::schema::FAST))?;
     tan.set("FACET_SEP_BYTE", tantivy::schema::FACET_SEP_BYTE)?;
 
+    tan.set("index_in_ram", lua.create_function(|_, schema: Schema| {
+        Ok(Index(tantivy::Index::create_in_ram(schema.0)))
+    })?)?;
+    tan.set("index_in_dir", lua.create_function(|_, (path, schema): (String, Schema)| {
+        Ok(Index(tantivy::Index::create_in_dir(&path ,schema.0).expect("create_in_dir failed")))
+    })?)?;
+
     let globals = lua.globals();
     globals.set("tan", tan)?;
     Ok(())
@@ -144,6 +152,10 @@ mod tests {
     builder:add_text_field("title", {tan.TEXT, tan.STORED})
     builder:add_text_field("body", {tan.TEXT})
     local schema = builder:build()
+    local index = tan.index_in_dir(index_path, schema)
+    local index_writer = index:writer(50000000)
+    local title = schema:get_field("title")
+    local body = schema:get_field("body")
     "##;
     #[test]
     fn test() {
