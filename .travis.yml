@@ -97,5 +97,4 @@ notifications:
     on_success: never  
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_d833950d04bb_key -iv $encrypted_d833950d04bb_iv
-  -in keys.gpg.enc -out keys.gpg -d
+- openssl aes-256-cbc -K $encrypted_d833950d04bb_key -iv $encrypted_d833950d04bb_iv -in keys.gpg.enc -out keys.gpg -d
