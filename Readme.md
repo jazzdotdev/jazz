@@ -44,6 +44,8 @@ Android users, install [Termux](https://termux.com/) for a full Linux envrionmen
 
 Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
 
+Just in case, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).
+
 ## Examples
 
 #### Hello World App
