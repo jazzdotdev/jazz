@@ -176,6 +176,9 @@ impl UserData for IndexWriter {
         methods.add_method_mut("commit", |_, this, _: ()| {
             Ok(this.0.commit().expect("IndexWriter commit failed"))
         });
+        methods.add_method_mut("delete_term", |_, this, t: Term| {
+            Ok(this.0.delete_term(t.0))
+        });
     }
 }
 
@@ -190,6 +193,11 @@ impl UserData for Document {
         });
     }
 }
+
+#[derive(Clone)]
+struct Term(tantivy::Term);
+
+impl UserData for Term {}
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let tan = lua.create_table()?;
@@ -244,6 +252,13 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         })?,
     )?;
 
+    tan.set(
+        "term_from_field_text",
+        lua.create_function(|_, (f, s): (Field, String)| {
+            Ok(Term(tantivy::Term::from_field_text(f.0, &s)))
+        })?,
+    )?;
+
     let globals = lua.globals();
     globals.set("tan", tan)?;
     Ok(())
@@ -254,21 +269,25 @@ mod tests {
     use rlua::{Lua, Value};
     static SCRIPT: &str = r##"
     local builder = tan.new_schema_builder()
+    builder:add_text_field("id", {tan.STRING, tan.STORED})
     builder:add_text_field("title", {tan.TEXT, tan.STORED})
     builder:add_text_field("body", {tan.TEXT})
     local schema = builder:build()
     local index = tan.index_in_dir(index_path, schema)
     local index_writer = index:writer(50000000)
+    local id = schema:get_field("id")
     local title = schema:get_field("title")
     local body = schema:get_field("body")
 
     local doc
     doc = tan.new_document()
+    doc:add_text(id, "1")
     doc:add_text(title, "Lorem ipsum dolor sit amet")
     doc:add_text(body, "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
     index_writer:add_document(doc)
 
     doc = tan.new_document()
+    doc:add_text(id, "2")
     doc:add_text(title, "Ut enim ad minim veniam")
     doc:add_text(body, "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.")
     index_writer:add_document(doc)
@@ -282,6 +301,15 @@ mod tests {
     for i = 1, #result do
         print(schema:to_json(result[i]))
     end
+
+    local term = tan.term_from_field_text(id, "1")
+    index_writer:delete_term(term)
+    index_writer:commit()
+
+    index:load_searchers()
+    coll = tan.top_collector_with_limit(10)
+    result = index:search(parser, "Lorem ipsum dolor sit amet", coll)
+    assert(#result == 0)
     "##;
     #[test]
     fn test() {
