@@ -19,15 +19,15 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 ## Built-in Tools
 
 * [rlua](https://github.com/kyren/rlua) safely wrapped Lua 5.3.5 with traceback error messages
-* [Actix Web](https://github.com/actix/actix-web) *HTTP/1.x* and *HTTP/2.0* web servers and clients
+* [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
-* [Libsodium](https://github.com/maidsafe/rust_sodium) Signatures and Encryption
-* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) Filesystem operations
-* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) Set-theoretic operations
+* [Libsodium](https://github.com/maidsafe/rust_sodium) cryptographic signing and verifying, and encrypting and decrypting
+* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
+* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
 * [Serde](https://github.com/serde-rs/serde) YAML and JSON serializing/deserializing
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
-* [Chrono](https://github.com/chronotope/chrono) Time/Date generation and verification
+* [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
 * [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
