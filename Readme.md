@@ -29,7 +29,8 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [Chrono](https://github.com/chronotope/chrono) Time/Date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [libgit2](https://github.com/alexcrichton/git2-rs) Git repo creation, commit staging, and log access
+* [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
+* [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 
 ## Installation
 
