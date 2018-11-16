@@ -1,4 +1,3 @@
-
 -- Set the default response
 torchbear.response = nil
 
