@@ -164,7 +164,7 @@ impl ApplicationBuilder {
 
                     if let Some(err) = err.downcast_ref::<IoErr>() {
                         if let ErrorKind::NotFound = err.kind() {
-                            println!("Error: torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
+                            println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
                             std::process::exit(1);
                         };
                     };
