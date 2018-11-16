@@ -32,6 +32,7 @@ extern crate select;
 extern crate serde_derive;
 extern crate git2;
 extern crate regex;
+extern crate tantivy;
 
 use std::sync::Arc;
 use actix::prelude::*;

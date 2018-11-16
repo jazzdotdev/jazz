@@ -1,8 +1,9 @@
 use rlua::prelude::*;
 use rlua::UserData;
 use rlua::UserDataMethods;
+use tantivy;
 
-fn combine<T: std::ops::BitOr<Output = T> + Clone>(vec: Vec<T>) -> T {
+fn combine<T: ::std::ops::BitOr<Output = T> + Clone>(vec: Vec<T>) -> T {
     assert!(!vec.is_empty());
     let mut res = vec[0].clone();
     for i in vec {
@@ -14,7 +15,7 @@ fn combine<T: std::ops::BitOr<Output = T> + Clone>(vec: Vec<T>) -> T {
 #[derive(Clone)]
 struct IntOptions(tantivy::schema::IntOptions);
 
-impl std::ops::BitOr for IntOptions {
+impl ::std::ops::BitOr for IntOptions {
     type Output = IntOptions;
     fn bitor(self, other: IntOptions) -> IntOptions {
         IntOptions(self.0 | other.0)
@@ -28,7 +29,7 @@ struct TextOptions(tantivy::schema::TextOptions);
 
 impl UserData for TextOptions {}
 
-impl std::ops::BitOr for TextOptions {
+impl ::std::ops::BitOr for TextOptions {
     type Output = TextOptions;
     fn bitor(self, other: TextOptions) -> TextOptions {
         TextOptions(self.0 | other.0)
@@ -120,11 +121,11 @@ impl UserData for Index {
         });
         methods.add_method(
             "search",
-            |_, this, (p, q, a): (QueryParser, String, rlua::AnyUserData)| {
+            |_, this, (p, q, a): (QueryParser, String, ::rlua::AnyUserData)| {
                 if a.is::<TopCollector>() {
                     Ok(this.search(p, q, &mut *a.borrow_mut::<TopCollector>().unwrap()))
                 } else {
-                    Err(rlua::Error::UserDataTypeMismatch)
+                    Err(::rlua::Error::UserDataTypeMismatch)
                 }
             },
         );
@@ -150,12 +151,12 @@ trait GetCollector {
 }
 
 #[derive(Clone)]
-struct TopCollector(std::sync::Arc<tantivy::collector::TopCollector>);
+struct TopCollector(::std::sync::Arc<tantivy::collector::TopCollector>);
 impl UserData for TopCollector {}
 impl GetCollector for TopCollector {
     type Output = tantivy::collector::TopCollector;
     fn get_collector(&mut self) -> &mut Self::Output {
-        std::sync::Arc::get_mut(&mut self.0).unwrap()
+        ::std::sync::Arc::get_mut(&mut self.0).unwrap()
     }
     fn get_doc_addresses(&self) -> Vec<tantivy::DocAddress> {
         self.0.docs()
@@ -163,7 +164,7 @@ impl GetCollector for TopCollector {
 }
 
 #[derive(Clone)]
-struct QueryParser(std::sync::Arc<tantivy::query::QueryParser>);
+struct QueryParser(::std::sync::Arc<tantivy::query::QueryParser>);
 impl UserData for QueryParser {}
 
 struct IndexWriter(tantivy::IndexWriter);
@@ -237,7 +238,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     tan.set(
         "top_collector_with_limit",
         lua.create_function(|_, l: usize| {
-            Ok(TopCollector(std::sync::Arc::new(
+            Ok(TopCollector(::std::sync::Arc::new(
                 tantivy::collector::TopCollector::with_limit(l),
             )))
         })?,
@@ -246,7 +247,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         "query_parser_for_index",
         lua.create_function(|_, (i, f): (Index, Vec<Field>)| {
             let f = f.into_iter().map(|x| x.0).collect();
-            Ok(QueryParser(std::sync::Arc::new(
+            Ok(QueryParser(::std::sync::Arc::new(
                 tantivy::query::QueryParser::for_index(&i.0, f),
             )))
         })?,
