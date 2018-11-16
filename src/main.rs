@@ -6,7 +6,7 @@ use clap::{Arg, App as ClapApp};
 
 fn main() {
     let matches = ClapApp::new("torchbear")
-        .version("0.4.2")
+        .version("0.5.0")
         .author("Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>")
         .about("TorchBear Application Framework")
                 .arg(Arg::with_name("log")
