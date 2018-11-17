@@ -38,11 +38,13 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 - Unzip it in your application.
 - Run `torchbear`.
 
-Windows, Android, and Linux builds available for primary architectures.  MacOS builds still to come.  OS Pacakge Managers support coming soon - contributions welcomed.
+Windows, Android, MacOS, and Linux builds available for primary architectures.  OS Pacakge Managers support coming soon - contributions welcomed.
 
 Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
 
 Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
+
+MacOS users, install [Homebrew](https://brew.sh/) for additional tools.
 
 Just in case, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).
 
