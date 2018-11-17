@@ -192,6 +192,24 @@ impl UserData for Document {
             this.0.add_text(f.0, &t);
             Ok(())
         });
+
+        use tantivy::schema::Value;
+
+        fn get_value (tan: Value) -> LuaValue {
+            match tan {
+                Value::Str(s) => LuaValue::String(s),
+                Value::U64(n) => LuaValue::Integer(n as lua::Integer),
+                Value::I64(n) => LuaValue::Integer(n as lua::Integer),
+                _ => unimplemented!()
+            }
+        }
+
+        methods.add_method_mut("get_first", |_, this, f: Field| {
+            Ok(this.0.get_first(f.0).map(get_value))
+        });
+        methods.add_method_mut("get_all", |_, this, f: Field| {
+            Ok(this.0.get_first(f.0).map(get_value))
+        });
     }
 }
 
