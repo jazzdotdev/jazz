@@ -3,15 +3,15 @@
 <p align="center">
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
   <a href="https://ci.appveyor.com/project/mitchtbaum/torchbear"><img src="https://ci.appveyor.com/api/projects/status/mg6e0p7s5v7j61ja?svg=true" alt="Appveyor Build Status"></a>
-  <a href="https://crates.io/crates/torchbear"><img src="https://img.shields.io/crates/v/torchbear.svg" alt="torchbear Crate"></a>
   <a href="https://deps.rs/crate/torchbear/0.5.0"><img src="https://deps.rs/crate/torchbear/0.5.0/status.svg" alt="Dependencies"></a>
-  <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
+  <a href="https://crates.io/crates/torchbear"><img src="https://img.shields.io/crates/v/torchbear.svg" alt="torchbear Crate"></a>
+  <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
   <br>
   <a href="https://github.com/rust-lang/crates.io/issues/704"><img src="https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg" alt="Actively Maintained"></a>
   <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
   <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
-  <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
+  <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
 Torchbear is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
@@ -19,17 +19,18 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 ## Built-in Tools
 
 * [rlua](https://github.com/kyren/rlua) safely wrapped Lua 5.3.5 with traceback error messages
-* [Actix Web](https://github.com/actix/actix-web) *HTTP/1.x* and *HTTP/2.0* web servers and clients
+* [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
-* [Libsodium](https://github.com/maidsafe/rust_sodium) Signatures and Encryption
-* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) Filesystem operations
-* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) Set-theoretic operations
+* [Libsodium](https://github.com/maidsafe/rust_sodium) cryptographic signing and verifying, and encrypting and decrypting
+* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
+* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
 * [Serde](https://github.com/serde-rs/serde) YAML and JSON serializing/deserializing
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
-* [Chrono](https://github.com/chronotope/chrono) Time/Date generation and verification
+* [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [libgit2](https://github.com/alexcrichton/git2-rs) Git repo creation, commit staging, and log access
+* [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
+* [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 
 ## Installation
 
@@ -37,11 +38,15 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 - Unzip it in your application.
 - Run `torchbear`.
 
-Windows, Android, and Linux builds available for primary architectures.  MacOS builds still to come.  OS Pacakge Managers support coming soon - contributions welcomed.
+Windows, Android, MacOS, and Linux builds available for primary architectures.  OS Pacakge Managers support coming soon - contributions welcomed.
 
 Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
 
 Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
+
+MacOS users, install [Homebrew](https://brew.sh/) for additional tools.
+
+Just in case, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).
 
 ## Examples
 
