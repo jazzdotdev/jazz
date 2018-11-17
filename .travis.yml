@@ -36,6 +36,16 @@ matrix:
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+    - os: osx
+      rust: stable
+      env:
+      - ARCH=x86_64
+      - PLATFORM=apple
+      - CHANNEL=stable
+      script: echo "cargo test temporarily disabled"
+      before_deploy:
+      - cargo build --release
+      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/release/${PROJECT}
     - os: linux
       env:
       - ARCH=arm64
