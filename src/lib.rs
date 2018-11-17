@@ -119,6 +119,7 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
             end
             
         end, function (msg)
+            msg = tostring(msg)
             local trace = debug.traceback(msg, 3)
             log.error(trace)
         end)        
