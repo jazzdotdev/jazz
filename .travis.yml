@@ -13,7 +13,7 @@ matrix:
       - PLATFORM=linux
       - CHANNEL=stable
       services: docker
-      # script: echo "cargo test temporarily disabled"
+      script: echo "cargo test temporarily disabled"
       before_deploy:
       - docker build -t build-${PROJECT}-image .
       - docker run -it --name build-${PROJECT} build-${PROJECT}-image
@@ -28,7 +28,7 @@ matrix:
       - PLATFORM=linux
       - CHANNEL=nightly
       services: docker
-      # script: echo "cargo test temporarily disabled"
+      script: echo "cargo test temporarily disabled"
       before_deploy:
       - docker build -f Dockerfile.nightly -t build-${PROJECT}-image .
       - docker run -it --name build-${PROJECT} build-${PROJECT}-image
@@ -42,7 +42,7 @@ matrix:
       - ARCH=x86_64
       - PLATFORM=apple
       - CHANNEL=stable
-      # script: echo "cargo test temporarily disabled"
+      script: echo "cargo test temporarily disabled"
       before_deploy:
       - cargo build --release
       - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/release/${PROJECT}
@@ -68,7 +68,7 @@ matrix:
       - ARCH=arm32
       - PLATFORM=android
       - CHANNEL=stable
-      # script: echo "cargo test temporarily disabled"
+      script: echo "cargo test temporarily disabled"
       before_deploy:
       - export PATH="$HOME/.cargo/bin:$PATH"
       - rustup target add arm-linux-androideabi
