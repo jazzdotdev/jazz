@@ -195,20 +195,28 @@ impl UserData for Document {
 
         use tantivy::schema::Value;
 
-        fn get_value (tan: Value) -> LuaValue {
-            match tan {
-                Value::Str(s) => LuaValue::String(s),
-                Value::U64(n) => LuaValue::Integer(n as lua::Integer),
-                Value::I64(n) => LuaValue::Integer(n as lua::Integer),
+        fn get_value<'a, 'b> (lua: &'a Lua, tan: &'b Value) -> LuaResult<LuaValue<'a>> {
+            Ok(match tan {
+                Value::Str(s) => LuaValue::String(lua.create_string(&s)?),
+                Value::U64(n) => LuaValue::Integer(*n as rlua::Integer),
+                Value::I64(n) => LuaValue::Integer(*n as rlua::Integer),
                 _ => unimplemented!()
-            }
+            })
         }
 
-        methods.add_method_mut("get_first", |_, this, f: Field| {
-            Ok(this.0.get_first(f.0).map(get_value))
+        methods.add_method_mut("get_first", |lua, this, f: Field| {
+            Ok(match this.0.get_first(f.0) {
+                Some(x) => Some(get_value(lua, x)?),
+                None => None
+            })
         });
-        methods.add_method_mut("get_all", |_, this, f: Field| {
-            Ok(this.0.get_first(f.0).map(get_value))
+
+        methods.add_method_mut("get_all", |lua, this, f: Field| {
+            let vals: Result<Vec<_>, _> =
+                this.0.get_all(f.0).iter().map(
+                    |x| get_value(lua, x)
+                ).collect();
+            vals
         });
     }
 }
