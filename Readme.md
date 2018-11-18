@@ -34,7 +34,7 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 
 ## Installation
 
-Torchbear comes as a single executable, making it very easy to install.  The latest version is available on the GitHub releases page, so you can download the zip file for your operating system and hardware architecture from there and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
+Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture from there and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | sh
