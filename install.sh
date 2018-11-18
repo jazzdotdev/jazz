@@ -31,9 +31,13 @@ architecture() {
 }
 
 get_os() {
-    case `uname -s` in
-        MINGW* | MSYS* | CYGWIN*)
+    # TODO: Check to see what cygwin and similar would return when using "uname -o"
+    case `uname -o` in
+        Msys)
             echo Windows
+            ;;
+        Android)
+            echo Android
             ;;
         *)
             echo $(uname -s)
@@ -43,11 +47,10 @@ get_os() {
 
 system() {
     case $(get_os) in
-        Linux)
+        GNU/Linux)
             echo linux
             ;;
         Android)
-            #TODO: Complete and test with android.
             echo android
             ;;
         Darwin)
@@ -105,7 +108,7 @@ set_path() {
 install() {
     echo System Type: $(get_os)
 
-    if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.bin/torchbear.exe" ] || [ ! -x $(command -v torchbear) ]; then
+    if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.bin/torchbear.exe" ] || [ -f "/data/data/com.termux/files/usr/bin/torchbear" ] || [ ! -x $(command -v torchbear) ]; then
 	    #TODO: Give user the an option to upgrade if they are running the installer to upgrade.
         error "Torchbear is already installed."
     fi
@@ -118,6 +121,10 @@ install() {
             else
                 error Please run as root
             fi
+            ;;
+        android)
+            echo Downloading torchbear
+            download_and_extract "/data/data/com.termux/files/usr/bin"
             ;;
         *windows*)
             echo Downloading torchbear
