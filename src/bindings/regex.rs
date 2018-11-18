@@ -1,18 +1,15 @@
-use std::sync::Arc;
 use rlua::prelude::*;
-use serde_json;
-use rlua_serde;
 use regex;
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let module = lua.create_table()?;
 
-    module.set("match", lua.create_function(|lua, (expr, val): (String, String)| {
+    module.set("match", lua.create_function(|_, (expr, val): (String, String)| {
         let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
         Ok(re.is_match(&val))
     })?)?;
 
-    module.set("replace_all", lua.create_function(|lua, (expr, val, patt): (String, String, String)| {
+    module.set("replace_all", lua.create_function(|_, (expr, val, patt): (String, String, String)| {
         let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
         Ok(re.replace_all(&val, patt.as_str()).into_owned())
     })?)?;
