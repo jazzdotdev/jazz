@@ -23,17 +23,18 @@ matrix:
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
 deploy:
   provider: releases
-api_key:
+  api_key:
     secure: W3ShbjNyAdYqTopB46k4cTKKK9Sog1Xos7EaHFGMexARFb/ujJM+leIiKmz19LTM25hYhb8aMCrbU/dBt+ATG2kZcnEysEVX2pCtQp0YfOq3QKyCF6CmxGIm7ZsilhOuudWc1e6ahij2MR9mAdzMG1jeezGWsymLFdVyCpCv1+ysy8vXUP7RzV/Ly+BplzadHwRFSxwb9V2lzmmX9zOeHo2a2WjzxsqZC9sawAQhY3xZz7jDN98jbRmUi0K7xRQMQEqN0HOA5qN4sl3jBHYFX8gvBn33CCyf8908CnuFCwZit4kiF+drc6D0XRnBU7ynrVKV0lQjcvH4m2hzKH5UwWaRMViHj9/6Qrt+h4x4em4HEjNZY6esT0iw0dKdeLuT0EIa+j5uw56R5uK2ozssGgP9brNtnsRxvbllJHmg5D/iYUPyelKyTep0uVXFol7+SaM3UVd0+ag3bvpbNwoCqz+YLQ8NwW7nftmCikCTXODhkw5Rlec/KrjwmIWG9VVZNRH2MI0rG+Jjnm/BKeTyWDi2aJ77gUTMdDv1SmxfwjD80jHZJPYhXqTUjbb76Y20hPRNfqJdzuvGVREzmOoVKcdDzwmc9HopGqGWCNcPUFsj7DYWpx7VZyN8vtakJEXvMP49uzfccnSSaKRMh+fkDD9OcIaNeFEgglgzSYSXSPE=
   file_glob: true
-  file: 
-    - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
+  file: "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
   skip_cleanup: true
   on:
-    repo: sh-zam/torchbear
+    repo: foundpatterns/torchbear
     tags: true
 branches:
   only:
+  - master
+  - /.*/
   - /^\d+\.\d+\.\d+.*$/
 notifications:
   email:
