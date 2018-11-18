@@ -163,17 +163,6 @@ impl ApplicationBuilder {
         if setting_file.exists() {
             match settings.merge(config::File::with_name("Settings.toml")) {
                 Err(err) => {
-                    if let config::ConfigError::Foreign(err) = &err {
-                        use std::io::{Error as IoErr, ErrorKind};
-
-                        if let Some(err) = err.downcast_ref::<IoErr>() {
-                            if let ErrorKind::NotFound = err.kind() {
-                                println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
-                                std::process::exit(1);
-                            };
-                        };
-                    };
-
                     println!("Error opening Settings.toml: {}", err);
                     std::process::exit(1);
                 },
