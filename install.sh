@@ -31,16 +31,20 @@ architecture() {
 }
 
 get_os() {
-    # TODO: Check to see what cygwin and similar would return when using "uname -o"
-    case `uname -o` in
-        Msys)
+
+    case `uname -s` in
+        Linux)
+            if [[ $(uname -o) == "Android" ]]; then
+                echo Android
+            else
+                echo Linux
+            fi
+            ;;
+        MINGW* | MSYS* | CYGWIN*)
             echo Windows
             ;;
-        Android)
-            echo Android
-            ;;
-        *)
-            echo $(uname -s)
+        Darwin)
+            echo Darwin
             ;;
     esac
 }
@@ -82,7 +86,7 @@ get_url() {
 }
 
 download_and_extract() {
-    if [ -f $1 ]; then
+    if [ ! -d $1 ]; then
         error "Path or directory does not exist."
     fi
 
