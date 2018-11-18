@@ -21,62 +21,6 @@ matrix:
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
-    - os: linux
-      rust: nightly
-      env:
-      - ARCH=x86_64
-      - PLATFORM=linux
-      - CHANNEL=nightly
-      services: docker
-      script: echo "cargo test temporarily disabled"
-      before_deploy:
-      - docker build -f Dockerfile.nightly -t build-${PROJECT}-image .
-      - docker run -it --name build-${PROJECT} build-${PROJECT}-image
-      - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
-      - docker rm build-${PROJECT}
-      - docker rmi build-${PROJECT}-image
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
-    - os: linux
-      env:
-      - ARCH=arm64
-      - PLATFORM=android
-      - CHANNEL=stable
-      script: echo "cargo test temporarily disabled"
-      before_deploy:
-      - export PATH="$HOME/.cargo/bin:$PATH"
-      - rustup target add aarch64-linux-android
-      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-      - unzip -qq android-ndk-r18b-linux-x86_64.zip
-      - export NDK_HOME="$PWD/android-ndk-r18b"
-      - mkdir NDK
-      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/aarch64/bin"
-      - cargo build --target="aarch64-linux-android" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/aarch64-linux-android/release/${PROJECT}
-    - os: linux
-      env:
-      - ARCH=arm32
-      - PLATFORM=android
-      - CHANNEL=stable
-      script: echo "cargo test temporarily disabled"
-      before_deploy:
-      - export PATH="$HOME/.cargo/bin:$PATH"
-      - rustup target add arm-linux-androideabi
-      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-      - unzip -qq android-ndk-r18b-linux-x86_64.zip
-      - export NDK_HOME="$PWD/android-ndk-r18b"
-      - mkdir NDK
-      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/arm/bin" 	
-      - cargo build --target="arm-linux-androideabi" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/arm-linux-androideabi/release/${PROJECT}
-    # TODO: Implement windows jobs into travis. 
-    # TODO: Implement 32bit as musl builder doesnt support it. Maybe just have it compile normally since it will be running against trusty which
-    #       should be compatible with newer glibc
-    # - os: linux
-    #   rust: stable
-    #   sudo: required
-    #   env: ARCH=i686
 deploy:
   provider: releases
 api_key:
@@ -84,7 +28,6 @@ api_key:
   file_glob: true
   file: 
     - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
-    - signature.asc
   skip_cleanup: true
   on:
     repo: sh-zam/torchbear
@@ -94,7 +37,4 @@ branches:
   - /^\d+\.\d+\.\d+.*$/
 notifications:
   email:
-    on_success: never  
-
-before_install:
-- openssl aes-256-cbc -K $encrypted_d833950d04bb_key -iv $encrypted_d833950d04bb_iv -in keys.gpg.enc -out keys.gpg -d
+    on_success: never
