@@ -92,7 +92,14 @@ download_and_extract() {
 
     if [ -x "$(command -v curl)" ]; then
         curl -L $(get_url) -o temp.zip
-        unzip -o temp.zip -d $1
+        case $(get_os) in
+            Linux | Darwin )
+                sudo unzip -o temp.zip -d $1
+                ;;
+            * )
+                unzip -o temp.zip -d $1
+                ;;
+        esac
         rm temp.zip
     else
         error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
@@ -117,21 +124,16 @@ install() {
         error "Torchbear is already installed."
     fi
 
+    echo Downloading torchbear
+
     case $(system) in
         linux | apple)
-            echo Downloading torchbear
-            if is_root; then
-                download_and_extract "/usr/local/bin"
-            else
-                error Please run as root
-            fi
+            download_and_extract "/usr/local/bin"
             ;;
         android)
-            echo Downloading torchbear
             download_and_extract "/data/data/com.termux/files/usr/bin"
             ;;
         *windows*)
-            echo Downloading torchbear
             if [ ! -d "$HOME/.bin" ]; then
                 mkdir "$HOME/.bin"
             fi
