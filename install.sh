@@ -47,7 +47,7 @@ get_os() {
 
 system() {
     case $(get_os) in
-        GNU/Linux)
+        Linux)
             echo linux
             ;;
         Android)
