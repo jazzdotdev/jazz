@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-die() { echo "$*" 1>&2 ; exit 1; }
-
 is_root() {
     if [ "$EUID" -ne 0 ];then
         return 1
@@ -27,7 +25,7 @@ architecture() {
             echo arm64
             ;;
         *)
-            die "unknown architecture detected"
+            error "unknown architecture detected"
             ;;
     esac
 }
@@ -59,7 +57,7 @@ system() {
             echo pc-windows-msvc
             ;;
         *)
-            die "machine os type is not supported"
+            error "machine os type is not supported"
             ;;
     esac
 }
@@ -82,7 +80,7 @@ get_url() {
 
 download_and_extract() {
     if [ -f $1 ]; then
-        die "Path or directory does not exist."
+        error "Path or directory does not exist."
     fi
 
     if [ -x "$(command -v curl)" ]; then
@@ -90,7 +88,7 @@ download_and_extract() {
         unzip -o temp.zip -d $1
         rm temp.zip
     else
-        die "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
+        error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
     fi
 
 }
@@ -109,7 +107,7 @@ install() {
 
     if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.torchbear/torchbear.exe" ] || [ ! -x $(command -v torchbear) ]; then
 	    #TODO: Give user the an option to upgrade if they are running the installer to upgrade.
-        die "Torchbear is already installed."
+        error "Torchbear is already installed."
     fi
 
     case $(system) in
@@ -118,7 +116,7 @@ install() {
             if is_root; then
                 download_and_extract "/usr/local/bin"
             else
-                die Please run as root
+                error Please run as root
             fi
             ;;
         *windows*)
@@ -130,7 +128,7 @@ install() {
             set_path
             ;;
         *)
-            die "System is not supported at this time"
+            error "System is not supported at this time"
             ;;
     esac
 
@@ -138,5 +136,7 @@ install() {
         echo Torchbear has been installed.
     fi
 }
+
+error() { echo "$*" 1>&2 ; exit 1; }
 
 install
