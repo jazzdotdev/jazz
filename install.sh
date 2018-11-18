@@ -97,7 +97,7 @@ download_and_extract() {
 set_path() {
     if [[ "$(system)" == *"windows"* ]]; then
         if [[ "$PATH" != *"torchbear"* ]]; then
-            setx PATH $HOME/.torchbear/:$PATH
+            setx PATH $HOME/.bin/:$PATH
         fi
     fi
 }
@@ -105,7 +105,7 @@ set_path() {
 install() {
     echo System Type: $(get_os)
 
-    if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.torchbear/torchbear.exe" ] || [ ! -x $(command -v torchbear) ]; then
+    if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.bin/torchbear.exe" ] || [ ! -x $(command -v torchbear) ]; then
 	    #TODO: Give user the an option to upgrade if they are running the installer to upgrade.
         error "Torchbear is already installed."
     fi
@@ -121,10 +121,10 @@ install() {
             ;;
         *windows*)
             echo Downloading torchbear
-            if [ ! -d "$HOME/.torchbear" ]; then
-                mkdir "$HOME/.torchbear"
+            if [ ! -d "$HOME/.bin" ]; then
+                mkdir "$HOME/.bin"
             fi
-            download_and_extract "$HOME/.torchbear"
+            download_and_extract "$HOME/.bin"
             set_path
             ;;
         *)
@@ -132,7 +132,7 @@ install() {
             ;;
     esac
 
-    if [ -x $(command -v torchbear) ] || [ -f "$HOME/.torchbear/torchbear.exe" ]; then
+    if [ -x $(command -v torchbear) ] || [ -f "$HOME/.bin/torchbear.exe" ]; then
         echo Torchbear has been installed.
     fi
 }
