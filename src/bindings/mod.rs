@@ -13,6 +13,7 @@ pub mod select;
 pub mod git;
 pub mod regex;
 pub mod tantivy;
+pub mod scl;
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
 pub mod log;
