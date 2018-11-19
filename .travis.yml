@@ -20,7 +20,7 @@ matrix:
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
-      - wget https://raw.githubusercontent.com/foundpatterns/file-witness/master/init.lua
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - ./torchbear &
       - mkdir torch && mv torchbear torch/ && mv *.sig torch/
       - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
@@ -38,7 +38,7 @@ matrix:
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
-      - wget https://raw.githubusercontent.com/foundpatterns/file-witness/master/init.lua
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - ./torchbear &
       - mkdir torch && mv torchbear torch/ && mv *.sig torch/
       - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
@@ -69,7 +69,7 @@ matrix:
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
       - mv target/aarch64-linux-android/release/${PROJECT} .
-      - wget https://raw.githubusercontent.com/foundpatterns/file-witness/master/init.lua
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - ./torchbear &
       - mkdir torch && mv torchbear torch/ && mv *.sig torch/
       - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
@@ -90,7 +90,7 @@ matrix:
       - export PATH="$PATH:$PWD/NDK/arm/bin" 	
       - cargo build --target="arm-linux-androideabi" --release
       - mv target/arm-linux-androideabi/release/${PROJECT} .
-      - wget https://raw.githubusercontent.com/foundpatterns/file-witness/master/init.lua
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - ./torchbear &
       - mkdir torch && mv torchbear torch/ && mv *.sig torch/
       - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
