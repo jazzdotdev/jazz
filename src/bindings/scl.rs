@@ -1,3 +1,4 @@
+use rlua::FromLua;
 use rlua::ToLua;
 
 fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
@@ -27,8 +28,6 @@ fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
         }
     }
 }
-
-use rlua::FromLua;
 
 fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> rlua::Result<scl::Date> {
     if t.len()? == 3
@@ -80,7 +79,19 @@ fn to_scl_value(lua: &rlua::Lua, val: rlua::Value) -> scl::Value {
 }
 
 fn escape(s: String) -> String {
-    "\"".to_owned() + &s.replace('"', r##"\""##) + "\""
+    if s.contains(r##"""""##) {
+        // escape \n and "
+        // return "\"".to_owned() + &s.replace('"', r##"\""##).replace('\n', "\\n") + "\"";
+        //
+        // this doesn't work, see:
+        // https://github.com/Keats/scl/issues/10
+        //
+        // Because it doesn't work, just panic instead
+        panic!("Don't use a string containing \"\"\"");
+    } else {
+        // use multiline string
+        r##"""""##.to_owned() + &s + r##"""""##
+    }
 }
 
 fn scl_decode(d: scl::Dict) -> String {
@@ -220,7 +231,7 @@ clients = {
         local x = {
         x=0,
         y=true,
-        z="ab",
+        z="a\nb",
         a=1.2,
         b={c=1},
         d={day=1,month=2,year=2018},
@@ -229,6 +240,8 @@ clients = {
         local s = scl.from_table(x)
         print(s)
         local y = scl.to_table(s)
+        -- don't mess with floating point number
+        -- assert(y.a == 1.2)
         assert(y.b.c == 1)
         assert(y.d.year == 2018)
         assert(y.d.month == 2)
@@ -237,6 +250,9 @@ clients = {
         assert(y.e[2] == 3)
         assert(y.e[3] == 4)
         assert(#y.e == 3)
+        assert(y.x == 0)
+        assert(y.y == true)
+        assert(y.z == "a\nb")
         "##,
             None,
         )
