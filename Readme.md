@@ -59,10 +59,6 @@ MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
 
 `print("hello from Torchbear")`
 
-- in `Settings.toml`
-
-`init = "init.lua"`
-
 - run `torchbear`
 
 #### [Torchbear Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
