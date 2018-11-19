@@ -2477,7 +2477,7 @@ dependencies = [
 
 [[package]]
 name = "torchbear"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "actix 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-lua 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2955,10 +2955,7 @@ dependencies = [
 "checksum clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b957d88f4b6a63b9d70d5f454ac8011819c6efa7727858f458ab71c756ce2d3e"
 "checksum cloudabi 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ddfc5b9aa5d4507acaf872de71051dfd0e309860e88966e1051e462a077aac4f"
 "checksum colored 1.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "dc0a60679001b62fb628c4da80e574b9645ab4646056d7c9018885efffe45533"
-<<<<<<< HEAD
-=======
 "checksum combine 3.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "97d6e3d17febfeac84d2d94f78c31ba1d66069ae14fbfc7ed86148875300a1b4"
->>>>>>> upstream/master
 "checksum comrak 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a9bd60be8877a3343d25b9a3dadbaf7f02f9ac843b54e663ecef73e29e8b9c6b"
 "checksum config 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "13490293b8a84cc82cd531da41adeae82cd9eaa40e926ac18865aa361f9c9f60"
 "checksum cookie 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1465f8134efa296b4c19db34d909637cb2bf0f7aaf21299e23e18fa29ac557cf"
