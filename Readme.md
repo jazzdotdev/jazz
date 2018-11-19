@@ -31,22 +31,25 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
 * [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
+* [regex](https://github.com/rust-lang/regex) matching and replacing
 
 ## Installation
 
-- Download the [latest Torchbear release](https://github.com/foundpatterns/torchbear/releases).
-- Unzip it in your application.
-- Run `torchbear`.
+Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture from there and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
 
-Windows, Android, MacOS, and Linux builds available for primary architectures.  OS Pacakge Managers support coming soon - contributions welcomed.
+```sh
+ curl https://git.io/fpcV6 -sSfL | sh
+ ```
 
-Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
+#### How to add a terminal on non-linux environments
 
-Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
+(If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).)
 
-MacOS users, install [Homebrew](https://brew.sh/) for additional tools.
+Windows: install [Cmder](http://cmder.net/) Full.
 
-Just in case, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).
+Android users, install [Termux](https://termux.com/).
+
+MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
 
 ## Examples
 
