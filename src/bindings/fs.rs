@@ -53,7 +53,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     module.set("read_file", lua.create_function( |lua, path: String| {
         let data = fs::read(path).map_err(|err| LuaError::external(err))?;
-        Ok(lua.create_string(&data)?)
+        Ok(lua.create_string(&String::from_utf8_lossy(&data[..]).to_owned().to_string())?)
     })?)?;
 
     module.set("exists", lua.create_function( |_, path: String| {

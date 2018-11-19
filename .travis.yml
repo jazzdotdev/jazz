@@ -23,8 +23,6 @@ matrix:
     - docker rm build-${PROJECT}
     - docker rmi build-${PROJECT}-image
     - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
-    - ls -l
-    - pwd
     - chmod +x torchbear
     - ./torchbear &
 deploy:

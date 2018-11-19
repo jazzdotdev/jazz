@@ -41,6 +41,7 @@ use actix_web::{server as actix_server, App};
 use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
+use std::path::Path;
 
 pub mod bindings;
 pub mod logger;
@@ -119,6 +120,7 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
             end
             
         end, function (msg)
+            msg = tostring(msg)
             local trace = debug.traceback(msg, 3)
             log.error(trace)
         end)        
@@ -157,27 +159,23 @@ impl ApplicationBuilder {
 
         let mut settings = config::Config::new();
 
-        match settings.merge(config::File::with_name("Settings.toml")) {
-            Err(err) => {
-                if let config::ConfigError::Foreign(err) = &err {
-                    use std::io::{Error as IoErr, ErrorKind};
+        let setting_file = Path::new("Settings.toml");
+        if setting_file.exists() {
+            match settings.merge(config::File::with_name("Settings.toml")) {
+                Err(err) => {
+                    println!("Error opening Settings.toml: {}", err);
+                    std::process::exit(1);
+                },
+                _ => ()
+            };
+            settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
+        }
 
-                    if let Some(err) = err.downcast_ref::<IoErr>() {
-                        if let ErrorKind::NotFound = err.kind() {
-                            println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
-                            std::process::exit(1);
-                        };
-                    };
-                };
-
-                println!("Error opening Settings.toml: {}", err);
-                std::process::exit(1);
-            },
-            _ => ()
+        let hashmap = if setting_file.exists() {
+            settings.try_into::<HashMap<String, String>>().unwrap()
+        } else {
+            HashMap::new()
         };
-        settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
-
-        let hashmap = settings.try_into::<HashMap<String, String>>().unwrap();
 
         fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
             map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))

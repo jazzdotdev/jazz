@@ -14,6 +14,8 @@ xpcall(function ()
     torchbear.response = response
   end
 end, function (msg)
+  msg = tostring(msg)
+  
   local trace = debug.traceback(msg, 3)
   log.error(trace)
 
