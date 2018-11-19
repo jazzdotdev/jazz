@@ -34,17 +34,21 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 
 ## Installation
 
-- Download the [latest Torchbear release](https://github.com/foundpatterns/torchbear/releases).
-- Unzip it in your application.
-- Run `torchbear`.
+Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture from there and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
 
-Windows, Android, and Linux builds available for primary architectures.  MacOS builds still to come.  OS Pacakge Managers support coming soon - contributions welcomed.
+```sh
+ curl https://git.io/fpcV6 -sSfL | sh
+ ```
 
-Android users, install [Termux](https://termux.com/) for a full Linux envrionment.
+#### How to add a terminal on non-linux environments
 
-Windows users, install [Cmder](http://cmder.net/) for a full Linux environment.
+(If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).)
 
-Just in case, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).
+Windows: install [Cmder](http://cmder.net/) Full.
+
+Android users, install [Termux](https://termux.com/).
+
+MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
 
 ## Examples
 
