@@ -159,11 +159,11 @@ impl ApplicationBuilder {
 
         let mut settings = config::Config::new();
 
-        let setting_file = Path::new("Settings.toml");
+        let setting_file = Path::new("torchbear.toml");
         if setting_file.exists() {
-            match settings.merge(config::File::with_name("Settings.toml")) {
+            match settings.merge(config::File::with_name("torchbear.toml")) {
                 Err(err) => {
-                    println!("Error opening Settings.toml: {}", err);
+                    println!("Error opening torchbear.toml: {}", err);
                     std::process::exit(1);
                 },
                 _ => ()
@@ -201,7 +201,6 @@ impl ApplicationBuilder {
                 .unwrap();
             lua_actor
         });
-
         actix_server::new(move || {
             App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
                 .default_resource(|r| r.with(bindings::server::handler))
