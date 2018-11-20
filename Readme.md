@@ -41,7 +41,7 @@ Torchbear comes as a single executable, making it very easy to install.  The lat
  curl https://git.io/fpcV6 -sSfL | sh
  ```
 
-#### How to add a terminal on non-linux environments
+#### What is a terminal?
 
 (If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).)
 
