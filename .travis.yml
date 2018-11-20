@@ -21,9 +21,9 @@ matrix:
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./torchbear &
-      - mkdir torch && mv torchbear torch/ && mv *.sig torch/
-      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
+      - ./${PROJECT} &
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: linux
       rust: nightly
       env:
@@ -39,9 +39,9 @@ matrix:
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./torchbear &
-      - mkdir torch && mv torchbear torch/ && mv *.sig torch/
-      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
+      - ./${PROJECT} &
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: osx
       rust: stable
       env:
@@ -70,9 +70,9 @@ matrix:
       - cargo build --target="aarch64-linux-android" --release
       - mv target/aarch64-linux-android/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./torchbear &
-      - mkdir torch && mv torchbear torch/ && mv *.sig torch/
-      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
+      - ./${PROJECT} &
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: linux
       env:
       - ARCH=arm32
@@ -91,9 +91,9 @@ matrix:
       - cargo build --target="arm-linux-androideabi" --release
       - mv target/arm-linux-androideabi/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./torchbear &
-      - mkdir torch && mv torchbear torch/ && mv *.sig torch/
-      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip torch
+      - ./${PROJECT} &
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     # TODO: Implement windows jobs into travis. 
     # TODO: Implement 32bit as musl builder doesnt support it. Maybe just have it compile normally since it will be running against trusty which
     #       should be compatible with newer glibc
