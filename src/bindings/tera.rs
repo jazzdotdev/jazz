@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use rlua::prelude::*;
 use rlua_serde;
 use tera::{Tera, Value as JsonValue, Context as TeraContext};
@@ -26,8 +26,11 @@ fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<Tera
     Ok(context)
 }
 
-pub fn init(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
+pub fn init(lua: &Lua, _tera: Arc<Mutex<Tera>>) -> Result<(), LuaError> {
+
+    let tera = _tera.clone();
     let render_template = lua.create_function(move |_, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
+        let tera = tera.try_lock().unwrap();
         let text = match params {
             Some(params) => {
                 let mut context = get_tera_context_from_table(&params)?;
@@ -44,8 +47,35 @@ pub fn init(lua: &Lua, tera: Arc<Tera>) -> Result<(), LuaError> {
         Ok(text)
     })?;
 
+    let tera = _tera.clone();
+    let extend = lua.create_function(move |_, dir: String| {
+        let mut tera = tera.try_lock().unwrap();
+        let new_tera = Tera::parse(&dir).map_err(|err| {
+            LuaError::external(format_err!("{}", err.to_string()))
+        })?;
+        tera.extend(&new_tera).map_err(|err| {
+            LuaError::external(format_err!("{}", err.to_string()))
+        })
+    })?;
+
+    let tera = _tera.clone();
+    let reload = lua.create_function(move |_, _: ()| {
+        let mut tera = tera.try_lock().unwrap();
+        tera.full_reload().map_err(|err| {
+            LuaError::external(format_err!("{}", err.to_string()))
+        })
+    })?;
+
     let globals = lua.globals();
-    globals.set("render", render_template)?;
+    globals.set("render", render_template.clone())?;
+
+    let module = lua.create_table()?;
+    module.set("render", render_template)?;
+    module.set("extend", extend)?;
+    module.set("reload", reload)?;
+
+    globals.set("tera", module)?;
+
 
     Ok(())
 }
