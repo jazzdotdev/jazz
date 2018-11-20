@@ -34,11 +34,11 @@ extern crate git2;
 extern crate regex;
 extern crate tantivy;
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
-use tera::{Tera};
+use tera::Tera;
 use rlua::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
@@ -47,13 +47,14 @@ pub mod bindings;
 pub mod logger;
 
 mod app_state {
+    use super::*;
     pub struct AppState {
         pub lua: ::actix::Addr<::actix_lua::LuaActor>,
-        pub tera: ::std::sync::Arc<::tera::Tera>,
+        pub tera: Arc<Mutex<Tera>>,
     }
 }
 
-fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
+fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -190,7 +191,7 @@ impl ApplicationBuilder {
         //log_panics::init();
 
         let sys = actix::System::new("torchbear");
-        let tera = Arc::new(compile_templates!(&templates_path));
+        let tera = Arc::new(Mutex::new(compile_templates!(&templates_path)));
 
         let vm = create_vm(tera.clone(), &init_path, hashmap).unwrap();
 
