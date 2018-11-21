@@ -29,7 +29,7 @@ Torchbear gives you power of Rust with the simplicity of Lua.  You can use it fo
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
+* [Git](https://github.com/alexcrichton/git2-rs) repo creation, staging, committing, and log access
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 
