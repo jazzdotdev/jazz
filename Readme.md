@@ -18,7 +18,7 @@ Torchbear gives you power of Rust with the simplicity of Lua.  You can use it fo
 
 ## Built-in Tools
 
-* [rlua] *completely safe*(https://github.com/kyren/rlua) Lua 5.3.5 with traceback error messages
+* [rlua](https://github.com/kyren/rlua) *completely safe* Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown output
