@@ -138,6 +138,13 @@ pub struct ApplicationBuilder {
     log_settings: logger::Settings,
 }
 
+#[derive(Debug, Default, Deserialize)]
+pub struct SettingConfig {
+    general: HashMap<String, String>,
+    #[serde(rename = "web-server")]
+    web_server: Option<HashMap<String, String>>,
+}
+
 impl ApplicationBuilder {
     pub fn new () -> Self {
         Self {
@@ -159,7 +166,7 @@ impl ApplicationBuilder {
     pub fn start (&mut self) {
 
         let mut settings = config::Config::new();
-
+        
         let setting_file = Path::new("torchbear.toml");
         if setting_file.exists() {
             match settings.merge(config::File::with_name("torchbear.toml")) {
@@ -172,20 +179,15 @@ impl ApplicationBuilder {
             settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
         }
 
-        let hashmap = if setting_file.exists() {
-            settings.try_into::<HashMap<String, String>>().unwrap()
-        } else {
-            HashMap::new()
-        };
+        let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
         fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
             map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
         }
-
-        let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
-        let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-        let init_path = get_or(&hashmap, "init", "init.lua");
-        let log_path = get_or(&hashmap, "log_path", "log");
+        
+        let templates_path = get_or(&config.general, "templates_path", "templates/**/*");
+        let init_path = get_or(&config.general, "init", "init.lua");
+        let log_path = get_or(&config.general, "log_path", "log");
         
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
         //log_panics::init();
@@ -193,8 +195,8 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(Mutex::new(compile_templates!(&templates_path)));
 
-        let vm = create_vm(tera.clone(), &init_path, hashmap).unwrap();
-
+        let vm = create_vm(tera.clone(), &init_path, config.general).unwrap();
+        
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
                 .on_handle_with_lua(include_str!("handlers/web_server.lua"))
@@ -202,13 +204,18 @@ impl ApplicationBuilder {
                 .unwrap();
             lua_actor
         });
-        actix_server::new(move || {
-            App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-                .default_resource(|r| r.with(bindings::server::handler))
-        }).bind(&host)
-            .unwrap()
-            .start();
 
-        let _ = sys.run();
+        if let Some(web) = config.web_server {
+            let host = get_or(&web, "host", "0.0.0.0:3000");
+            actix_server::new(move || {
+                App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
+                    .default_resource(|r| r.with(bindings::server::handler))
+            }).bind(&host)
+                .unwrap()
+                .start();
+
+            let _ = sys.run();
+        }
+    
     }
 }
