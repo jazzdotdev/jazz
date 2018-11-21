@@ -189,6 +189,11 @@ impl ApplicationBuilder {
         let init_path = get_or(&config.general, "init", "init.lua");
         let log_path = get_or(&config.general, "log_path", "log");
         
+        if !Path::new(&init_path).exists() {
+            println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
+            std::process::exit(1);
+        }
+
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
         //log_panics::init();
 
