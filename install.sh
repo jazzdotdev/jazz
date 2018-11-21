@@ -108,14 +108,6 @@ set_path() {
     fi
 }
 
-is_root() {
-    if [ "$EUID" -ne 0 ];then
-        return 1
-    else
-        return 0
-    fi
-}
-
 install() {
     echo System Type: $(get_os)
 
