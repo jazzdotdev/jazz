@@ -1,13 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
-
-is_root() {
-    if [ "$EUID" -ne 0 ];then
-        return 1
-    else
-        return 0
-    fi
-}
 
 architecture() {
     case `uname -m` in
@@ -34,11 +26,14 @@ get_os() {
 
     case `uname -s` in
         Linux)
-            if [[ $(uname -o) == "Android" ]]; then
-                echo Android
-            else
-                echo Linux
-            fi
+            case `uname -o` in
+                Android)
+                    echo Android
+                    ;;
+                GNU/Linux)
+                    echo Linux
+                    ;;
+            esac
             ;;
         MINGW* | MSYS* | CYGWIN*)
             echo Windows
