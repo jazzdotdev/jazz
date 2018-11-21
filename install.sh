@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-is_root() {
-    if [ "$EUID" -ne 0 ];then
-        return 1
-    else
-        return 0
-    fi
-}
-
 architecture() {
     case `uname -m` in
         x86_64)
@@ -113,6 +105,14 @@ set_path() {
         if [[ "$PATH" != *"torchbear"* ]]; then
             setx PATH $HOME/.bin/:$PATH
         fi
+    fi
+}
+
+is_root() {
+    if [ "$EUID" -ne 0 ];then
+        return 1
+    else
+        return 0
     fi
 }
 
