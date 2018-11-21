@@ -61,11 +61,11 @@ MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
 
 - run `torchbear`
 
-#### [Torchbear Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+#### [Torchbear Simple Webserver](https://github.com/foundpatterns/torchbear-simple-webserver) · also supports TLS
 
-#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) (👍👍 for Web Development!)
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) · 👍 web development 👍
 
-#### [File Witness](https://github.com/foundpatterns/file-witness) Code Signing App
+#### [File Witness](https://github.com/foundpatterns/file-witness) · code signing app
 
 ## Contributions wanted
 
