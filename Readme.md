@@ -72,4 +72,4 @@ MacOS: comes mostly ready, but [Homebrew](https://brew.sh/) has additional tools
 
 Torchbear extends Rust's growing ecosystem of libraries. Developers are welcomed to [make small changes](https://github.com/foundpatterns/torchbear/issues?q=is%3Aopen+is%3Aissue+label%3Asize%2F0.25) as well as high impact contributions, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from in the bindings directory, each with an interesting history.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing userbase.
 
-<p align="center">🏗 with ❤️ on 🌎.</p>
+<p align="center">🏗 on 🌎 with ❤️ and 💰.</p>
