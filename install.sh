@@ -26,11 +26,14 @@ get_os() {
 
     case `uname -s` in
         Linux)
-            if [[ $(uname -o) == "Android" ]]; then
-                echo Android
-            else
-                echo Linux
-            fi
+            case `uname -o` in
+                Android)
+                    echo Android
+                    ;;
+                GNU/Linux)
+                    echo Linux
+                    ;;
+            esac
             ;;
         MINGW* | MSYS* | CYGWIN*)
             echo Windows
