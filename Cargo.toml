@@ -23,7 +23,7 @@ path = "src/main.rs"
 [dependencies]
 actix = "0.7"
 actix-lua = "0.5"
-actix-web = { version = "0.7", features = ["tls"] }
+actix-web = { version = "0.7", features = ["ssl"] }
 futures = "0.1"
 env_logger = "0.6"
 tera = "0.11"

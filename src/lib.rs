@@ -33,6 +33,7 @@ extern crate serde_derive;
 extern crate git2;
 extern crate regex;
 extern crate tantivy;
+extern crate openssl;
 
 use std::sync::{Arc, Mutex};
 use actix::prelude::*;
@@ -42,6 +43,7 @@ use tera::Tera;
 use rlua::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 pub mod bindings;
 pub mod logger;
@@ -212,12 +214,34 @@ impl ApplicationBuilder {
 
         if let Some(web) = config.web_server {
             let host = get_or(&web, "host", "0.0.0.0:3000");
-            actix_server::new(move || {
+
+            let some_ssl = match (web.get("tls_private"), web.get("tls_certificate")) {
+                (None, None) => None,
+                (Some(priv_path), Some(cert_path)) => {
+                    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+                    builder.set_private_key_file(priv_path, SslFiletype::PEM).unwrap();
+                    builder.set_certificate_chain_file(cert_path).unwrap();
+                    Some(builder)
+                },
+                _ => {
+                    println!("Error: SSL needs both tls_private and tls_certificate settings.");
+                    std::process::exit(1);
+                }
+            };
+
+            let mut server = actix_server::new(move || {
                 App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
                     .default_resource(|r| r.with(bindings::server::handler))
-            }).bind(&host)
-                .unwrap()
-                .start();
+            });
+
+            server = server.bind(&host).unwrap();
+
+            if let Some(ssl_builder) = some_ssl {
+                let host = get_or(&web, "tls_host", "0.0.0.0:3001");
+                server = server.bind_ssl(&host, ssl_builder).unwrap();
+            }
+
+            server.start();
 
             let _ = sys.run();
         }
