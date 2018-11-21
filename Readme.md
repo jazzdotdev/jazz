@@ -14,7 +14,9 @@
   <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
+Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data anlysis, and anything else you can imagine.
+
+Note:  You don't need to learn Rust to use Torchbear.
 
 ## Built-in Tools
 
@@ -35,21 +37,20 @@ Torchbear gives you power of Rust with the simplicity of Lua.  You can use it fo
 
 ## Installation
 
-Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture from there and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
+Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | sh
  ```
-
 #### What is a terminal?
 
-(If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).)
+If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  On Windows, Android, and MacOS, we've tested with these tools that make a very nice user experience.
 
 Windows: install [Cmder](http://cmder.net/) Full.
 
-Android users, install [Termux](https://termux.com/).
+Android: install [Termux](https://termux.com/).
 
-MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
+MacOS: comes mostly ready, but [Homebrew](https://brew.sh/) has additional tools.
 
 ## Examples
 
@@ -61,12 +62,14 @@ MacOS comes ready, but [Homebrew](https://brew.sh/) has many additional tools.
 
 - run `torchbear`
 
-#### [Torchbear Static Webserver](https://github.com/foundpatterns/torchbear-static-webserver)
+#### [Torchbear Simple Webserver](https://github.com/foundpatterns/torchbear-simple-webserver) · also supports TLS
 
-#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) (👍👍 for Web Development!)
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) · 👍 web development 👍
 
-#### [File Witness](https://github.com/foundpatterns/file-witness) Code Signing App
+#### [File Witness](https://github.com/foundpatterns/file-witness) · code signing app
 
 ## Contributions wanted
 
-Torchbear extends Rust's burgeoning ecosystem of libraries. Developers are welcomed to [make small changes](https://github.com/foundpatterns/torchbear/issues?q=is%3Aopen+is%3Aissue+label%3Asize%2F0.25) as well as high impact contributions, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from in the bindings directory, each with an interesting history.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing userbase.
+Torchbear extends Rust's growing ecosystem of libraries. Developers are welcomed to [make small changes](https://github.com/foundpatterns/torchbear/issues?q=is%3Aopen+is%3Aissue+label%3Asize%2F0.25) as well as high impact contributions, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from in the bindings directory, each with an interesting history.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing userbase.
+
+<p align="center">🏗 on 🌎 with ❤️ and 💰.</p>
