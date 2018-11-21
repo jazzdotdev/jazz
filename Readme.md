@@ -14,14 +14,14 @@
   <a href="https://discord.gg/sWCQxT"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-Torchbear is an extremely fast and featureful Lua application framework.  It gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
+Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, and anything else you can imagine.
 
 ## Built-in Tools
 
-* [rlua](https://github.com/kyren/rlua) safely wrapped Lua 5.3.5 with traceback error messages
+* [rlua](https://github.com/kyren/rlua) *completely safe* Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
-* [Comrak](https://github.com/kivikakk/comrak) Markdown output
+* [Comrak](https://github.com/kivikakk/comrak) Markdown to HTML outputting
 * [Libsodium](https://github.com/maidsafe/rust_sodium) cryptographic signing and verifying, and encrypting and decrypting
 * [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
 * [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
@@ -29,7 +29,7 @@ Torchbear is an extremely fast and featureful Lua application framework.  It giv
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [Git](https://github.com/alexcrichton/git2-rs) repo creation, commit staging, and log access
+* [Git](https://github.com/alexcrichton/git2-rs) repo creation, staging, committing, and log access
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 
