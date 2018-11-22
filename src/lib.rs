@@ -142,7 +142,7 @@ pub struct ApplicationBuilder {
 
 #[derive(Debug, Default, Deserialize)]
 pub struct SettingConfig {
-    general: HashMap<String, String>,
+    general: Option<HashMap<String, String>>,
     #[serde(rename = "web-server")]
     web_server: Option<HashMap<String, String>>,
 }
@@ -187,9 +187,12 @@ impl ApplicationBuilder {
             map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
         }
         
-        let templates_path = get_or(&config.general, "templates_path", "templates/**/*");
-        let init_path = get_or(&config.general, "init", "init.lua");
-        let log_path = get_or(&config.general, "log_path", "log");
+        let general = config.general.unwrap_or_default();
+
+        let templates_path = get_or(&general, "templates_path", "templates/**/*");
+        let init_path = get_or(&general, "init", "init.lua");
+        let log_path = get_or(&general, "log_path", "log");
+
         
         if !Path::new(&init_path).exists() {
             println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
@@ -202,7 +205,7 @@ impl ApplicationBuilder {
         let sys = actix::System::new("torchbear");
         let tera = Arc::new(Mutex::new(compile_templates!(&templates_path)));
 
-        let vm = create_vm(tera.clone(), &init_path, config.general).unwrap();
+        let vm = create_vm(tera.clone(), &init_path, general).unwrap();
         
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
