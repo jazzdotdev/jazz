@@ -65,7 +65,7 @@ system() {
 }
 
 get_latest_version() {
-  curl --silent "https://api.github.com/repos/$1/releases/latest" |
+  curl --silent "https://api.github.com/repos/foundpatterns/torchbear/releases/latest" |
     grep '"tag_name":' |
     sed -E 's/.*"([^"]+)".*/\1/'
 }
@@ -75,7 +75,7 @@ get_url() {
     local os=$(system)
     #Maybe instead of getting the latest version, we could get the latest stable release instead to reduce the chance of
     #exposed bugs being sent to users
-    local version=$(get_latest_version "foundpatterns/torchbear")
+    local version=$(get_latest_version)
     #TODO: Use github api to get the uri for the download instead.
     echo "https://github.com/foundpatterns/torchbear/releases/download/${version}/torchbear-${version}-${arch}-${os}-stable.zip"
 }
@@ -115,8 +115,15 @@ install() {
     echo System Type: $(get_os)
 
     if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.bin/torchbear.exe" ] || [ -f "/data/data/com.termux/files/usr/bin/torchbear" ] || [ ! -x $(command -v torchbear) ]; then
-	    #TODO: Give user the an option to upgrade if they are running the installer to upgrade.
-        error "Torchbear is already installed."
+	    local curr_version=($(echo $(torchbear -V)))
+	    local repo_version=$(get_latest_version)
+
+	    if [ "${curr_version[1]}" == "$repo_version" ]; then
+            error "Torchbear is already installed."
+	    fi
+        echo "New version of available"
+        echo "Current Version: ${curr_version[1]}"
+        echo "Latest Version: $repo_version"
     fi
 
     echo Downloading torchbear
@@ -141,7 +148,8 @@ install() {
     esac
 
     if [ -x $(command -v torchbear) ] || [ -f "$HOME/.bin/torchbear.exe" ]; then
-        echo Torchbear has been installed.
+	    local version=($(echo $(torchbear -V)))
+        echo Torchbear ${version[1]} has been installed.
     fi
 }
 
