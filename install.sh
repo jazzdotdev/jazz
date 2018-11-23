@@ -119,7 +119,7 @@ install() {
 	    local repo_version=$(get_latest_version)
 
 	    if [ "${curr_version[1]}" == "$repo_version" ]; then
-            error "Torchbear is already installed."
+            error "Torchbear is up to date."
 	    fi
         echo "New version of available"
         echo "Current Version: ${curr_version[1]}"
