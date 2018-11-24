@@ -43,6 +43,7 @@ use tera::Tera;
 use rlua::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
+use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 pub mod bindings;
@@ -121,7 +122,7 @@ fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, 
             if handler then
                 torchbear.handler = handler
             end
-            
+
         end, function (msg)
             msg = tostring(msg)
             local trace = debug.traceback(msg, 3)
@@ -134,6 +135,23 @@ fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, 
     "#, None)?;
 
     Ok(lua)
+}
+
+//TODO: Implement a better error handler for `ApplicationBuilder` or across torchbear
+fn server_handler<H, F>(srv: io::Result<actix_web::server::HttpServer<H, F>>) -> actix_web::server::HttpServer<H, F>
+    where H: actix_web::server::IntoHttpHandler,
+          F: Fn() -> H + Send + Clone
+{
+    match srv {
+        Ok(srv) => srv,
+        Err(e) => if e.kind() == io::ErrorKind::AddrInUse {
+            println!("Error: Address already in use.");
+            std::process::exit(1);
+        } else {
+            println!("Unknown error as occurred: {:?}", e);
+            std::process::exit(1);
+        }
+    }
 }
 
 pub struct ApplicationBuilder {
@@ -238,12 +256,12 @@ impl ApplicationBuilder {
                     .default_resource(|r| r.with(bindings::server::handler))
             });
 
-            server = server.bind(&host).unwrap();
+            server = server_handler(server.bind(&host));
             log::debug!("web server listening on port {}", &host);
 
             if let Some(ssl_builder) = some_ssl {
                 let host = get_or(&web, "tls_host", "0.0.0.0:3001");
-                server = server.bind_ssl(&host, ssl_builder).unwrap();
+                server = server_handler(server.bind_ssl(&host, ssl_builder));
                 log::debug!("tls server listening on port {}", &host);
             }
 
