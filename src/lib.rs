@@ -32,8 +32,10 @@ extern crate select;
 extern crate serde_derive;
 extern crate git2;
 extern crate regex;
-extern crate tantivy;
 extern crate openssl;
+
+#[cfg(feature = "tantivy_bindings")]
+extern crate tantivy;
 
 use std::sync::{Arc, Mutex};
 use actix::prelude::*;
