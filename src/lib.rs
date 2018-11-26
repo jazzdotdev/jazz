@@ -113,28 +113,7 @@ fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, 
     }
 
     // Lua Bridge
-    lua.exec::<_, ()>(r#"
-        xpcall(function ()
-
-            local init_f, err = loadfile(torchbear.init_filename)
-            if not init_f then error(err) end
-
-            local handler = init_f()
-
-            if handler then
-                torchbear.handler = handler
-            end
-
-        end, function (msg)
-            msg = tostring(msg)
-            local trace = debug.traceback(msg, 3)
-            log.error(trace)
-        end)        
-
-        if not torchbear.handler then
-            log.error("No handler specified")
-        end
-    "#, None)?;
+    lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
 
     Ok(lua)
 }
