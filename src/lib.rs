@@ -237,7 +237,8 @@ impl ApplicationBuilder {
 
         if let Some(web) = config.web_server {
             log::debug!("web server section in settings, starting seting up web server");
-            let host = get_or(&web, "host", "0.0.0.0:3000");
+            let host = get_or(&web, "address", "0.0.0.0");
+            let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
 
             let some_ssl = match (web.get("tls_private"), web.get("tls_certificate")) {
                 (None, None) => None,
@@ -258,13 +259,14 @@ impl ApplicationBuilder {
                     .default_resource(|r| r.with(bindings::server::handler))
             });
 
-            server = server_handler(server.bind(&host));
-            log::debug!("web server listening on port {}", &host);
+            server = server_handler(server.bind((host.as_str(), port)));
+            log::debug!("web server listening on port {}:{}", &host, port);
 
             if let Some(ssl_builder) = some_ssl {
-                let host = get_or(&web, "tls_host", "0.0.0.0:3001");
-                server = server_handler(server.bind_ssl(&host, ssl_builder));
-                log::debug!("tls server listening on port {}", &host);
+                let host = get_or(&web, "tls_address", "0.0.0.0");
+                let port = get_or(&web, "tls_port", "3001").parse().unwrap_or(3001);
+                server = server_handler(server.bind_ssl((host.as_str(), port), ssl_builder));
+                log::debug!("tls server listening on port {}:{}", &host, port);
             }
 
             server.start();
