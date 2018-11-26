@@ -2478,7 +2478,7 @@ dependencies = [
 
 [[package]]
 name = "torchbear"
-version = "0.6.2"
+version = "0.8.0"
 dependencies = [
  "actix 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-lua 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
