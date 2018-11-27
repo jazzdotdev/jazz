@@ -20,7 +20,10 @@ matrix:
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: linux
       rust: nightly
       env:
@@ -35,7 +38,10 @@ matrix:
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: osx
       rust: stable
       env:
@@ -45,7 +51,10 @@ matrix:
       script: echo "cargo test temporarily disabled"
       before_deploy:
       - cargo build --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/release/${PROJECT}
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: linux
       env:
       - ARCH=arm64
@@ -62,7 +71,11 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/aarch64-linux-android/release/${PROJECT}
+      - mv target/aarch64-linux-android/release/${PROJECT} .
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
     - os: linux
       env:
       - ARCH=arm32
@@ -77,9 +90,15 @@ matrix:
       - export NDK_HOME="$PWD/android-ndk-r18b"
       - mkdir NDK
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/arm/bin" 	
+      - export PATH="$PATH:$PWD/NDK/arm/bin"
       - cargo build --target="arm-linux-androideabi" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/arm-linux-androideabi/release/${PROJECT}
+      - mv target/arm-linux-androideabi/release/${PROJECT} .
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
+      - zip -r ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}-bin
+before_install:
+- openssl aes-256-cbc -K $encrypted_3f0c7a8b3f66_key -iv $encrypted_3f0c7a8b3f66_iv -in private_key.enc -out private_key -d
 deploy:
   provider: releases
   api_key:
@@ -97,4 +116,4 @@ branches:
   - /^\d+\.\d+\.\d+.*$/
 notifications:
   email:
-    on_success: never  
+    on_success: never
