@@ -4,6 +4,8 @@ use rlua::prelude::*;
 use rlua_serde;
 use tera::{Tera, Value as JsonValue, Context as TeraContext};
 
+struct LuaTera (Arc<Mutex<Tera>>);
+
 fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<TeraContext, LuaError> {
     let mut context = TeraContext::new();
 
@@ -26,56 +28,57 @@ fn get_tera_context_from_table(table: &HashMap<String, LuaValue>) -> Result<Tera
     Ok(context)
 }
 
-pub fn init(lua: &Lua, _tera: Arc<Mutex<Tera>>) -> Result<(), LuaError> {
+impl LuaUserData for LuaTera {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
 
-    let tera = _tera.clone();
-    let render_template = lua.create_function(move |_, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
-        let tera = tera.try_lock().unwrap();
-        let text = match params {
-            Some(params) => {
-                let mut context = get_tera_context_from_table(&params)?;
-                tera.render(&path, &context)
-            },
-            None => {
-                tera.render(&path, &())
-            },
-        }.map_err(|err| {
-            // can't convert error_chain to failure directly
-            LuaError::external(format_err!("{}", err.to_string()))
-        })?;
+        methods.add_method("extend", |_, this, dir: String| {
+            let mut tera = this.0.try_lock().unwrap();
+            let new_tera = Tera::parse(&dir).map_err(|err| {
+                LuaError::external(format_err!("{}", err.to_string()))
+            })?;
+            tera.extend(&new_tera).map_err(|err| {
+                LuaError::external(format_err!("{}", err.to_string()))
+            })
+        });
 
-        Ok(text)
+        methods.add_method("reload", |_, this, _: ()| {
+            let mut tera = this.0.try_lock().unwrap();
+            tera.full_reload().map_err(|err| {
+                LuaError::external(format_err!("{}", err.to_string()))
+            })
+        });
+
+        methods.add_method("render", |_, this, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
+            let tera = this.0.try_lock().unwrap();
+            let text = match params {
+                Some(params) => {
+                    let mut context = get_tera_context_from_table(&params)?;
+                    tera.render(&path, &context)
+                },
+                None => {
+                    tera.render(&path, &())
+                },
+            }.map_err(|err| {
+                // can't convert error_chain to failure directly
+                LuaError::external(format_err!("{}", err.to_string()))
+            })?;
+
+            Ok(text)
+        });
+    }
+}
+
+pub fn init(lua: &Lua) -> LuaResult<()> {
+
+    let new_tera = lua.create_function(move |_, dir: String| {
+        let tera = Tera::new(&dir).unwrap();
+        let arc_mutex = Arc::new(Mutex::new(tera));
+        Ok(LuaTera(arc_mutex))
     })?;
-
-    let tera = _tera.clone();
-    let extend = lua.create_function(move |_, dir: String| {
-        let mut tera = tera.try_lock().unwrap();
-        let new_tera = Tera::parse(&dir).map_err(|err| {
-            LuaError::external(format_err!("{}", err.to_string()))
-        })?;
-        tera.extend(&new_tera).map_err(|err| {
-            LuaError::external(format_err!("{}", err.to_string()))
-        })
-    })?;
-
-    let tera = _tera.clone();
-    let reload = lua.create_function(move |_, _: ()| {
-        let mut tera = tera.try_lock().unwrap();
-        tera.full_reload().map_err(|err| {
-            LuaError::external(format_err!("{}", err.to_string()))
-        })
-    })?;
-
-    let globals = lua.globals();
-    globals.set("render", render_template.clone())?;
 
     let module = lua.create_table()?;
-    module.set("render", render_template)?;
-    module.set("extend", extend)?;
-    module.set("reload", reload)?;
-
-    globals.set("tera", module)?;
-
+    module.set("new", new_tera)?;
+    lua.globals().set("tera", module)?;
 
     Ok(())
 }
