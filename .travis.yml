@@ -51,6 +51,7 @@ matrix:
       script: echo "cargo test temporarily disabled"
       before_deploy:
       - cargo build --release
+      - mv target/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - ./${PROJECT}
       - mkdir ${PROJECT}-bin && mv ${PROJECT} ${PROJECT}-bin/ && mv *.sig ${PROJECT}-bin/
