@@ -4,7 +4,6 @@ extern crate actix_lua;
 extern crate actix_web;
 extern crate env_logger;
 extern crate futures;
-#[macro_use]
 extern crate tera;
 extern crate rlua;
 #[macro_use]
@@ -37,11 +36,9 @@ extern crate openssl;
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
 
-use std::sync::{Arc, Mutex};
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
-use tera::Tera;
 use rlua::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
@@ -52,14 +49,12 @@ pub mod bindings;
 pub mod logger;
 
 mod app_state {
-    use super::*;
     pub struct AppState {
-        pub lua: ::actix::Addr<::actix_lua::LuaActor>,
-        pub tera: Arc<Mutex<Tera>>,
+        pub lua: ::actix::Addr<::actix_lua::LuaActor>
     }
 }
 
-fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
+fn create_vm(init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -84,7 +79,7 @@ fn create_vm(tera: Arc<Mutex<Tera>>, init_path: &str, settings: HashMap<String, 
         end
     "#, None)?;
 
-    bindings::tera::init(&lua, tera)?;
+    bindings::tera::init(&lua)?;
     bindings::yaml::init(&lua)?;
     bindings::json::init(&lua)?;
     bindings::uuid::init(&lua)?;
@@ -209,10 +204,8 @@ impl ApplicationBuilder {
         
         let general = config.general.unwrap_or_default();
 
-        let templates_path = get_or(&general, "templates_path", "templates/**/*");
         let init_path = get_or(&general, "init", "init.lua");
         let log_path = get_or(&general, "log_path", "log");
-
         
         if !Path::new(&init_path).exists() {
             println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
@@ -223,9 +216,8 @@ impl ApplicationBuilder {
         //log_panics::init();
 
         let sys = actix::System::new("torchbear");
-        let tera = Arc::new(Mutex::new(compile_templates!(&templates_path)));
 
-        let vm = create_vm(tera.clone(), &init_path, general).unwrap();
+        let vm = create_vm(&init_path, general).unwrap();
         
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
@@ -254,7 +246,7 @@ impl ApplicationBuilder {
             };
 
             let mut server = actix_server::new(move || {
-                App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
+                App::with_state(app_state::AppState { lua: addr.clone() })
                     .default_resource(|r| r.with(bindings::server::handler))
             });
 
