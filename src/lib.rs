@@ -32,6 +32,7 @@ extern crate serde_derive;
 extern crate git2;
 extern crate regex;
 extern crate openssl;
+extern crate mime_guess;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
@@ -93,6 +94,7 @@ fn create_vm(init_path: &str, settings: HashMap<String, String>) -> Result<Lua, 
     bindings::git::init(&lua)?;
     bindings::regex::init(&lua)?;
     bindings::tantivy::init(&lua)?;
+    bindings::mime::init(&lua)?;
 
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {

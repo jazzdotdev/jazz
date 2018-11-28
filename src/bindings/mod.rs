@@ -12,6 +12,7 @@ pub mod fs;
 pub mod select;
 pub mod git;
 pub mod regex;
+pub mod mime;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
