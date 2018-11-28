@@ -1,4 +1,5 @@
 extern crate torchbear_lib;
+#[macro_use]
 extern crate clap;
 extern crate log;
 
@@ -6,8 +7,8 @@ use clap::{Arg, App as ClapApp};
 
 fn main() {
     let matches = ClapApp::new("torchbear")
-        .version("0.4.2")
-        .author("Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>")
+        .version(crate_version!())
+        .author(crate_authors!())
         .about("TorchBear Application Framework")
                 .arg(Arg::with_name("log")
            .long("log")

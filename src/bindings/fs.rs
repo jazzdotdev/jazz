@@ -1,6 +1,8 @@
 use rlua::prelude::*;
 use std::sync::Arc;
 use std::fs;
+use serde_json;
+use rlua_serde;
     
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
@@ -14,6 +16,10 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(result.is_ok())
     })? )?;
 
+    //TODO: 'fs.entries' works sometimes, while at random it fails to work and returns
+    //      a nil value in test as well as in actual use
+    //      Sort out and correct the issues in relations to this problem
+    //      Possibly related to https://github.com/foundpatterns/torchbear/issues/84
     module.set("entries", lua.create_function( |lua, path: String| {
         match fs::read_dir(path) {
             Ok(iter) => {
@@ -47,7 +53,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     module.set("read_file", lua.create_function( |lua, path: String| {
         let data = fs::read(path).map_err(|err| LuaError::external(err))?;
-        Ok(lua.create_string(&data)?)
+        Ok(lua.create_string(&String::from_utf8_lossy(&data[..]).to_owned().to_string())?)
     })?)?;
 
     module.set("exists", lua.create_function( |_, path: String| {

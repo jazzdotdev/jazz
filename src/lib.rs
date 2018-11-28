@@ -4,7 +4,6 @@ extern crate actix_lua;
 extern crate actix_web;
 extern crate env_logger;
 extern crate futures;
-#[macro_use]
 extern crate tera;
 extern crate rlua;
 #[macro_use]
@@ -31,26 +30,32 @@ extern crate select;
 #[macro_use]
 extern crate serde_derive;
 extern crate git2;
+extern crate regex;
+extern crate openssl;
+extern crate mime_guess;
 
-use std::sync::Arc;
+#[cfg(feature = "tantivy_bindings")]
+extern crate tantivy;
+
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
-use tera::{Tera};
 use rlua::prelude::*;
 use std::collections::HashMap;
+use std::path::Path;
+use std::io;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 pub mod bindings;
 pub mod logger;
 
 mod app_state {
     pub struct AppState {
-        pub lua: ::actix::Addr<::actix_lua::LuaActor>,
-        pub tera: ::std::sync::Arc<::tera::Tera>,
+        pub lua: ::actix::Addr<::actix_lua::LuaActor>
     }
 }
 
-fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
+fn create_vm(init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -75,7 +80,7 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
         end
     "#, None)?;
 
-    bindings::tera::init(&lua, tera)?;
+    bindings::tera::init(&lua)?;
     bindings::yaml::init(&lua)?;
     bindings::json::init(&lua)?;
     bindings::uuid::init(&lua)?;
@@ -87,6 +92,9 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
     bindings::fs::init(&lua)?;
     bindings::select::init(&lua)?;
     bindings::git::init(&lua)?;
+    bindings::regex::init(&lua)?;
+    bindings::tantivy::init(&lua)?;
+    bindings::mime::init(&lua)?;
 
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
@@ -102,33 +110,37 @@ fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>
     }
 
     // Lua Bridge
-    lua.exec::<_, ()>(r#"
-        xpcall(function ()
-
-            local init_f, err = loadfile(torchbear.init_filename)
-            if not init_f then error(err) end
-
-            local handler = init_f()
-
-            if handler then
-                torchbear.handler = handler
-            end
-            
-        end, function (msg)
-            local trace = debug.traceback(msg, 3)
-            log.error(trace)
-        end)        
-
-        if not torchbear.handler then
-            log.error("No handler specified")
-        end
-    "#, None)?;
+    lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
 
     Ok(lua)
 }
 
+//TODO: Implement a better error handler for `ApplicationBuilder` or across torchbear
+fn server_handler<H, F>(srv: io::Result<actix_web::server::HttpServer<H, F>>) -> actix_web::server::HttpServer<H, F>
+    where H: actix_web::server::IntoHttpHandler,
+          F: Fn() -> H + Send + Clone
+{
+    match srv {
+        Ok(srv) => srv,
+        Err(e) => if e.kind() == io::ErrorKind::AddrInUse {
+            println!("Error: Address already in use.");
+            std::process::exit(1);
+        } else {
+            println!("Unknown error as occurred: {:?}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
 pub struct ApplicationBuilder {
     log_settings: logger::Settings,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct SettingConfig {
+    general: Option<HashMap<String, String>>,
+    #[serde(rename = "web-server")]
+    web_server: Option<HashMap<String, String>>,
 }
 
 impl ApplicationBuilder {
@@ -152,46 +164,42 @@ impl ApplicationBuilder {
     pub fn start (&mut self) {
 
         let mut settings = config::Config::new();
+        
+        let setting_file = Path::new("torchbear.toml");
+        if setting_file.exists() {
+            match settings.merge(config::File::with_name("torchbear.toml")) {
+                Err(err) => {
+                    println!("Error opening torchbear.toml: {}", err);
+                    std::process::exit(1);
+                },
+                _ => ()
+            };
+            settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
+        }
 
-        match settings.merge(config::File::with_name("Settings.toml")) {
-            Err(err) => {
-                if let config::ConfigError::Foreign(err) = &err {
-                    use std::io::{Error as IoErr, ErrorKind};
-
-                    if let Some(err) = err.downcast_ref::<IoErr>() {
-                        if let ErrorKind::NotFound = err.kind() {
-                            println!("Error: torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
-                            std::process::exit(1);
-                        };
-                    };
-                };
-
-                println!("Error opening Settings.toml: {}", err);
-                std::process::exit(1);
-            },
-            _ => ()
-        };
-        settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
-
-        let hashmap = settings.try_into::<HashMap<String, String>>().unwrap();
+        let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
         fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
             map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
         }
-
-        let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
-        let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-        let init_path = get_or(&hashmap, "init", "init.lua");
-        let log_path = get_or(&hashmap, "log_path", "log");
         
+        let general = config.general.unwrap_or_default();
+
+        let init_path = get_or(&general, "init", "init.lua");
+        let log_path = get_or(&general, "log_path", "log");
+        
+        if !Path::new(&init_path).exists() {
+            println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
+            std::process::exit(1);
+        }
+
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
         //log_panics::init();
 
         let sys = actix::System::new("torchbear");
-        let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = create_vm(tera.clone(), &init_path, hashmap).unwrap();
-
+        let vm = create_vm(&init_path, general).unwrap();
+        
         let addr = Arbiter::start(move |_| {
             let lua_actor = LuaActorBuilder::new()
                 .on_handle_with_lua(include_str!("handlers/web_server.lua"))
@@ -200,13 +208,44 @@ impl ApplicationBuilder {
             lua_actor
         });
 
-        actix_server::new(move || {
-            App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-                .default_resource(|r| r.with(bindings::server::handler))
-        }).bind(&host)
-            .unwrap()
-            .start();
+        if let Some(web) = config.web_server {
+            log::debug!("web server section in settings, starting seting up web server");
+            let host = get_or(&web, "address", "0.0.0.0");
+            let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
 
-        let _ = sys.run();
+            let some_ssl = match (web.get("tls_private"), web.get("tls_certificate")) {
+                (None, None) => None,
+                (Some(priv_path), Some(cert_path)) => {
+                    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+                    builder.set_private_key_file(priv_path, SslFiletype::PEM).unwrap();
+                    builder.set_certificate_chain_file(cert_path).unwrap();
+                    Some(builder)
+                },
+                _ => {
+                    println!("Error: SSL needs both tls_private and tls_certificate settings.");
+                    std::process::exit(1);
+                }
+            };
+
+            let mut server = actix_server::new(move || {
+                App::with_state(app_state::AppState { lua: addr.clone() })
+                    .default_resource(|r| r.with(bindings::server::handler))
+            });
+
+            server = server_handler(server.bind((host.as_str(), port)));
+            log::debug!("web server listening on port {}:{}", &host, port);
+
+            if let Some(ssl_builder) = some_ssl {
+                let host = get_or(&web, "tls_address", "0.0.0.0");
+                let port = get_or(&web, "tls_port", "3001").parse().unwrap_or(3001);
+                server = server_handler(server.bind_ssl((host.as_str(), port), ssl_builder));
+                log::debug!("tls server listening on port {}:{}", &host, port);
+            }
+
+            server.start();
+
+            let _ = sys.run();
+        }
+    
     }
 }

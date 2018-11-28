@@ -11,7 +11,21 @@ pub mod time;
 pub mod fs;
 pub mod select;
 pub mod git;
+pub mod regex;
+pub mod mime;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
 pub mod log;
+
+#[cfg(feature = "tantivy_bindings")]
+pub mod tantivy;
+
+
+// Dummy modules
+
+#[cfg(not(feature = "tantivy_bindings"))]
+pub mod tantivy {
+    pub fn init(_: &rlua::Lua) -> rlua::Result<()> { Ok(()) }
+}
+
