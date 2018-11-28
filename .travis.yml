@@ -69,10 +69,10 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
-      - curl https://git.io/fpcV6 -sSfL | bash
+      - bash install.sh
       - mv target/aarch64-linux-android/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./usr/local/bin/torchbear
+      - /usr/local/bin/torchbear
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
       env:
@@ -90,10 +90,10 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
       - export PATH="$PATH:$PWD/NDK/arm/bin"
       - cargo build --target="arm-linux-androideabi" --release
-      - curl https://git.io/fpcV6 -sSfL | bash
+      - bash install.sh
       - mv target/arm-linux-androideabi/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./usr/local/bin/torchbear
+      - /usr/local/bin/torchbear
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
 before_install:
 - openssl aes-256-cbc -K $encrypted_3f0c7a8b3f66_key -iv $encrypted_3f0c7a8b3f66_iv -in private_key.enc -out private_key -d
@@ -102,7 +102,9 @@ deploy:
   api_key:
     secure: CgTP0SwOefwSUsePWKYuZCEV2QNVH3GJcMfComUgBCnPbdrfA8vnC7Ao3Sb31NHZ43k89+DhxCsVtDaWBhmMWqnost5aJ7LGfaEvObL9Cdg06OJv8o9UAcowSqU4k3eHEr0ZRJzEWEiAMTAtclzosmA1PfzyY7MyIv6ZAcoyoUg1uwzr0KJrc/dGN+tkWv/6M1IBgh5kji0yfg9yxjxClJ28GikAJoRmTv+Yx1tQQ+Q/qlkbVT+fVAc0vWwvk/YIauF1s2LBPhMKqkUmmpHyZVk9g3er421ddYjesLt25wMocmtRlWTrEn4G1RVLbQG6+mE+adyw7Oi081CvmJjF4eojsyOYbWI89qJBM0ZAAqzrXNwizZCdL7ShX/I5jHJTA/AMa2GyyLTFbR4CQT/+Otn0nfPLFfiY1g654CFcL73mRnDtixpGMx1aMJ4ScXbMR8rCDDO8hix7pOm71LtCqUAchOYCyNsn4MCkz2+LaH9WZ/hDJDmUgMVVBoqhGLb2vnaf3fd+vbeKFwpLDluFLRrunM+qdNPDPDHzb3qoXcospNnZEt18O3Pu5vMssxIaKEiesm2zTsd/+R4pl4Acotgiy/jLJucFRVs5Id+RpD/eETk/ZnR3Jekpkl6T95w82an1mGS8o8fl/F+CkNBOAn5J8a6gz0nXhjp6APLfErg=
   file_glob: true
-  file: "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
+  file:
+    - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip"
+    - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.sig"
   skip_cleanup: true
   on:
     repo: foundpatterns/torchbear
