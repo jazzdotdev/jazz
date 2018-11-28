@@ -58,17 +58,10 @@ matrix:
       - /usr/local/bin/torchbear
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
-<<<<<<< HEAD
-      env: 
-        - ARCH=arm32
-        - PLATFORM=android
-        - NDK_BUILD_32BIT=1
-=======
       env:
       - ARCH=arm32
       - PLATFORM=android
       - CHANNEL=stable
->>>>>>> upstream/master
       script: echo "cargo test temporarily disabled"
       before_deploy:
       - export PATH="$HOME/.cargo/bin:$PATH"
