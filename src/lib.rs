@@ -41,10 +41,10 @@ use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
-use std::collections::HashMap;
 use std::path::Path;
 use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use serde_json::Value;
 
 pub mod bindings;
 pub mod logger;
@@ -55,7 +55,7 @@ mod app_state {
     }
 }
 
-fn create_vm(init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
+fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
     lua.exec::<_, ()>(r#"
@@ -104,7 +104,7 @@ fn create_vm(init_path: &str, settings: HashMap<String, String>) -> Result<Lua, 
     // torchbear global table
     {
         let tb_table = lua.create_table()?;
-        tb_table.set("settings", settings)?;
+        tb_table.set("settings", rlua_serde::to_value(&lua, settings).map_err(LuaError::external)?)?;
         tb_table.set("init_filename", init_path)?;
         lua.globals().set("torchbear", tb_table)?;
     }
@@ -138,9 +138,9 @@ pub struct ApplicationBuilder {
 
 #[derive(Debug, Default, Deserialize)]
 pub struct SettingConfig {
-    general: Option<HashMap<String, String>>,
+    general: Option<Value>,
     #[serde(rename = "web-server")]
-    web_server: Option<HashMap<String, String>>,
+    web_server: Option<Value>,
 }
 
 impl ApplicationBuilder {
@@ -179,8 +179,8 @@ impl ApplicationBuilder {
 
         let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
-        fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
-            map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
+        fn get_or (map: &Value, key: &str, val: &str) -> String {
+            map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
         }
         
         let general = config.general.unwrap_or_default();
@@ -208,7 +208,7 @@ impl ApplicationBuilder {
             lua_actor
         });
 
-        if let Some(web) = config.web_server {
+        if let Some(web) = config.web_server {            
             log::debug!("web server section in settings, starting seting up web server");
             let host = get_or(&web, "address", "0.0.0.0");
             let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
@@ -217,8 +217,8 @@ impl ApplicationBuilder {
                 (None, None) => None,
                 (Some(priv_path), Some(cert_path)) => {
                     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-                    builder.set_private_key_file(priv_path, SslFiletype::PEM).unwrap();
-                    builder.set_certificate_chain_file(cert_path).unwrap();
+                    builder.set_private_key_file(priv_path.as_str().unwrap(), SslFiletype::PEM).unwrap();
+                    builder.set_certificate_chain_file(cert_path.as_str().unwrap()).unwrap();
                     Some(builder)
                 },
                 _ => {
