@@ -34,6 +34,7 @@ Note:  You don't need to learn Rust to use Torchbear.
 * [Git](https://github.com/alexcrichton/git2-rs) repo creation, staging, committing, and log access
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 * [regex](https://github.com/rust-lang/regex) matching and replacing
+* [MIME](https://github.com/abonander/mime_guess) type guessing
 
 ## Installation
 
