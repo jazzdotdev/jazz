@@ -49,10 +49,8 @@ use serde_json::Value;
 pub mod bindings;
 pub mod logger;
 
-mod app_state {
-    pub struct AppState {
-        pub lua: ::actix::Addr<::actix_lua::LuaActor>
-    }
+pub struct AppState {
+    pub lua: ::actix::Addr<::actix_lua::LuaActor>
 }
 
 fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
@@ -208,7 +206,7 @@ impl ApplicationBuilder {
             };
 
             let mut server = actix_server::new(move || {
-                App::with_state(app_state::AppState { lua: addr.clone() })
+                App::with_state(AppState { lua: addr.clone() })
                     .default_resource(|r| r.with(bindings::server::handler))
             });
 
