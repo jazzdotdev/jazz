@@ -58,27 +58,7 @@ mod app_state {
 fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
     let lua = unsafe { Lua::new_with_debug() };
 
-    lua.exec::<_, ()>(r#"
-        -- The debug library is unpredictable in some cases,
-        -- so we only include the safe parts.
-
-        -- Modify the table itself instead of setting the
-        -- global field, because debug can also be required.
-
-        local to_remove = {}
-
-        for k, _ in pairs(debug) do
-            if  k ~= "traceback"
-            and k ~= "getinfo"
-            then
-                table.insert(to_remove, k)
-            end
-        end
-
-        for _, k in ipairs(to_remove) do
-            debug[k] = nil
-        end
-    "#, None)?;
+    lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
     bindings::tera::init(&lua)?;
     bindings::yaml::init(&lua)?;
