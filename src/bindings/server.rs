@@ -26,8 +26,8 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
     let host = request.uri().host()
         .map(|host| LuaMessage::String(host.to_owned()))
         .unwrap_or(LuaMessage::Nil);
-    let port = request.uri().port()
-        .map(|port| LuaMessage::Number(port as f64))
+    let port = request.uri().port_part()
+        .map(|port| LuaMessage::Number(port.as_u16() as f64))
         .unwrap_or(LuaMessage::Nil);
     let fragment = request.uri().to_string()
         .rsplit("#")
