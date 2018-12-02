@@ -37,6 +37,9 @@ extern crate mime_guess;
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
 
+pub mod bindings;
+pub mod logger;
+
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
@@ -46,8 +49,6 @@ use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
 
-pub mod bindings;
-pub mod logger;
 
 pub struct AppState {
     pub lua: ::actix::Addr<::actix_lua::LuaActor>
