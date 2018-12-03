@@ -33,10 +33,14 @@ extern crate git2;
 extern crate regex;
 extern crate openssl;
 extern crate mime_guess;
+extern crate heck;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
 extern crate scl;
+
+pub mod bindings;
+pub mod logger;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -47,8 +51,6 @@ use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
 
-pub mod bindings;
-pub mod logger;
 
 pub struct AppState {
     pub lua: ::actix::Addr<::actix_lua::LuaActor>
@@ -75,7 +77,8 @@ fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
     bindings::tantivy::init(&lua)?;
     bindings::mime::init(&lua)?;
     bindings::scl::init(&lua)?;
-
+    bindings::heck::init(&lua)?;
+    
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
         bindings::log::init(&lua)?;
@@ -86,6 +89,7 @@ fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
         let tb_table = lua.create_table()?;
         tb_table.set("settings", rlua_serde::to_value(&lua, settings).map_err(LuaError::external)?)?;
         tb_table.set("init_filename", init_path)?;
+        tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
         lua.globals().set("torchbear", tb_table)?;
     }
 

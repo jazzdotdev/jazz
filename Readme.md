@@ -35,6 +35,7 @@ Note:  You don't need to learn Rust to use Torchbear.
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
+* [Heck](https://github.com/withoutboats/heck) case conversions
 
 ## Installation
 
