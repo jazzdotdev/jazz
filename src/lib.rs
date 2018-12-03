@@ -36,6 +36,7 @@ extern crate mime_guess;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
+extern crate scl;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -73,6 +74,7 @@ fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
     bindings::regex::init(&lua)?;
     bindings::tantivy::init(&lua)?;
     bindings::mime::init(&lua)?;
+    bindings::scl::init(&lua)?;
 
     // torchbear crashes if there's no log binding
     //if cfg!(feature = "log_bindings") {
