@@ -173,7 +173,7 @@ impl ApplicationBuilder {
         let log_path = get_or(&general, "log_path", "log");
         
         if !Path::new(&init_path).exists() {
-            println!("Error: Torchbear needs an app to run. Change to the directory containing your application and run torchbear again.");
+            println!("Error: Specified init.lua not found. You may have not completed installing your app");
             std::process::exit(1);
         }
 
@@ -192,7 +192,7 @@ impl ApplicationBuilder {
             lua_actor
         });
 
-        if let Some(web) = config.web_server {            
+        if let Some(web) = config.web_server {
             log::debug!("web server section in settings, starting seting up web server");
             let host = get_or(&web, "address", "0.0.0.0");
             let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
