@@ -15,6 +15,7 @@ pub mod regex;
 pub mod mime;
 pub mod scl;
 pub mod heck;
+pub mod zip;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]

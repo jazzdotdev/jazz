@@ -34,6 +34,7 @@ extern crate regex;
 extern crate openssl;
 extern crate mime_guess;
 extern crate heck;
+extern crate zip;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
@@ -83,7 +84,8 @@ impl AppState {
         bindings::mime::init(&lua)?;
         bindings::scl::init(&lua)?;
         bindings::heck::init(&lua)?;
-        
+        bindings::zip::init(&lua)?;
+
         // torchbear crashes if there's no log binding
         //if cfg!(feature = "log_bindings") {
             bindings::log::init(&lua)?;
@@ -202,7 +204,7 @@ impl ApplicationBuilder {
         let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
 
         if let Some(web) = config.web_server {
-        
+
             let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
                 Some(Some("true")) => true,
                 Some(Some("false")) => false,
