@@ -28,6 +28,7 @@ Note:  You don't need to learn Rust to use Torchbear.
 * [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
 * [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
 * [Serde](https://github.com/serde-rs/serde) YAML and JSON serializing/deserializing
+* [SCL](https://github.com/Keats/scl) simple, safe configuration language serializing/deserializing
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
