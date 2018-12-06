@@ -51,52 +51,69 @@ use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
 
+type LuaAddr = ::actix::Addr<::actix_lua::LuaActor>;
 
+#[derive(Clone)]
 pub struct AppState {
-    pub lua: ::actix::Addr<::actix_lua::LuaActor>
+    pub lua: Option<LuaAddr>,
+    pub init_path: String,
+    pub settings: Value,
 }
 
-fn create_vm(init_path: &str, settings: Value) -> Result<Lua, LuaError> {
-    let lua = unsafe { Lua::new_with_debug() };
+impl AppState {
+    pub fn create_vm (&self) -> Result<Lua, LuaError> {
+        let lua = unsafe { Lua::new_with_debug() };
 
-    lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
+        lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
-    bindings::tera::init(&lua)?;
-    bindings::yaml::init(&lua)?;
-    bindings::json::init(&lua)?;
-    bindings::uuid::init(&lua)?;
-    bindings::markdown::init(&lua)?;
-    bindings::client::init(&lua)?;
-    bindings::crypto::init(&lua)?;
-    bindings::stringset::init(&lua)?;
-    bindings::time::init(&lua)?;
-    bindings::fs::init(&lua)?;
-    bindings::select::init(&lua)?;
-    bindings::git::init(&lua)?;
-    bindings::regex::init(&lua)?;
-    bindings::tantivy::init(&lua)?;
-    bindings::mime::init(&lua)?;
-    bindings::scl::init(&lua)?;
-    bindings::heck::init(&lua)?;
-    
-    // torchbear crashes if there's no log binding
-    //if cfg!(feature = "log_bindings") {
-        bindings::log::init(&lua)?;
-    //}
+        bindings::tera::init(&lua)?;
+        bindings::yaml::init(&lua)?;
+        bindings::json::init(&lua)?;
+        bindings::uuid::init(&lua)?;
+        bindings::markdown::init(&lua)?;
+        bindings::client::init(&lua)?;
+        bindings::crypto::init(&lua)?;
+        bindings::stringset::init(&lua)?;
+        bindings::time::init(&lua)?;
+        bindings::fs::init(&lua)?;
+        bindings::select::init(&lua)?;
+        bindings::git::init(&lua)?;
+        bindings::regex::init(&lua)?;
+        bindings::tantivy::init(&lua)?;
+        bindings::mime::init(&lua)?;
+        bindings::scl::init(&lua)?;
+        bindings::heck::init(&lua)?;
+        
+        // torchbear crashes if there's no log binding
+        //if cfg!(feature = "log_bindings") {
+            bindings::log::init(&lua)?;
+        //}
 
-    // torchbear global table
-    {
-        let tb_table = lua.create_table()?;
-        tb_table.set("settings", rlua_serde::to_value(&lua, settings).map_err(LuaError::external)?)?;
-        tb_table.set("init_filename", init_path)?;
-        tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
-        lua.globals().set("torchbear", tb_table)?;
+        // torchbear global table
+        {
+            let tb_table = lua.create_table()?;
+            tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
+            tb_table.set("init_filename", self.init_path.clone())?;
+            tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
+            lua.globals().set("torchbear", tb_table)?;
+        }
+
+        // Lua Bridge
+        lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
+
+        Ok(lua)
     }
 
-    // Lua Bridge
-    lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
-
-    Ok(lua)
+    pub fn create_addr (&self) -> LuaAddr {
+        let vm = self.create_vm().unwrap();
+        Arbiter::start(move |_| {
+            let lua_actor = LuaActorBuilder::new()
+                .on_handle_with_lua(include_str!("handlers/web_server.lua"))
+                .build_with_vm(vm)
+                .unwrap();
+            lua_actor
+        })
+    }
 }
 
 //TODO: Implement a better error handler for `ApplicationBuilder` or across torchbear
@@ -182,17 +199,24 @@ impl ApplicationBuilder {
 
         let sys = actix::System::new("torchbear");
 
-        let vm = create_vm(&init_path, general).unwrap();
-        
-        let addr = Arbiter::start(move |_| {
-            let lua_actor = LuaActorBuilder::new()
-                .on_handle_with_lua(include_str!("handlers/web_server.lua"))
-                .build_with_vm(vm)
-                .unwrap();
-            lua_actor
-        });
+        let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
 
         if let Some(web) = config.web_server {
+        
+            let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
+                Some(Some("true")) => true,
+                Some(Some("false")) => false,
+                None => false,
+                _ => {
+                    println!("Error: Setting web_server.single_actor must be either \"true\" or \"false\"");
+                    std::process::exit(1);
+                },
+            };
+
+            if single_actor {
+                app_state.lua = Some(app_state.create_addr());
+            }
+
             log::debug!("web server section in settings, starting seting up web server");
             let host = get_or(&web, "address", "0.0.0.0");
             let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
@@ -212,7 +236,7 @@ impl ApplicationBuilder {
             };
 
             let mut server = actix_server::new(move || {
-                App::with_state(AppState { lua: addr.clone() })
+                App::with_state(app_state.clone())
                     .default_resource(|r| r.with(bindings::server::handler))
             });
 
@@ -229,6 +253,9 @@ impl ApplicationBuilder {
             server.start();
 
             let _ = sys.run();
+        } else {
+            println!("Non web-server apps not yet supported.");
+            std::process::exit(1);
         }
     
     }

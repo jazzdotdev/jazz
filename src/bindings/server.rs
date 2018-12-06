@@ -107,9 +107,15 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
 pub fn handler((request, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_request(&request, body);
 
-    request.state()
-        .lua
-        .send(LuaMessage::Table(table))
+    let app_state = request.state();
+
+    let own_addr = if app_state.lua.is_none() {
+        Some(app_state.create_addr())
+    } else { None };
+
+    let addr = own_addr.as_ref().unwrap_or_else(|| { app_state.lua.as_ref().unwrap() });
+
+    addr.send(LuaMessage::Table(table))
         .from_err()
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
