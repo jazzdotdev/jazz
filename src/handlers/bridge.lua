@@ -15,5 +15,5 @@ end, function (msg)
 end)
 
 if not torchbear.handler then
-    log.error("No handler specified")
+    log.debug("No handler specified")
 end
