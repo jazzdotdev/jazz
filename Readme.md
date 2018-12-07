@@ -37,6 +37,7 @@ Note:  You don't need to learn Rust to use Torchbear.
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
 * [Heck](https://github.com/withoutboats/heck) case conversions
+* [Zip](https://github.com/mvdnes/zip-rs) file decompression
 
 ## Installation
 
