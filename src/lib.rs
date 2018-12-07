@@ -203,20 +203,21 @@ impl ApplicationBuilder {
 
         let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
 
+        app_state.lua = Some(app_state.create_addr());
+
         if let Some(web) = config.web_server {
 
             let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
                 Some(Some("true")) => true,
-                Some(Some("false")) => false,
-                None => false,
+                Some(Some("false")) | None => false,
                 _ => {
                     println!("Error: Setting web_server.single_actor must be either \"true\" or \"false\"");
                     std::process::exit(1);
                 },
             };
 
-            if single_actor {
-                app_state.lua = Some(app_state.create_addr());
+            if !single_actor {
+                app_state.lua = None;
             }
 
             log::debug!("web server section in settings, starting seting up web server");
@@ -255,9 +256,6 @@ impl ApplicationBuilder {
             server.start();
 
             let _ = sys.run();
-        } else {
-            println!("Non web-server apps not yet supported.");
-            std::process::exit(1);
         }
     
     }
