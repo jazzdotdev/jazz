@@ -16,7 +16,7 @@
 
 Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data anlysis, and anything else you can imagine.
 
-Note:  You don't need to learn Rust to use Torchbear.
+Lua is a very simple language, [that you can learn in 15 minutes](http://tylerneylon.com/a/learn-lua/).  You don't need to learn Rust to use Torchbear.
 
 ## Built-in Tools
 
@@ -41,11 +41,14 @@ Note:  You don't need to learn Rust to use Torchbear.
 
 ## Installation
 
-Torchbear comes as a single executable, making it very easy to install.  The latest version is available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  To make it simpler, you can use our install script by copying and pasting this line into your terminal, then just running `torchbear` or `torchbear.exe` in any of your apps:
+Torchbear comes as a single executable, making it very easy to install.  Here's a simple command to install it:
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
- ```
+```
+
+Our installer gives you the latest version, which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  Our install script is much easier though; you can use it by copying and pasting that line into your terminal, then you'll be able to run `torchbear` in any of your apps.
+
 #### What is a terminal?
 
 If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  On Windows, Android, and MacOS, we've tested with these tools that make a very nice user experience.
