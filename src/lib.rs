@@ -203,9 +203,15 @@ impl ApplicationBuilder {
 
         let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
 
-        app_state.lua = Some(app_state.create_addr());
-
         if let Some(web) = config.web_server {
+
+            if let Some(Some(bootstrap)) = web.get("bootstrap_path").map(|s| { s.as_str() }) {
+                let vm = app_state.create_vm().unwrap();
+                vm.globals().get::<_, LuaTable>("torchbear").unwrap().set("bootstrap", bootstrap).unwrap();
+
+                if !vm.exec::<_, bool>(include_str!("handlers/bootstrap.lua"), Some("bootstrap")).unwrap()
+                { std::process::exit(1); }
+            }
 
             let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
                 Some(Some("true")) => true,
@@ -216,8 +222,8 @@ impl ApplicationBuilder {
                 },
             };
 
-            if !single_actor {
-                app_state.lua = None;
+            if single_actor {
+                app_state.lua = Some(app_state.create_addr());
             }
 
             log::debug!("web server section in settings, starting seting up web server");
