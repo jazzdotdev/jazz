@@ -14,7 +14,7 @@
   <a href="https://discord.gg/b6MY7dG"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data anlysis, and anything else you can imagine.
+Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data analysis, and anything else you can imagine.
 
 Lua is a very simple language, [that you can learn in 15 minutes](http://tylerneylon.com/a/learn-lua/).  You don't need to learn Rust to use Torchbear.
 
