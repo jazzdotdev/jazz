@@ -51,7 +51,7 @@ Our installer gives you the latest version, which is also available on [Torchbea
 
 #### What is a terminal?
 
-If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  On Windows, Android, and MacOS, we've tested with these tools that make a very nice user experience.
+If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  On Windows, Android, and MacOS, we've tested with these tools that make a very nice user experience:
 
 Windows: install [Cmder](http://cmder.net/) Full.
 
