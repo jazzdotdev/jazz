@@ -213,11 +213,11 @@ impl ApplicationBuilder {
                 { std::process::exit(1); }
             }
 
-            let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
-                Some(Some("true")) => true,
-                Some(Some("false")) | None => false,
+            let single_actor = match web.get("single_actor").map(|s| { s.as_bool() }) {
+                None => false,
+                Some(Some(b)) => b,
                 _ => {
-                    println!("Error: Setting web_server.single_actor must be either \"true\" or \"false\"");
+                    println!("Error: Setting web_server.single_actor must be a boolean value");
                     std::process::exit(1);
                 },
             };
@@ -262,6 +262,11 @@ impl ApplicationBuilder {
             server.start();
 
             let _ = sys.run();
+        } else {
+            // Temporary fix to run non webserver apps. Doesn't start the actor
+            // system, just runs a vanilla lua vm.
+            debug!("Torchbear app started");
+            let vm = app_state.create_vm().unwrap();
         }
     
     }
