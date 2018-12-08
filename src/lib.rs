@@ -19,7 +19,6 @@ extern crate uuid;
 extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
-extern crate config;
 extern crate chrono;
 #[macro_use]
 extern crate log;
@@ -42,6 +41,7 @@ extern crate scl;
 
 pub mod bindings;
 pub mod logger;
+pub mod conf;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -166,21 +166,14 @@ impl ApplicationBuilder {
 
     pub fn start (&mut self) {
 
-        let mut settings = config::Config::new();
-        
-        let setting_file = Path::new("torchbear.toml");
-        if setting_file.exists() {
-            match settings.merge(config::File::with_name("torchbear.toml")) {
-                Err(err) => {
-                    println!("Error opening torchbear.toml: {}", err);
-                    std::process::exit(1);
-                },
-                _ => ()
-            };
-            settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
-        }
+        let setting_file = Path::new("torchbear.scl");
 
-        let config = settings.try_into::<SettingConfig>().unwrap_or_default();
+        let config = if setting_file.exists() {
+            conf::Conf::load_file(&setting_file)
+        } else {
+            SettingConfig::default()
+        };
+        //let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
         fn get_or (map: &Value, key: &str, val: &str) -> String {
             map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
@@ -266,7 +259,7 @@ impl ApplicationBuilder {
             // Temporary fix to run non webserver apps. Doesn't start the actor
             // system, just runs a vanilla lua vm.
             debug!("Torchbear app started");
-            let vm = app_state.create_vm().unwrap();
+            let _ = app_state.create_vm().unwrap();
         }
     
     }
