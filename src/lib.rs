@@ -68,30 +68,13 @@ impl AppState {
 
         lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
-        bindings::tera::init(&lua)?;
-        bindings::yaml::init(&lua)?;
-        bindings::json::init(&lua)?;
-        bindings::uuid::init(&lua)?;
-        bindings::markdown::init(&lua)?;
-        bindings::client::init(&lua)?;
+        bindings::app::init(&lua)?;
+        bindings::archive::init(&lua)?;
         bindings::crypto::init(&lua)?;
-        bindings::stringset::init(&lua)?;
-        bindings::time::init(&lua)?;
-        bindings::fs::init(&lua)?;
-        bindings::select::init(&lua)?;
-        bindings::git::init(&lua)?;
-        bindings::regex::init(&lua)?;
-        bindings::tantivy::init(&lua)?;
-        bindings::mime::init(&lua)?;
-        bindings::scl::init(&lua)?;
-        bindings::heck::init(&lua)?;
-        bindings::zip::init(&lua)?;
-        bindings::tar::init(&lua)?;
-
-        // torchbear crashes if there's no log binding
-        //if cfg!(feature = "log_bindings") {
-            bindings::log::init(&lua)?;
-        //}
+        bindings::string::init(&lua)?;
+        bindings::system::init(&lua)?;
+        bindings::text::init(&lua)?;
+        bindings::web::init(&lua)?;
 
         // torchbear global table
         {
@@ -241,7 +224,7 @@ impl ApplicationBuilder {
 
             let mut server = actix_server::new(move || {
                 App::with_state(app_state.clone())
-                    .default_resource(|r| r.with(bindings::server::handler))
+                    .default_resource(|r| r.with(bindings::web::server::handler))
             });
 
             server = server_handler(server.bind((host.as_str(), port)));
