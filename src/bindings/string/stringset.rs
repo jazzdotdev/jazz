@@ -196,7 +196,7 @@ mod tests {
             d:clear()
             assert(d:is_empty())
 
-            local t = a:union(b):into_table()
+            local t = a:union(b):to_table()
             for i, v in ipairs(t) do
                 print(i, v)
             end
