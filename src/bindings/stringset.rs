@@ -75,7 +75,7 @@ impl UserData for StringSet {
             Ok(StringSet(this.0.clone()))
         });
 
-        methods.add_method("into_table", |lua, this, _: ()| {
+        methods.add_method("to_table", |lua, this, _: ()| {
             let table = lua.create_sequence_from(this.0.iter().cloned())?;
             Ok(table)
         });
