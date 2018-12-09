@@ -16,6 +16,7 @@ pub mod mime;
 pub mod scl;
 pub mod heck;
 pub mod zip;
+pub mod tar;
 
 // Panics if not included (?)
 //#[cfg(feature = "log_bindings")]
