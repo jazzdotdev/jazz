@@ -56,6 +56,7 @@ scl = "0.0.1"
 heck = "0.3.0"
 zip = "0.5.0"
 tar = "0.4.20"
+xz2 = "0.1.6"
 
 [dev-dependencies]
 tempfile = "3"

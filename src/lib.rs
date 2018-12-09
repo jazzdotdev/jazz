@@ -35,6 +35,7 @@ extern crate mime_guess;
 extern crate heck;
 extern crate zip;
 extern crate tar;
+extern crate xz2;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
