@@ -55,6 +55,7 @@ mime_guess = "1.8.6"
 scl = "0.0.1"
 heck = "0.3.0"
 zip = "0.5.0"
+blake2 = "0.8.0"
 tar = "0.4.20"
 unidiff = { git = "https://github.com/foundpatterns/difflib" }
 
