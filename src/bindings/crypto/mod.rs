@@ -22,6 +22,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
     crypto.set("hash", lua.create_function(hash::hash)?)?;
+    crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
 
     let sign = lua.create_table()?;
     sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;
@@ -93,7 +94,9 @@ mod tests {
                 local source = "this is a test!"
                 print( "source=" .. source )
                 local hash = crypto.hash(source)
-                print("hash=" .. hash)
+                print("SHA512=" .. hash)
+                local blakehash = crypto.blake2b(source)
+                print("BLAKE2B=" .. blakehash)
 
                 return true
             "#, None);

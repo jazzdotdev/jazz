@@ -4,6 +4,7 @@ pub mod git;
 pub mod log;
 pub mod markdown;
 pub mod tera;
+pub mod diff;
 
 #[cfg(feature = "tantivy_bindings")]
 pub mod tantivy;
@@ -20,6 +21,7 @@ pub fn init(lua: &Lua) -> LuaResult<()> {
     markdown::init(&lua)?;
     tantivy::init(&lua)?;
     tera::init(&lua)?;
+    diff::init(&lua)?;
 
     Ok(())
 }
