@@ -32,12 +32,12 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 * [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [Git](https://github.com/alexcrichton/git2-rs) repo creation, staging, committing, and log access
+* [Git](https://github.com/alexcrichton/git2-rs) cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
 * [Heck](https://github.com/withoutboats/heck) case conversions
-* [Zip](https://github.com/mvdnes/zip-rs) file decompression
+* [Zip](https://github.com/mvdnes/zip-rs), [Tar](https://github.com/alexcrichton/tar-rs), and [xz](https://github.com/alexcrichton/xz2-rs) (lzma) file decompression
 
 ## Installation
 
