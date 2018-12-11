@@ -47,7 +47,7 @@ Torchbear comes as a single executable, making it very easy to install.  Here's 
  curl https://git.io/fpcV6 -sSfL | bash
 ```
 
-Our installer gives you the latest version, which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  Our install script is much easier though; you can use it by copying and pasting that line into your terminal, then you'll be able to run `torchbear` in any of your apps.
+[Our installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) gives you the latest version, which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  Our install script is much easier though; you can use it by copying and pasting that line into your terminal, then you'll be able to run `torchbear` in any of your apps.
 
 #### What is a terminal?
 
