@@ -22,6 +22,11 @@ fn main() {
            .help("Whether to log everything in the dependency tree")
            .default_value("torchbear")
            .takes_value(true))
+        .arg(Arg::with_name("run")
+           .long("run")
+           .value_name("COMMAND")
+           .help("Command to run")
+           .takes_value(true))
         .get_matches();
 
     torchbear_lib::ApplicationBuilder::new()
@@ -44,5 +49,6 @@ fn main() {
                 std::process::exit(1)
             }
         })
+        .runcommand(matches.value_of("run"))
         .start()
 }

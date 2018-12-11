@@ -49,8 +49,10 @@ use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
-use std::path::Path;
+use std::fs;
 use std::io;
+use std::path::Path;
+use std::path::PathBuf;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
 
@@ -61,6 +63,7 @@ pub struct AppState {
     pub lua: Option<LuaAddr>,
     pub init_path: String,
     pub settings: Value,
+    pub package_path: Option<String>,
 }
 
 impl AppState {
@@ -85,6 +88,18 @@ impl AppState {
             tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
             lua.globals().set("torchbear", tb_table)?;
         }
+
+        // Lua package.path
+        match self.package_path {
+            Some(ref package_path) => {
+                let package: LuaTable = lua.globals().get("package")?;
+                let mut path: String = package.get("path")?;
+                path.push_str(";");
+                path.push_str(package_path.clone().as_str());
+                package.set("path", path)?;
+            }
+            None => ()
+        };
 
         // Lua Bridge
         lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
@@ -123,6 +138,7 @@ fn server_handler<H, F>(srv: io::Result<actix_web::server::HttpServer<H, F>>) ->
 
 pub struct ApplicationBuilder {
     log_settings: logger::Settings,
+    command: Option<PathBuf>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -138,7 +154,8 @@ impl ApplicationBuilder {
             log_settings: logger::Settings{
                 level: logger::LevelFilter::Info,
                 everything: false,
-            }
+            },
+            command: None
         }
     }
 
@@ -150,9 +167,40 @@ impl ApplicationBuilder {
         self.log_settings.everything = b; self
     }
 
+    pub fn runcommand (&mut self, command: Option<&str>) -> &mut Self {
+        self.command = match command {
+            Some(cmd) => match fs::canonicalize(cmd) {
+                Err(e) => {
+                    println!("Error while parsing --run option: {}", e);
+                    std::process::exit(1)
+                }
+                Ok(path) => Some(path)
+            },
+            None => None
+        };
+        self
+    }
+
     pub fn start (&mut self) {
 
-        let setting_file = Path::new("torchbear.scl");
+        let mut package_path: Option<String> = None;
+
+        let setting_file = match &self.command {
+            Some(command) => match command.parent() {
+                Some(parent) => {
+                    // Lua package.path
+                    let mut p = parent.clone().to_path_buf();
+                    p.push("?.lua");
+                    package_path = Some(p.to_str().unwrap().to_string());
+                    parent.join("torchbear.scl")
+                },
+                None => {
+                    println!("Error while parsing --run option: Can't get parent directory");
+                    std::process::exit(1);
+                }
+            },
+            None => Path::new("torchbear.scl").to_path_buf()
+        };
 
         let config = if setting_file.exists() {
             conf::Conf::load_file(&setting_file)
@@ -167,9 +215,12 @@ impl ApplicationBuilder {
         
         let general = config.general.unwrap_or_default();
 
-        let init_path = get_or(&general, "init", "init.lua");
+        let init_path = match self.command {
+            Some(ref command) => command.clone().into_os_string().into_string().unwrap(),
+            None => get_or(&general, "init", "init.lua"),
+        };
         let log_path = get_or(&general, "log_path", "log");
-        
+
         if !Path::new(&init_path).exists() {
             println!("Error: Specified init.lua not found. You may have not completed installing your app");
             std::process::exit(1);
@@ -180,7 +231,12 @@ impl ApplicationBuilder {
 
         let sys = actix::System::new("torchbear");
 
-        let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
+        let mut app_state = AppState {
+            lua: None,
+            init_path: init_path,
+            settings: general,
+            package_path: package_path
+        };
 
         if let Some(web) = config.web_server {
 
