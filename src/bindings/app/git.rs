@@ -44,6 +44,19 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> Resul
     Ok(())
 }
 
+fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
+	let _repo = git2::Repository::clone(url, into)?;
+	Ok(())
+}
+
+fn git_pull(path: &str) -> Result<(), git2::Error> {
+    let repo = git2::Repository::open(&path)?;
+    repo.find_remote("origin")?
+        .fetch(&["master"], None, None)?;
+
+    Ok(())
+}
+
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
     let git = lua.create_table()?;
 
@@ -105,6 +118,21 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             }
         })?,
     )?;
+
+	git.set(
+		"clone",
+		lua.create_function(|_, (url, into): (String, String)| {
+			Ok(git_clone(&url, &into).is_ok())
+		})?,
+	)?;
+
+    git.set(
+        "pull",
+        lua.create_function(|_, path: String| {
+            Ok(git_pull(&path).is_ok())
+        })?,
+    )?;
+
 
     let globals = lua.globals();
     globals.set("git", git)?;
