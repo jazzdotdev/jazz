@@ -8,6 +8,13 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     let module = lua.create_table()?;
 
+    module.set("canonicalize", lua.create_function( |lua, path: String| {
+        match fs::canonicalize(path).map_err(|err| LuaError::external(err)) {
+            Ok(i) => Ok(Some(lua.create_string(&i.to_str().unwrap()).unwrap())),
+            _ => Ok(None)
+        }
+    })? )?;
+
     module.set("create_dir", lua.create_function( |_, (path, all): (String, Option<bool>)| {
         let result = match all {
             Some(true) => fs::create_dir_all(path),
@@ -112,6 +119,9 @@ mod tests {
                 local md = fs.metadata(entry)
                 print(md.type .. ": " .. entry)
             end
+
+            assert(fs.canonicalize("."), "expected path")
+            assert(fs.canonicalize("/no/such/path/here") == nil, "expected nil")
         "#, None).unwrap();
     }
 }

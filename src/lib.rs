@@ -19,7 +19,6 @@ extern crate uuid;
 extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
-extern crate config;
 extern crate chrono;
 #[macro_use]
 extern crate log;
@@ -35,6 +34,8 @@ extern crate openssl;
 extern crate mime_guess;
 extern crate heck;
 extern crate zip;
+extern crate tar;
+extern crate unidiff;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
@@ -42,6 +43,7 @@ extern crate scl;
 
 pub mod bindings;
 pub mod logger;
+pub mod conf;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -67,29 +69,13 @@ impl AppState {
 
         lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
-        bindings::tera::init(&lua)?;
-        bindings::yaml::init(&lua)?;
-        bindings::json::init(&lua)?;
-        bindings::uuid::init(&lua)?;
-        bindings::markdown::init(&lua)?;
-        bindings::client::init(&lua)?;
+        bindings::app::init(&lua)?;
+        bindings::archive::init(&lua)?;
         bindings::crypto::init(&lua)?;
-        bindings::stringset::init(&lua)?;
-        bindings::time::init(&lua)?;
-        bindings::fs::init(&lua)?;
-        bindings::select::init(&lua)?;
-        bindings::git::init(&lua)?;
-        bindings::regex::init(&lua)?;
-        bindings::tantivy::init(&lua)?;
-        bindings::mime::init(&lua)?;
-        bindings::scl::init(&lua)?;
-        bindings::heck::init(&lua)?;
-        bindings::zip::init(&lua)?;
-
-        // torchbear crashes if there's no log binding
-        //if cfg!(feature = "log_bindings") {
-            bindings::log::init(&lua)?;
-        //}
+        bindings::string::init(&lua)?;
+        bindings::system::init(&lua)?;
+        bindings::text::init(&lua)?;
+        bindings::web::init(&lua)?;
 
         // torchbear global table
         {
@@ -166,21 +152,14 @@ impl ApplicationBuilder {
 
     pub fn start (&mut self) {
 
-        let mut settings = config::Config::new();
-        
-        let setting_file = Path::new("torchbear.toml");
-        if setting_file.exists() {
-            match settings.merge(config::File::with_name("torchbear.toml")) {
-                Err(err) => {
-                    println!("Error opening torchbear.toml: {}", err);
-                    std::process::exit(1);
-                },
-                _ => ()
-            };
-            settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
-        }
+        let setting_file = Path::new("torchbear.scl");
 
-        let config = settings.try_into::<SettingConfig>().unwrap_or_default();
+        let config = if setting_file.exists() {
+            conf::Conf::load_file(&setting_file)
+        } else {
+            SettingConfig::default()
+        };
+        //let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
         fn get_or (map: &Value, key: &str, val: &str) -> String {
             map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
@@ -213,11 +192,11 @@ impl ApplicationBuilder {
                 { std::process::exit(1); }
             }
 
-            let single_actor = match web.get("single_actor").map(|s| { s.as_str() }) {
-                Some(Some("true")) => true,
-                Some(Some("false")) | None => false,
+            let single_actor = match web.get("single_actor").map(|s| { s.as_bool() }) {
+                None => false,
+                Some(Some(b)) => b,
                 _ => {
-                    println!("Error: Setting web_server.single_actor must be either \"true\" or \"false\"");
+                    println!("Error: Setting web_server.single_actor must be a boolean value");
                     std::process::exit(1);
                 },
             };
@@ -246,7 +225,7 @@ impl ApplicationBuilder {
 
             let mut server = actix_server::new(move || {
                 App::with_state(app_state.clone())
-                    .default_resource(|r| r.with(bindings::server::handler))
+                    .default_resource(|r| r.with(bindings::web::server::handler))
             });
 
             server = server_handler(server.bind((host.as_str(), port)));
@@ -262,6 +241,11 @@ impl ApplicationBuilder {
             server.start();
 
             let _ = sys.run();
+        } else {
+            // Temporary fix to run non webserver apps. Doesn't start the actor
+            // system, just runs a vanilla lua vm.
+            debug!("Torchbear app started");
+            let _ = app_state.create_vm().unwrap();
         }
     
     }
