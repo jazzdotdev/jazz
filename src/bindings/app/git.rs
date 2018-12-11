@@ -45,22 +45,12 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> Resul
 }
 
 fn git_clone(url: &str, into: &str) -> Result<(), git2::Error> {
-    debug!("Cloning into: {}", into);
-	let _repo = match git2::Repository::clone(url, into) {
-	    Ok(repo) => repo,
-	    Err(e) => panic!("failed to clone: {}", e),
-	};
-	return Ok(())
+	let _repo = git2::Repository::clone(url, into)?;
+	Ok(())
 }
 
 fn git_pull(path: &str) -> Result<(), git2::Error> {
-    let repo = match git2::Repository::open(&path) {
-        Ok(i) => i,
-        Err(e) => {
-            error!("Directory not found, please sync again");
-            panic!("directory not found: {}", e);
-        }
-    };
+    let repo = git2::Repository::open(&path)?;
     repo.find_remote("origin")?
         .fetch(&["master"], None, None)?;
 
