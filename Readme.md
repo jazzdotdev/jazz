@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
   <a href="https://ci.appveyor.com/project/mitchtbaum/torchbear"><img src="https://ci.appveyor.com/api/projects/status/mg6e0p7s5v7j61ja?svg=true" alt="Appveyor Build Status"></a>
-  <a href="https://deps.rs/crate/torchbear/0.5.0"><img src="https://deps.rs/crate/torchbear/0.5.0/status.svg" alt="Dependencies"></a>
+  <a href="https://deps.rs/crate/torchbear"><img src="https://deps.rs/repo/github/foundpatterns/torchbear/status.svg" alt="Dependencies"></a>
   <a href="https://crates.io/crates/torchbear"><img src="https://img.shields.io/crates/v/torchbear.svg" alt="torchbear Crate"></a>
   <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
   <br>
