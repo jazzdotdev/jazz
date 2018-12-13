@@ -1,9 +1,9 @@
-use rlua::prelude::*;
-
 pub mod fs;
 pub mod time;
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+use rlua::prelude::*;
+
+pub fn init(lua: &Lua) -> ::Result<()> {
     fs::init(&lua)?;
     time::init(&lua)?;
 

@@ -3,8 +3,8 @@ use std::sync::Arc;
 use std::fs;
 use serde_json;
 use rlua_serde;
-    
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let module = lua.create_table()?;
 

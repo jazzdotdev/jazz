@@ -2,10 +2,9 @@ use rlua::prelude::*;
 use std::fs;
 use std::io::Read;
 use xz2::read::*;
-
 use super::ByteBuf;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     let module = lua.create_table()?;
     module.set("decompress", lua.create_function(|_, file: (String)| {
         let file = fs::File::open(&file).map_err(LuaError::external)?;

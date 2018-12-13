@@ -4,7 +4,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let module = lua.create_table()?;
     module.set("decompress", lua.create_function(|_, (src, dst): (String, String)| {

@@ -1,12 +1,12 @@
-use rlua::prelude::*;
-
 pub mod heck;
 pub mod mime;
 pub mod regex;
 pub mod stringset;
 pub mod uuid;
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+use rlua::prelude::*;
+
+pub fn init(lua: &Lua) -> ::Result<()> {
     heck::init(&lua)?;
     mime::init(&lua)?;
     regex::init(&lua)?;

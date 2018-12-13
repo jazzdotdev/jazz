@@ -1,5 +1,4 @@
 use rlua;
-use rlua::prelude::*;
 use rlua::{Lua, UserData, UserDataMethods};
 use select;
 use select::node::Raw;
@@ -211,7 +210,7 @@ impl UserData for Document {
     }
 }
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     let select = lua.create_table()?;
 
     // New Document from string

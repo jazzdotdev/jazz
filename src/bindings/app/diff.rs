@@ -8,7 +8,7 @@ fn time_format(d: &DateTime<Local>) -> String {
     d.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
 
-fn mtime(path: &str) -> io::Result<DateTime<Local>> {
+fn mtime(path: &str) -> ::Result<DateTime<Local>> {
     Ok(DateTime::from(fs::metadata(path)?.modified()?))
 }
 
@@ -18,7 +18,7 @@ fn read_file(path: &str) -> io::Result<Vec<String>> {
     file.lines().collect()
 }
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     let module = lua.create_table()?;
 
     module.set("compare_strings", lua.create_function( |_, (left, right): (String, String)| {

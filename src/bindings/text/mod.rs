@@ -1,11 +1,11 @@
-use rlua::prelude::*;
-
 pub mod json;
 pub mod scl;
 pub mod select;
 pub mod yaml;
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+use rlua::prelude::*;
+
+pub fn init(lua: &Lua) -> ::Result<()> {
     json::init(&lua)?;
     scl::init(&lua)?;
     select::init(&lua)?;

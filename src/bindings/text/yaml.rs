@@ -1,8 +1,9 @@
 use rlua::prelude::*;
 use serde_yaml;
 use rlua_serde;
+use Result;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> Result<()> {
     // Decode string to a table
     let module = lua.create_table()?;
     module.set("to_table", lua.create_function(|lua, text: String| {

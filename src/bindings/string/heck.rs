@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use heck::*;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let module = lua.create_table()?;
 

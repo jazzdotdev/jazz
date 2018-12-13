@@ -2,18 +2,7 @@ use rlua::{UserData, UserDataMethods, Error as LuaError, Lua, Value};
 use rust_sodium::crypto::box_;
 use base64;
 use std::cell::Ref;
-
-#[derive(Fail, Debug)]
-pub enum Error {
-    #[fail(display = "Failed to load keys, data is invalid.")]
-    InvalidKeys,
-    #[fail(display = "Failed to load nonce, data is invalid.")]
-    InvalidNonce,
-    #[fail(display = "Object passed is in not Nonce.")]
-    InvalidNonceObject,
-    #[fail(display = "Failed to decrypt.")]
-    FailedToDecrypt,
-}
+use error::Error;
 
 pub struct KeyPair {
     secret: box_::SecretKey,

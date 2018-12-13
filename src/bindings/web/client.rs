@@ -12,7 +12,7 @@ fn map_actix_err(err: actix_web::Error) -> LuaError {
     LuaError::external(format_err!("actix_web error: {}", &err))
 }
 
-fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaTable> {
+fn parse_response(lua: &Lua, res: ClientResponse) -> Result<LuaTable, LuaError> {
     let body_data = res.body()
         .wait()
         .map_err(|err| {
@@ -59,7 +59,7 @@ fn parse_response(lua: &Lua, res: ClientResponse) -> LuaResult<LuaTable> {
 }
 
 /// For POST and PUT requests.
-fn set_body(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> LuaResult<ClientRequest> {
+fn set_body(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> Result<ClientRequest, LuaError> {
     match value {
         LuaValue::Table(_) => {
             let json_value: JsonValue = rlua_serde::from_value(value)
@@ -72,9 +72,9 @@ fn set_body(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> LuaR
         },
         _ => Err(LuaError::external(format_err!("Unsupported POST body: {:?}", value))),
     }
-}
+} 
 
-fn set_headers(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> LuaResult<()> {
+fn set_headers(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> Result<(), LuaError> {
     if let LuaValue::Table(headers) = value.clone() {
         for pair in headers.pairs() {
             let (key, value): (String, LuaValue) = pair?;
@@ -93,7 +93,7 @@ fn set_headers(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> L
     Ok(())
 }
 
-fn send_lua_request <'a> (lua: &'a Lua, val: LuaValue<'a>) -> LuaResult<LuaTable<'a>> {
+fn send_lua_request <'a> (lua: &'a Lua, val: LuaValue<'a>) -> Result<LuaTable<'a>, LuaError> {
 
     let mut builder = ClientRequest::build();
 

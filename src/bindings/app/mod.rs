@@ -1,10 +1,10 @@
-use rlua::prelude::*;
-
 pub mod git;
 pub mod log;
 pub mod markdown;
 pub mod tera;
 pub mod diff;
+
+use rlua::prelude::*;
 
 #[cfg(feature = "tantivy_bindings")]
 pub mod tantivy;
@@ -12,10 +12,10 @@ pub mod tantivy;
 // Dummy modules
 #[cfg(not(feature = "tantivy_bindings"))]
 pub mod tantivy {
-    pub fn init(_: &rlua::Lua) -> rlua::Result<()> { Ok(()) }
+    pub fn init(_: &rlua::Lua) -> ::Result<()> { Ok(()) }
 }
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     git::init(&lua)?;
     log::init(&lua)?;
     markdown::init(&lua)?;

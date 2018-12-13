@@ -1,12 +1,14 @@
 use rlua::prelude::*;
 use std::fs;
 use std::io::Read;
+use std::result;
 use std::path::Path;
 use tar::Archive;
+use error::Error;
 
 use super::ByteBuf;
 
-fn extract<T: Read>(archive: &mut Archive<T>, dst: &Path) -> Result<(), LuaError> {
+fn extract<T: Read>(archive: &mut Archive<T>, dst: &Path) -> result::Result<(), LuaError> {
     for file in archive.entries().map_err(LuaError::external)? {
         file
             .and_then(|mut file| file.unpack_in(&dst))
@@ -15,7 +17,7 @@ fn extract<T: Read>(archive: &mut Archive<T>, dst: &Path) -> Result<(), LuaError
     Ok(())
 }
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     let module = lua.create_table()?;
     module.set("decompress", lua.create_function(|_, (src, dst): (String, String)| {
         let tar = fs::File::open(src).map_err(LuaError::external)?;
@@ -30,7 +32,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         extract(&mut archive, &dst)
     })?)?;
 
-    lua.globals().set("tar", module)?;
+    lua.globals().set("tar", module).map_err(Error::from)?;
 
     Ok(())
 }

@@ -1,22 +1,14 @@
-use rlua::{Error as LuaError, Lua};
-use rust_sodium;
-
 mod hash;
 mod sign;
 mod random;
 mod box_;
 
-#[derive(Fail, Debug)]
-pub enum Error {
-    #[fail(display = "Failed to initialize libsodium.")]
-    SodiumInitFailure,
-}
+use rlua::{Error as LuaError, Lua};
+use rust_sodium;
+use error::Error;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
-    match rust_sodium::init() {
-        Ok(_) => {},
-        Err(_) => return Err(LuaError::external(Error::SodiumInitFailure))
-    };
+pub fn init(lua: &Lua) -> ::Result<()> {
+    rust_sodium::init().map_err(|_| LuaError::external(Error::SodiumInitFailure))?;
 
     let crypto = lua.create_table()?;
 

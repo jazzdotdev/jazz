@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use rlua::prelude::*;
 use rlua_serde;
 use tera::{Tera, Value as JsonValue, Context as TeraContext};
+use error::Error;
 
 struct LuaTera (Arc<Mutex<Tera>>);
 
@@ -68,7 +69,7 @@ impl LuaUserData for LuaTera {
     }
 }
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let new_tera = lua.create_function(move |_, dir: String| {
         let tera = Tera::new(&dir).unwrap();
@@ -78,7 +79,7 @@ pub fn init(lua: &Lua) -> LuaResult<()> {
 
     let module = lua.create_table()?;
     module.set("new", new_tera)?;
-    lua.globals().set("tera", module)?;
+    lua.globals().set("tera", module).map_err(Error::from)?;
 
     Ok(())
 }

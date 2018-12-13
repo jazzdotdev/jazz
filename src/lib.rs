@@ -46,6 +46,7 @@ extern crate scl;
 pub mod bindings;
 pub mod logger;
 pub mod conf;
+pub mod error;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -53,11 +54,13 @@ use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
-use std::io;
+use std::result;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
+use error::Error;
 
 type LuaAddr = ::actix::Addr<::actix_lua::LuaActor>;
+pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -69,18 +72,18 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn create_vm (&self) -> Result<Lua, LuaError> {
+    pub fn create_vm (&self) -> result::Result<Lua, LuaError> {
         let lua = unsafe { Lua::new_with_debug() };
 
         lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
-        bindings::app::init(&lua)?;
-        bindings::archive::init(&lua)?;
-        bindings::crypto::init(&lua)?;
-        bindings::string::init(&lua)?;
-        bindings::system::init(&lua)?;
-        bindings::text::init(&lua)?;
-        bindings::web::init(&lua)?;
+        bindings::app::init(&lua).map_err(LuaError::external)?;
+        bindings::archive::init(&lua).map_err(LuaError::external)?;
+        bindings::crypto::init(&lua).map_err(LuaError::external)?;
+        bindings::string::init(&lua).map_err(LuaError::external)?;
+        bindings::system::init(&lua).map_err(LuaError::external)?;
+        bindings::text::init(&lua).map_err(LuaError::external)?;
+        bindings::web::init(&lua).map_err(LuaError::external)?;
 
         // torchbear global table
         {
@@ -127,23 +130,6 @@ impl AppState {
     }
 }
 
-//TODO: Implement a better error handler for `ApplicationBuilder` or across torchbear
-fn server_handler<H, F>(srv: io::Result<actix_web::server::HttpServer<H, F>>) -> actix_web::server::HttpServer<H, F>
-    where H: actix_web::server::IntoHttpHandler,
-          F: Fn() -> H + Send + Clone
-{
-    match srv {
-        Ok(srv) => srv,
-        Err(e) => if e.kind() == io::ErrorKind::AddrInUse {
-            println!("Error: Address already in use.");
-            std::process::exit(1);
-        } else {
-            println!("Unknown error as occurred: {:?}", e);
-            std::process::exit(1);
-        }
-    }
-}
-
 pub struct ApplicationBuilder {
     log_settings: logger::Settings,
 }
@@ -173,7 +159,7 @@ impl ApplicationBuilder {
         self.log_settings.everything = b; self
     }
 
-    pub fn start (&mut self, args: Option<Vec<String>>) {
+    pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
 
         let mut init_path: Option<PathBuf> = None;
         let mut init_args: Option<Vec<String>> = None;
@@ -288,13 +274,13 @@ impl ApplicationBuilder {
                     .default_resource(|r| r.with(bindings::web::server::handler))
             });
 
-            server = server_handler(server.bind((host.as_str(), port)));
+            server = server.bind((host.as_str(), port))?;
             log::debug!("web server listening on port {}:{}", &host, port);
 
             if let Some(ssl_builder) = some_ssl {
                 let host = get_or(&web, "tls_address", "0.0.0.0");
                 let port = get_or(&web, "tls_port", "3001").parse().unwrap_or(3001);
-                server = server_handler(server.bind_ssl((host.as_str(), port), ssl_builder));
+                server = server.bind_ssl((host.as_str(), port), ssl_builder)?;
                 log::debug!("tls server listening on port {}:{}", &host, port);
             }
 
@@ -305,8 +291,9 @@ impl ApplicationBuilder {
             // Temporary fix to run non webserver apps. Doesn't start the actor
             // system, just runs a vanilla lua vm.
             debug!("Torchbear app started");
-            let _ = app_state.create_vm().unwrap();
+            let _ = app_state.create_vm()?;
         }
-    
+
+        Ok(())
     }
 }

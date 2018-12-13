@@ -1,5 +1,5 @@
-use rlua::FromLua;
-use rlua::ToLua;
+use rlua::{ToLua, FromLua, prelude::LuaError};
+use error::Error;
 
 fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
     match val {
@@ -29,7 +29,7 @@ fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
     }
 }
 
-fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> rlua::Result<scl::Date> {
+fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> ::Result<scl::Date> {
     if t.len()? == 3
         || t.contains_key("day")?
         || t.contains_key("month")?
@@ -40,7 +40,7 @@ fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> rlua::Result<scl::Date> {
         let year = <_>::from_lua(t.get("year")?, lua)?;
         Ok(scl::Date { day, month, year })
     } else {
-        Err(rlua::Error::external(failure::err_msg("not a date")))
+        Err(Error::from(rlua::Error::external(failure::err_msg("not a date"))))
     }
 }
 
@@ -135,14 +135,15 @@ fn to_string(val: scl::Value) -> String {
     }
 }
 
-pub fn init(lua: &rlua::Lua) -> Result<(), rlua::Error> {
+pub fn init(lua: &rlua::Lua) -> ::Result<()> {
     // Decode string to a table
     let module = lua.create_table()?;
     module.set(
         "to_table",
         lua.create_function(|lua, text: String| {
-            let dict: scl::Dict = scl::parse_str(&text).unwrap();
-            Ok(to_rlua_value(lua, scl::Value::Dict(dict)))
+            scl::parse_str(&text)
+                .map(|dict| to_rlua_value(lua, scl::Value::Dict(dict)))
+                .map_err(|e| LuaError::external(Error::from(e)))
         })?,
     )?;
 
