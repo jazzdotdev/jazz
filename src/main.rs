@@ -10,18 +10,22 @@ fn main() {
         .version(crate_version!())
         .author(crate_authors!())
         .about("TorchBear Application Framework")
-                .arg(Arg::with_name("log")
-           .long("log")
-           .value_name("LEVEL")
-           .help("Prints messages with log level <LEVEL>")
-           .default_value("info")
-           .takes_value(true))
+        .setting(clap::AppSettings::TrailingVarArg)
+        .arg(Arg::with_name("log")
+            .long("log")
+            .value_name("LEVEL")
+            .help("Prints messages with log level <LEVEL>")
+            .default_value("info")
+            .takes_value(true))
         .arg(Arg::with_name("log scope")
-           .long("log-scope")
-           .value_name("SCOPE")
-           .help("Whether to log everything in the dependency tree")
-           .default_value("torchbear")
-           .takes_value(true))
+            .long("log-scope")
+            .value_name("SCOPE")
+            .help("Whether to log everything in the dependency tree")
+            .default_value("torchbear")
+            .takes_value(true))
+        .arg(Arg::with_name("interpreter")
+            .index(1)
+            .multiple(true))
         .get_matches();
 
     torchbear_lib::ApplicationBuilder::new()
@@ -44,5 +48,8 @@ fn main() {
                 std::process::exit(1)
             }
         })
-        .start()
+        .start(match matches.values_of("interpreter") {
+            Some(values) => Some(values.map(|s| s.to_string()).collect()),
+            None => None
+        })
 }

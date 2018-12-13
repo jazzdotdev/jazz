@@ -52,6 +52,7 @@ use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
 use std::path::Path;
+use std::path::PathBuf;
 use std::io;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
@@ -61,7 +62,9 @@ type LuaAddr = ::actix::Addr<::actix_lua::LuaActor>;
 #[derive(Clone)]
 pub struct AppState {
     pub lua: Option<LuaAddr>,
-    pub init_path: String,
+    pub init_path: PathBuf,
+    pub init_args: Option<Vec<String>>,
+    pub package_path: Option<String>,
     pub settings: Value,
 }
 
@@ -83,9 +86,27 @@ impl AppState {
         {
             let tb_table = lua.create_table()?;
             tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
-            tb_table.set("init_filename", self.init_path.clone())?;
+            tb_table.set("init_filename", self.init_path.to_str())?;
             tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
             lua.globals().set("torchbear", tb_table)?;
+        }
+
+        // Lua package.path
+        match self.package_path {
+            Some(ref package_path) => {
+                let package: LuaTable = lua.globals().get("package")?;
+                let mut path: String = package.get("path")?;
+                path.push_str(";");
+                path.push_str(package_path);
+                package.set("path", path)?;
+            },
+            None => ()
+        }
+
+        // Lua arg
+        match self.init_args {
+            Some(ref init_args) => lua.globals().set("arg", lua.create_sequence_from(init_args.clone())?)?,
+            None => ()
         }
 
         // Lua Bridge
@@ -152,7 +173,38 @@ impl ApplicationBuilder {
         self.log_settings.everything = b; self
     }
 
-    pub fn start (&mut self) {
+    pub fn start (&mut self, args: Option<Vec<String>>) {
+
+        let mut init_path: Option<PathBuf> = None;
+        let mut init_args: Option<Vec<String>> = None;
+        let mut package_path: Option<String> = None;
+
+        match args {
+            // Interpreter
+            Some(args) => {
+
+                init_path = Path::new(args.first().expect("Missing first argument."))
+                    .canonicalize()
+                    .map_err(|e| {
+                        println!("Error getting the absolute path: {}", e);
+                        std::process::exit(1);
+                    })
+                    .ok();
+
+
+                init_args = Some(args.to_vec());
+
+                package_path = match &init_path {
+                    Some(p) => p.parent().map(|p| {
+                            let mut t = p.to_str().expect("Error getting the directory.").to_string();
+                            t.push_str("/?.lua"); t
+                    }),
+                    None => None
+                };
+            },
+            // Server
+            None => ()
+        }
 
         let setting_file = Path::new("torchbear.scl");
 
@@ -169,10 +221,10 @@ impl ApplicationBuilder {
         
         let general = config.general.unwrap_or_default();
 
-        let init_path = get_or(&general, "init", "init.lua");
+        let init_path = init_path.unwrap_or(Path::new(&get_or(&general, "init", "init.lua")).to_path_buf());
         let log_path = get_or(&general, "log_path", "log");
         
-        if !Path::new(&init_path).exists() {
+        if !init_path.exists() {
             println!("Error: Specified init.lua not found. You may have not completed installing your app");
             std::process::exit(1);
         }
@@ -182,7 +234,13 @@ impl ApplicationBuilder {
 
         let sys = actix::System::new("torchbear");
 
-        let mut app_state = AppState { lua: None, init_path: init_path, settings: general };
+        let mut app_state = AppState {
+            lua: None,
+            init_path: init_path,
+            init_args: init_args,
+            package_path: package_path,
+            settings: general
+        };
 
         if let Some(web) = config.web_server {
 
