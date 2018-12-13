@@ -4,8 +4,18 @@ extern crate clap;
 extern crate log;
 
 use clap::{Arg, App as ClapApp};
+use std::collections::HashMap;
 
 fn main() {
+
+    let levels: HashMap<&str, log::Level> = [
+        ("error", log::Level::Error),
+        ("warn",  log::Level::Warn),
+        ("info",  log::Level::Info),
+        ("debug", log::Level::Debug),
+        ("trace", log::Level::Trace)
+    ].iter().cloned().collect();
+
     let matches = ClapApp::new("torchbear")
         .version(crate_version!())
         .author(crate_authors!())
@@ -15,12 +25,14 @@ fn main() {
             .long("log")
             .value_name("LEVEL")
             .help("Prints messages with log level <LEVEL>")
+            .possible_values(&levels.iter().map(|(&k, _)| k).collect::<Vec<_>>()[..])
             .default_value("info")
             .takes_value(true))
         .arg(Arg::with_name("log scope")
             .long("log-scope")
             .value_name("SCOPE")
             .help("Whether to log everything in the dependency tree")
+            .possible_values(&["torchbear", "everything"])
             .default_value("torchbear")
             .takes_value(true))
         .arg(Arg::with_name("interpreter")
@@ -29,25 +41,8 @@ fn main() {
         .get_matches();
 
     torchbear_lib::ApplicationBuilder::new()
-        .log_level(match matches.value_of("log").unwrap() {
-            "error" => log::Level::Error,
-            "warn" => log::Level::Warn,
-            "info" => log::Level::Info,
-            "debug" => log::Level::Debug,
-            "trace" => log::Level::Trace,
-            l => {
-                println!("{} is not a valid log level, available levels are:\n\terror, warn, info, debug or trace", l);
-                std::process::exit(1)
-            }
-        })
-        .log_everything(match matches.value_of("log scope").unwrap() {
-            "torchbear" => false,
-            "everything" => true,
-            l => {
-                println!("{} is not a valid log scope, available levels are 'torchbear' and 'everything'", l);
-                std::process::exit(1)
-            }
-        })
+        .log_level(*matches.value_of("log").map(|l| levels.get(&l).unwrap()).unwrap())
+        .log_everything(matches.value_of("log scope").unwrap() == "everything")
         .start(match matches.values_of("interpreter") {
             Some(values) => Some(values.map(|s| s.to_string()).collect()),
             None => None
