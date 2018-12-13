@@ -47,10 +47,7 @@ fn main() {
     match torchbear_lib::ApplicationBuilder::new()
         .log_level(*matches.value_of("log").map(|l| levels.get(&l).unwrap()).unwrap())
         .log_everything(matches.value_of("log scope").unwrap() == "everything")
-        .start(match matches.values_of("interpreter") {
-            Some(values) => Some(values.map(|s| s.to_string()).collect()),
-            None => None
-        }) {
+        .start(matches.values_of("interpreter").map(|val| val.map(|s| s.to_string()).collect())) {
         Ok(_) => {},
         Err(e) => {
             //To handle "AddrInUse". Will move this away in a later commit when refactoring
