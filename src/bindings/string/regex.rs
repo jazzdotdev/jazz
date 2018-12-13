@@ -14,6 +14,15 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(re.replace_all(&val, patt.as_str()).into_owned())
     })?)?;
 
+    module.set("captures", lua.create_function(|_, (expr, val): (String, String)| {
+        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
+
+        Ok(re.captures(&val).and_then(|v| {
+            Some(v.iter().filter_map(|s| s).map(|s| s.as_str().to_string()).collect::<Vec<String>>())
+        }))
+
+    })?)?;
+
     lua.globals().set("regex", module)?;
 
     Ok(())
@@ -48,6 +57,23 @@ mod tests {
             local result = regex.match(expr, date)
 
             assert(result == true)
+        "#, None).unwrap();
+    }
+
+    #[test]
+    fn lua_regex_captures () {
+        let lua = Lua::new();
+        init(&lua).unwrap();
+
+        lua.exec::<_, ()>(r#"
+            local expr = [['([^']+)'\s+\((\d{4})\)]]
+            local val = "Not my favorite movie: 'Citizen Kane' (1941)"
+            local result = regex.captures(expr, val)
+
+            assert(result ~= nil)
+            assert(result[1] == "'Citizen Kane' (1941)")
+            assert(result[2] == "Citizen Kane")
+            assert(result[3] == "1941")
         "#, None).unwrap();
     }
 }
