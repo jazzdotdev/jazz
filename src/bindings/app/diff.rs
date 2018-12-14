@@ -2,7 +2,7 @@ use rlua::prelude::*;
 use std::{fs, io};
 use std::io::BufRead;
 use chrono::{DateTime, Local};
-use unidiff::unidiff;
+use diff_rs::diff;
 
 fn time_format(d: &DateTime<Local>) -> String {
     d.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
@@ -27,7 +27,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
             format!("+++ b\t{}", time_format(&Local::now()))
         ];
 
-        let diff = unidiff(
+        let diff = diff(
             &left
                 .split("\n")
                 .map(str::to_owned)
@@ -54,7 +54,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         let left = read_file(&left).map_err(LuaError::external)?;
         let right = read_file(&right).map_err(LuaError::external)?;
 
-        let diff = unidiff(&left, &right, 3).map_err(LuaError::external)?;
+        let diff = diff(&left, &right, 3).map_err(LuaError::external)?;
 
         let mut res = String::new();
         prefix.iter().cloned().chain(diff).for_each(|s| { res.push_str(&s); res.push('\n') });

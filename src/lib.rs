@@ -36,7 +36,7 @@ extern crate heck;
 extern crate zip;
 extern crate tar;
 extern crate xz2;
-extern crate unidiff;
+extern crate diff_rs;
 extern crate blake2;
 extern crate patch_rs;
 
