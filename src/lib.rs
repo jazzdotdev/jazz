@@ -38,6 +38,7 @@ extern crate tar;
 extern crate xz2;
 extern crate unidiff;
 extern crate blake2;
+extern crate patch_rs;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
