@@ -5,9 +5,7 @@ struct PatchParser(patch_rs::PatchParser);
 impl UserData for PatchParser {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("process", |_, this, _: ()| {
-            this.0
-                .process()
-                .map_err(|e| rlua::Error::external(failure::err_msg(e.to_string())))
+            this.0.process().map_err(rlua::Error::external)
         });
     }
 }

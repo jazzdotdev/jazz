@@ -59,7 +59,7 @@ blake2 = "0.8.0"
 tar = "0.4.20"
 xz2 = "0.1.6"
 unidiff = { git = "https://github.com/foundpatterns/difflib" }
-patch-rs = "0.2"
+patch-rs = "0.3"
 
 
 [dev-dependencies]
