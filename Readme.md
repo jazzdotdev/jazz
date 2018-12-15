@@ -71,18 +71,20 @@ MacOS: comes mostly ready, but [Homebrew](https://brew.sh/) has additional tools
 
 - run `torchbear`
 
-#### [Torchbear Simple Webserver](https://github.com/foundpatterns/torchbear-simple-webserver) · also supports TLS
+#### [Simple Webserver](https://github.com/foundpatterns/simple-webserver) · also supports TLS
 
-#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) · 👍 web development 👍
+#### [Machu Picchu](https://github.com/foundpatterns/machu-picchu) · general-purpose package manager
 
 #### [File Witness](https://github.com/foundpatterns/file-witness) · code signing app
 
-#### [Lua Module Map](https://github.com/foundpatterns/lua-module-map) · Lua diagram code visualization
+#### [Gut](https://github.com/foundpatterns/gut) · simple version control system
+
+#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) · application framework, good for web development
+
+#### [Lua Module Map](https://github.com/foundpatterns/lua-module-map) · Rust/Lua code diagram visualization
 
 ## Contributions wanted
 
 Torchbear extends Rust's growing ecosystem of libraries. Developers are welcomed to [make small changes](https://github.com/foundpatterns/torchbear/issues?q=is%3Aopen+is%3Aissue+label%3Asize%2F0.25) as well as high impact contributions, like [adding bindings](https://github.com/foundpatterns/torchbear/labels/feature%2Fbindings).  There are many examples to learn from in the bindings directory, each with an interesting history.  You'll learn a Rust library's API inside and out, and you'll put another tool into the hands of a growing userbase.
 
 If you just want to add a 'review', you're more than welcomed to do that too.  Just add this "issue label" (type/review) and it won't get in anyone's way.  This will help us understand Torchbear from your point of view.
-
-<p align="center">🛠 on 🌎 with ❤️ and 💰</p>
