@@ -38,6 +38,8 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 * [MIME](https://github.com/abonander/mime_guess) type guessing
 * [Heck](https://github.com/withoutboats/heck) case conversions
 * [Zip](https://github.com/mvdnes/zip-rs), [Tar](https://github.com/alexcrichton/tar-rs), and [xz](https://github.com/alexcrichton/xz2-rs) (lzma) file decompression
+* [Diff](https://github.com/foundpatterns/diff-rs) strings and files, and produce [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) outputs 
+* [Patch](https://github.com/foundpatterns/patch-rs) text files with a unidiff input to get a second text output
 
 ## Installation
 
