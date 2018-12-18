@@ -75,7 +75,7 @@ impl UserData for StringSet {
             Ok(StringSet(this.0.clone()))
         });
 
-        methods.add_method("into_table", |lua, this, _: ()| {
+        methods.add_method("to_table", |lua, this, _: ()| {
             let table = lua.create_sequence_from(this.0.iter().cloned())?;
             Ok(table)
         });
@@ -196,7 +196,7 @@ mod tests {
             d:clear()
             assert(d:is_empty())
 
-            local t = a:union(b):into_table()
+            local t = a:union(b):to_table()
             for i, v in ipairs(t) do
                 print(i, v)
             end

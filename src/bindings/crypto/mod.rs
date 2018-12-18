@@ -1,27 +1,20 @@
-use rlua::{Error as LuaError, Lua};
-use rust_sodium;
-
 mod hash;
 mod sign;
 mod random;
 mod box_;
 
-#[derive(Fail, Debug)]
-pub enum Error {
-    #[fail(display = "Failed to initialize libsodium.")]
-    SodiumInitFailure,
-}
+use rlua::{Error as LuaError, Lua};
+use rust_sodium;
+use error::Error;
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
-    match rust_sodium::init() {
-        Ok(_) => {},
-        Err(_) => return Err(LuaError::external(Error::SodiumInitFailure))
-    };
+pub fn init(lua: &Lua) -> ::Result<()> {
+    rust_sodium::init().map_err(|_| LuaError::external(Error::SodiumInitFailure))?;
 
     let crypto = lua.create_table()?;
 
     crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
     crypto.set("hash", lua.create_function(hash::hash)?)?;
+    crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
 
     let sign = lua.create_table()?;
     sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;
@@ -93,7 +86,9 @@ mod tests {
                 local source = "this is a test!"
                 print( "source=" .. source )
                 local hash = crypto.hash(source)
-                print("hash=" .. hash)
+                print("SHA512=" .. hash)
+                local blakehash = crypto.blake2b(source)
+                print("BLAKE2B=" .. blakehash)
 
                 return true
             "#, None);

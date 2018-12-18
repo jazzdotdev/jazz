@@ -4,7 +4,6 @@ extern crate actix_lua;
 extern crate actix_web;
 extern crate env_logger;
 extern crate futures;
-#[macro_use]
 extern crate tera;
 extern crate rlua;
 #[macro_use]
@@ -20,7 +19,6 @@ extern crate uuid;
 extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
-extern crate config;
 extern crate chrono;
 #[macro_use]
 extern crate log;
@@ -32,109 +30,116 @@ extern crate select;
 extern crate serde_derive;
 extern crate git2;
 extern crate regex;
-extern crate tantivy;
+extern crate openssl;
+extern crate mime_guess;
+extern crate heck;
+extern crate zip;
+extern crate tar;
+extern crate xz2;
+extern crate diff_rs;
+extern crate blake2;
+extern crate patch_rs;
 
-use std::sync::Arc;
-use actix::prelude::*;
-use actix_lua::LuaActorBuilder;
-use actix_web::{server as actix_server, App};
-use tera::{Tera};
-use rlua::prelude::*;
-use std::collections::HashMap;
-use std::path::Path;
+#[cfg(feature = "tantivy_bindings")]
+extern crate tantivy;
+extern crate scl;
 
 pub mod bindings;
 pub mod logger;
+pub mod conf;
+pub mod error;
 
-mod app_state {
-    pub struct AppState {
-        pub lua: ::actix::Addr<::actix_lua::LuaActor>,
-        pub tera: ::std::sync::Arc<::tera::Tera>,
-    }
+use actix::prelude::*;
+use actix_lua::LuaActorBuilder;
+use actix_web::{server as actix_server, App};
+use rlua::prelude::*;
+use std::path::Path;
+use std::path::PathBuf;
+use std::result;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use serde_json::Value;
+use error::Error;
+
+type LuaAddr = ::actix::Addr<::actix_lua::LuaActor>;
+pub type Result<T> = result::Result<T, Error>;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub lua: Option<LuaAddr>,
+    pub init_path: PathBuf,
+    pub init_args: Option<Vec<String>>,
+    pub package_path: Option<String>,
+    pub settings: Value,
 }
 
-fn create_vm(tera: Arc<Tera>, init_path: &str, settings: HashMap<String, String>) -> Result<Lua, LuaError> {
-    let lua = unsafe { Lua::new_with_debug() };
+impl AppState {
+    pub fn create_vm (&self) -> result::Result<Lua, LuaError> {
+        let lua = unsafe { Lua::new_with_debug() };
 
-    lua.exec::<_, ()>(r#"
-        -- The debug library is unpredictable in some cases,
-        -- so we only include the safe parts.
+        lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
 
-        -- Modify the table itself instead of setting the
-        -- global field, because debug can also be required.
+        bindings::app::init(&lua).map_err(LuaError::external)?;
+        bindings::archive::init(&lua).map_err(LuaError::external)?;
+        bindings::crypto::init(&lua).map_err(LuaError::external)?;
+        bindings::string::init(&lua).map_err(LuaError::external)?;
+        bindings::system::init(&lua).map_err(LuaError::external)?;
+        bindings::text::init(&lua).map_err(LuaError::external)?;
+        bindings::web::init(&lua).map_err(LuaError::external)?;
 
-        local to_remove = {}
+        // torchbear global table
+        {
+            let tb_table = lua.create_table()?;
+            tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
+            tb_table.set("init_filename", self.init_path.to_str())?;
+            tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
+            lua.globals().set("torchbear", tb_table)?;
+        }
 
-        for k, _ in pairs(debug) do
-            if  k ~= "traceback"
-            and k ~= "getinfo"
-            then
-                table.insert(to_remove, k)
-            end
-        end
+        // Lua package.path
+        match self.package_path {
+            Some(ref package_path) => {
+                let package: LuaTable = lua.globals().get("package")?;
+                let mut path: String = package.get("path")?;
+                path.push_str(";");
+                path.push_str(package_path);
+                package.set("path", path)?;
+            },
+            None => ()
+        }
 
-        for _, k in ipairs(to_remove) do
-            debug[k] = nil
-        end
-    "#, None)?;
+        // Lua arg
+        match self.init_args {
+            Some(ref init_args) => lua.globals().set("arg", lua.create_sequence_from(init_args.clone())?)?,
+            None => ()
+        }
 
-    bindings::tera::init(&lua, tera)?;
-    bindings::yaml::init(&lua)?;
-    bindings::json::init(&lua)?;
-    bindings::uuid::init(&lua)?;
-    bindings::markdown::init(&lua)?;
-    bindings::client::init(&lua)?;
-    bindings::crypto::init(&lua)?;
-    bindings::stringset::init(&lua)?;
-    bindings::time::init(&lua)?;
-    bindings::fs::init(&lua)?;
-    bindings::select::init(&lua)?;
-    bindings::git::init(&lua)?;
-    bindings::regex::init(&lua)?;
-    bindings::tantivy::init(&lua)?;
+        // Lua Bridge
+        lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
 
-    // torchbear crashes if there's no log binding
-    //if cfg!(feature = "log_bindings") {
-        bindings::log::init(&lua)?;
-    //}
-
-    // torchbear global table
-    {
-        let tb_table = lua.create_table()?;
-        tb_table.set("settings", settings)?;
-        tb_table.set("init_filename", init_path)?;
-        lua.globals().set("torchbear", tb_table)?;
+        Ok(lua)
     }
 
-    // Lua Bridge
-    lua.exec::<_, ()>(r#"
-        xpcall(function ()
-
-            local init_f, err = loadfile(torchbear.init_filename)
-            if not init_f then error(err) end
-
-            local handler = init_f()
-
-            if handler then
-                torchbear.handler = handler
-            end
-            
-        end, function (msg)
-            msg = tostring(msg)
-            local trace = debug.traceback(msg, 3)
-            log.error(trace)
-        end)        
-
-        if not torchbear.handler then
-            log.error("No handler specified")
-        end
-    "#, None)?;
-
-    Ok(lua)
+    pub fn create_addr (&self) -> LuaAddr {
+        let vm = self.create_vm().unwrap();
+        Arbiter::start(move |_| {
+            let lua_actor = LuaActorBuilder::new()
+                .on_handle_with_lua(include_str!("handlers/web_server.lua"))
+                .build_with_vm(vm)
+                .unwrap();
+            lua_actor
+        })
+    }
 }
 
 pub struct ApplicationBuilder {
     log_settings: logger::Settings,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct SettingConfig {
+    general: Option<Value>,
+    #[serde(rename = "web-server")]
+    web_server: Option<Value>,
 }
 
 impl ApplicationBuilder {
@@ -155,60 +160,141 @@ impl ApplicationBuilder {
         self.log_settings.everything = b; self
     }
 
-    pub fn start (&mut self) {
+    pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
 
-        let mut settings = config::Config::new();
+        let mut init_path: Option<PathBuf> = None;
+        let mut init_args: Option<Vec<String>> = None;
+        let mut package_path: Option<String> = None;
 
-        let setting_file = Path::new("Settings.toml");
-        if setting_file.exists() {
-            match settings.merge(config::File::with_name("Settings.toml")) {
-                Err(err) => {
-                    println!("Error opening Settings.toml: {}", err);
-                    std::process::exit(1);
-                },
-                _ => ()
-            };
-            settings.merge(config::Environment::with_prefix("torchbear")).unwrap();
+        match args {
+            // Interpreter
+            Some(args) => {
+
+                init_path = Path::new(args.first().expect("Missing first argument."))
+                    .canonicalize()
+                    .map_err(|e| {
+                        println!("Error getting the absolute path: {}", e);
+                        std::process::exit(1);
+                    })
+                    .ok();
+
+
+                init_args = Some(args.to_vec());
+
+                package_path = match &init_path {
+                    Some(p) => p.parent().map(|p| {
+                            let mut t = p.to_str().expect("Error getting the directory.").to_string();
+                            t.push_str("/?.lua"); t
+                    }),
+                    None => None
+                };
+            },
+            // Server
+            None => ()
         }
 
-        let hashmap = if setting_file.exists() {
-            settings.try_into::<HashMap<String, String>>().unwrap()
+        let setting_file = Path::new("torchbear.scl");
+
+        let config = if setting_file.exists() {
+            conf::Conf::load_file(&setting_file)
         } else {
-            HashMap::new()
+            SettingConfig::default()
         };
+        //let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
-        fn get_or (map: &HashMap<String, String>, key: &str, val: &str) -> String {
-            map.get(key).map(|s| s.to_string()).unwrap_or(String::from(val))
+        fn get_or (map: &Value, key: &str, val: &str) -> String {
+            map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
+        }
+        
+        let general = config.general.unwrap_or_default();
+
+        let init_path = init_path.unwrap_or(Path::new(&get_or(&general, "init", "init.lua")).to_path_buf());
+        let log_path = get_or(&general, "log_path", "log");
+        
+        if !init_path.exists() {
+            println!("Error: Specified init.lua not found. You may have not completed installing your app");
+            std::process::exit(1);
         }
 
-        let templates_path = get_or(&hashmap, "templates_path", "templates/**/*");
-        let host = get_or(&hashmap, "host", "0.0.0.0:3000");
-        let init_path = get_or(&hashmap, "init", "init.lua");
-        let log_path = get_or(&hashmap, "log_path", "log");
-        
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
         //log_panics::init();
 
         let sys = actix::System::new("torchbear");
-        let tera = Arc::new(compile_templates!(&templates_path));
 
-        let vm = create_vm(tera.clone(), &init_path, hashmap).unwrap();
+        let mut app_state = AppState {
+            lua: None,
+            init_path: init_path,
+            init_args: init_args,
+            package_path: package_path,
+            settings: general
+        };
 
-        let addr = Arbiter::start(move |_| {
-            let lua_actor = LuaActorBuilder::new()
-                .on_handle_with_lua(include_str!("handlers/web_server.lua"))
-                .build_with_vm(vm)
-                .unwrap();
-            lua_actor
-        });
+        if let Some(web) = config.web_server {
 
-        actix_server::new(move || {
-            App::with_state(app_state::AppState { lua: addr.clone(), tera: tera.clone() })
-                .default_resource(|r| r.with(bindings::server::handler))
-        }).bind(&host)
-            .unwrap()
-            .start();
+            if let Some(Some(bootstrap)) = web.get("bootstrap_path").map(|s| { s.as_str() }) {
+                let vm = app_state.create_vm().unwrap();
+                vm.globals().get::<_, LuaTable>("torchbear").unwrap().set("bootstrap", bootstrap).unwrap();
 
-        let _ = sys.run();
+                if !vm.exec::<_, bool>(include_str!("handlers/bootstrap.lua"), Some("bootstrap")).unwrap()
+                { std::process::exit(1); }
+            }
+
+            let single_actor = match web.get("single_actor").map(|s| { s.as_bool() }) {
+                None => false,
+                Some(Some(b)) => b,
+                _ => {
+                    println!("Error: Setting web_server.single_actor must be a boolean value");
+                    std::process::exit(1);
+                },
+            };
+
+            if single_actor {
+                app_state.lua = Some(app_state.create_addr());
+            }
+
+            log::debug!("web server section in settings, starting seting up web server");
+            let host = get_or(&web, "address", "0.0.0.0");
+            let port = get_or(&web, "port", "3000").parse().unwrap_or(3000);
+
+            let some_ssl = match (web.get("tls_private"), web.get("tls_certificate")) {
+                (None, None) => None,
+                (Some(priv_path), Some(cert_path)) => {
+                    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+                    builder.set_private_key_file(priv_path.as_str().unwrap(), SslFiletype::PEM).unwrap();
+                    builder.set_certificate_chain_file(cert_path.as_str().unwrap()).unwrap();
+                    Some(builder)
+                },
+                _ => {
+                    println!("Error: SSL needs both tls_private and tls_certificate settings.");
+                    std::process::exit(1);
+                }
+            };
+
+            let mut server = actix_server::new(move || {
+                App::with_state(app_state.clone())
+                    .default_resource(|r| r.with(bindings::web::server::handler))
+            });
+
+            server = server.bind((host.as_str(), port))?;
+            log::debug!("web server listening on port {}:{}", &host, port);
+
+            if let Some(ssl_builder) = some_ssl {
+                let host = get_or(&web, "tls_address", "0.0.0.0");
+                let port = get_or(&web, "tls_port", "3001").parse().unwrap_or(3001);
+                server = server.bind_ssl((host.as_str(), port), ssl_builder)?;
+                log::debug!("tls server listening on port {}:{}", &host, port);
+            }
+
+            server.start();
+
+            let _ = sys.run();
+        } else {
+            // Temporary fix to run non webserver apps. Doesn't start the actor
+            // system, just runs a vanilla lua vm.
+            debug!("Torchbear app started");
+            let _ = app_state.create_vm()?;
+        }
+
+        Ok(())
     }
 }

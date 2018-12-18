@@ -20,21 +20,8 @@ matrix:
       - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
       - docker rm build-${PROJECT}
       - docker rmi build-${PROJECT}-image
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
-    - os: linux
-      rust: nightly
-      env:
-      - ARCH=x86_64
-      - PLATFORM=linux
-      - CHANNEL=nightly
-      services: docker
-      script: echo "cargo test temporarily disabled"
-      before_deploy:
-      - docker build -f Dockerfile.nightly -t build-${PROJECT}-image .
-      - docker run -it --name build-${PROJECT} build-${PROJECT}-image
-      - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
-      - docker rm build-${PROJECT}
-      - docker rmi build-${PROJECT}-image
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
       - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: osx
       rust: stable
@@ -45,7 +32,10 @@ matrix:
       script: echo "cargo test temporarily disabled"
       before_deploy:
       - cargo build --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/release/${PROJECT}
+      - mv target/release/${PROJECT} .
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - ./${PROJECT}
+      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
       env:
       - ARCH=arm64
@@ -62,7 +52,11 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/aarch64-linux-android/release/${PROJECT}
+      - bash install.sh
+      - mv target/aarch64-linux-android/release/${PROJECT} .
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - /usr/local/bin/torchbear
+      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
     - os: linux
       env:
       - ARCH=arm32
@@ -77,22 +71,23 @@ matrix:
       - export NDK_HOME="$PWD/android-ndk-r18b"
       - mkdir NDK
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/arm/bin" 	
+      - export PATH="$PATH:$PWD/NDK/arm/bin"
       - cargo build --target="arm-linux-androideabi" --release
-      - zip -j ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip target/arm-linux-androideabi/release/${PROJECT}
-    # TODO: Implement windows jobs into travis. 
-    # TODO: Implement 32bit as musl builder doesnt support it. Maybe just have it compile normally since it will be running against trusty which
-    #       should be compatible with newer glibc
-    # - os: linux
-    #   rust: stable
-    #   sudo: required
-    #   env: ARCH=i686
+      - bash install.sh
+      - mv target/arm-linux-androideabi/release/${PROJECT} .
+      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+      - /usr/local/bin/torchbear
+      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+before_install:
+- openssl aes-256-cbc -K $encrypted_3f0c7a8b3f66_key -iv $encrypted_3f0c7a8b3f66_iv -in private_key.enc -out private_key -d
 deploy:
   provider: releases
   api_key:
-    secure: vs0t3O6fc/ZAquCwrypegZ7dZJtuH1UKbL74JVy24m/T0Pe9BWHVILc/7iusepBm4gz4ZKltfJWb4eq0MpZ3EXwwny/Sjrkz85yzXBLD5FDSCO794y2zzOrsuho6VyWIlbI2Vldno9qG+oKKuUvNL083Wi1bDwj5+mQAXy1fvDgivI5MuRcZyYAKgdzfGhKxfaTCu0gUFzhaOG10gAqYkhO7wYz9ddFpu2/laVHjYJnt2BhbZ7Nu5EfC/mssLiuKq34DBwGQO6nfgmH2P+s2y+KNm6rua8gf9kQXG6r+50lwJhH0bq2BtjO9tCrZxDnOunybU8M0bPXKp02XmtHyNdflYL1CJoWm6+jTELoY+30ndlk6xg2oneOiJ/QAPcuB6ONVz3dCVQNVKgSTJvgSQ+Mexbzq8n8cz3B07epk0sb9XZZn4yVbPkMjt98IeTewe1raKCkQlsLu217RV/b8UZce3e7YRFpXPqSJ5DxymshZpbXIttqlbw3y6InESagK07bwjzOJJj2Za/Jfi+YAfRBiY1+U2zZn2Jj/lOyFfyKhn9hD4J9cA3JLtopTvU/A1IfwfPKBlbsNtZu7+XAaEPRLmhw3XryrZs5/RfO2JFaf9T/gyvka4HzAoyG8Du3zAUQqrXRcM8rdD5iWpktnnjsBD/Lw/YLwnHh+dVW0A3c=
+    secure: CgTP0SwOefwSUsePWKYuZCEV2QNVH3GJcMfComUgBCnPbdrfA8vnC7Ao3Sb31NHZ43k89+DhxCsVtDaWBhmMWqnost5aJ7LGfaEvObL9Cdg06OJv8o9UAcowSqU4k3eHEr0ZRJzEWEiAMTAtclzosmA1PfzyY7MyIv6ZAcoyoUg1uwzr0KJrc/dGN+tkWv/6M1IBgh5kji0yfg9yxjxClJ28GikAJoRmTv+Yx1tQQ+Q/qlkbVT+fVAc0vWwvk/YIauF1s2LBPhMKqkUmmpHyZVk9g3er421ddYjesLt25wMocmtRlWTrEn4G1RVLbQG6+mE+adyw7Oi081CvmJjF4eojsyOYbWI89qJBM0ZAAqzrXNwizZCdL7ShX/I5jHJTA/AMa2GyyLTFbR4CQT/+Otn0nfPLFfiY1g654CFcL73mRnDtixpGMx1aMJ4ScXbMR8rCDDO8hix7pOm71LtCqUAchOYCyNsn4MCkz2+LaH9WZ/hDJDmUgMVVBoqhGLb2vnaf3fd+vbeKFwpLDluFLRrunM+qdNPDPDHzb3qoXcospNnZEt18O3Pu5vMssxIaKEiesm2zTsd/+R4pl4Acotgiy/jLJucFRVs5Id+RpD/eETk/ZnR3Jekpkl6T95w82an1mGS8o8fl/F+CkNBOAn5J8a6gz0nXhjp6APLfErg=
   file_glob: true
-  file: "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.*"
+  file:
+    - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip"
+    - "${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.sig"
   skip_cleanup: true
   on:
     repo: foundpatterns/torchbear
@@ -104,4 +99,4 @@ branches:
   - /^\d+\.\d+\.\d+.*$/
 notifications:
   email:
-    on_success: never  
+    on_success: never

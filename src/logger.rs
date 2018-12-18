@@ -4,7 +4,7 @@ use std::path::Path;
 use std::fs::{File, create_dir, OpenOptions};
 use std::fmt::Display;
 use colored::*;
-
+use {Error, Result};
 pub use log::{Level, LevelFilter};
 
 #[derive(Copy, Clone)]
@@ -13,19 +13,15 @@ pub struct Settings {
     pub everything: bool,
 }
 
-pub fn get_log_file (path: &Path) -> Result<File, String> {
+pub fn get_log_file (path: &Path) -> Result<File> {
     let now = ::chrono::Local::now().format("%Y_%m_%d__%H_%M_%S");
 
     if path.exists() {
         if !path.is_dir() {
-            return Err(format!("{:?} is not a directory", path));
+            return Err(Error::from(format!("{:?} is not a directory", path)));
         }
     } else {
-        match create_dir(path) {
-            Err(e) => return Err(
-                format!("could not create directory {:?}: {}", path, e)
-            ), Ok(_) => {},
-        }
+        create_dir(path).map_err(|e| Error::from(format!("could not create directory {:?}: {}", path, e)))?;
     }
 
     let mut path_buf = path.to_path_buf();
@@ -36,7 +32,7 @@ pub fn get_log_file (path: &Path) -> Result<File, String> {
         .create(true)
         .write(true)
         .open(&path_buf)
-        .map_err(|e| format!("could not log to {:?}: {}", &path_buf, e))
+        .map_err(|e| Error::from(format!("could not log to {:?}: {}", &path_buf, e)))
 }
 
 pub fn init (path: &Path, settings: Settings) {

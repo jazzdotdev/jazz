@@ -31,7 +31,7 @@ fn comrak_options_from_table(table: &HashMap<String, LuaValue>) -> Result<Comrak
             (DEFAULT_INFO_STRING, LuaValue::String(val)) => {
                 options.default_info_string = Some(val.to_str()?.to_string())
             }
-            (SAFE, LuaValue::Boolean(val)) => options.safe = *val,
+            (SAFE, LuaValue::Boolean(val)) => options.unsafe_ = *val,
             (EXT_STRIKETHROUGH, LuaValue::Boolean(val)) => options.ext_strikethrough = *val,
             (EXT_TAGFILTER, LuaValue::Boolean(val)) => options.ext_tagfilter = *val,
             (EXT_TABLE, LuaValue::Boolean(val)) => options.ext_table = *val,
@@ -53,7 +53,7 @@ fn comrak_options_from_table(table: &HashMap<String, LuaValue>) -> Result<Comrak
     Ok(options)
 }
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
     let render_markdown = lua.create_function(
         |_, (markdown_str, options): (String, Option<HashMap<String, LuaValue>>)| {
             let html_string = match options {

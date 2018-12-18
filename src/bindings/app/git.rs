@@ -1,4 +1,3 @@
-use rlua::prelude::*;
 use rlua::Lua;
 use git2;
 
@@ -8,7 +7,7 @@ use git2;
 /// paths: path of files to add. These paths are relative to repo.
 /// For example: current directory is /, repo is /repo, file is /repo/file, we need to call:
 /// git_add("repo", &vec!["file"])
-fn git_add(repo: &str, paths: &Vec<String>) -> Result<(), git2::Error> {
+fn git_add(repo: &str, paths: &Vec<String>) -> ::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let mut index = repo.index()?;
     index.add_all(paths.iter(), git2::IndexAddOption::DEFAULT, None)?;
@@ -19,7 +18,7 @@ fn git_add(repo: &str, paths: &Vec<String>) -> Result<(), git2::Error> {
 /// repo: Repository's path
 /// message: commit message
 /// sig: pair of (name, email). If is None, will try to use repo's config.
-fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> Result<(), git2::Error> {
+fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> ::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let sig = if let Some((name, email)) = sig {
         git2::Signature::now(&name, &email)?
@@ -44,7 +43,20 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> Resul
     Ok(())
 }
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+fn git_clone(url: &str, into: &str) -> ::Result<()> {
+	let _ = git2::Repository::clone(url, into)?;
+    Ok(())
+}
+
+fn git_pull(path: &str) -> ::Result<()> {
+    let repo = git2::Repository::open(&path)?;
+    repo.find_remote("origin")?
+        .fetch(&["master"], None, None)?;
+
+    Ok(())
+}
+
+pub fn init(lua: &Lua) -> ::Result<()> {
     let git = lua.create_table()?;
 
     git.set(
@@ -105,6 +117,21 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
             }
         })?,
     )?;
+
+	git.set(
+		"clone",
+		lua.create_function(|_, (url, into): (String, String)| {
+			Ok(git_clone(&url, &into).is_ok())
+		})?,
+	)?;
+
+    git.set(
+        "pull",
+        lua.create_function(|_, path: String| {
+            Ok(git_pull(&path).is_ok())
+        })?,
+    )?;
+
 
     let globals = lua.globals();
     globals.set("git", git)?;
