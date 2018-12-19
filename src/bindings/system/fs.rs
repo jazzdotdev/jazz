@@ -1,5 +1,6 @@
 use rlua::prelude::*;
 use std::sync::Arc;
+use std::env;
 use std::fs;
 use serde_json;
 use rlua_serde;
@@ -61,6 +62,10 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     module.set("read_file", lua.create_function( |lua, path: String| {
         let data = fs::read(path).map_err(|err| LuaError::external(err))?;
         Ok(lua.create_string(&String::from_utf8_lossy(&data[..]).to_owned().to_string())?)
+    })?)?;
+
+    module.set("chdir", lua.create_function(|_, path: String| {
+        env::set_current_dir(path).map_err(LuaError::external)
     })?)?;
 
     module.set("exists", lua.create_function( |_, path: String| {
