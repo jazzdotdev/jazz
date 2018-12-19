@@ -16,7 +16,7 @@
 
 Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data analysis, and anything else you can imagine.
 
-You don't need to learn Rust to use Torchbear, and Lua is a very simple language.  You can [Learn in Lua 15 minutes](http://tylerneylon.com/a/learn-lua/).  Below is a list of additional functionality in Torchbear, and you can also browse an early version of the [automatically generated bindings' functions list](https://foundpatterns.github.io/torchbear-docs/torchbear-list-0.9.0-d3463da.html) made with a Torchbear [code map app](http://github.com/foundpatterns/lua-module-map).
+You don't need to learn Rust to use Torchbear, and Lua is a very simple language.  You can [Learn in Lua 15 minutes](http://tylerneylon.com/a/learn-lua/).  Below is a list of additional functionality in Torchbear, and you can also browse the [bindings functions documentation](https://foundpatterns.github.io/torchbear-docs/index.html), which is automatically generated using a Torchbear [code map app](http://github.com/foundpatterns/lua-module-map).
 
 ## Built-in Tools
 
