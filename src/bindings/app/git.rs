@@ -56,6 +56,17 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> ::Result<()> {
     Ok(())
 }
 
+/// path: path to the repository
+/// spec: revision string aka commit hash or commit reference
+/// example: git_reset("torchbear", "origin/master")
+fn git_reset(path: &str, spec: &str) -> ::Result<()> {
+    let mut checkout_builder = git2::build::CheckoutBuilder::new();
+    let repo = git2::Repository::open(&path)?;
+    let rev = repo.revparse_single(spec)?;
+    repo.reset(&rev, git2::ResetType::Hard, Some(&mut checkout_builder))?;
+    Ok(())
+}
+
 pub fn init(lua: &Lua) -> ::Result<()> {
     let git = lua.create_table()?;
 
@@ -129,6 +140,13 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         "pull",
         lua.create_function(|_, (path, remote_name, branch_name): (String, String, String)| {
             git_pull(&path, &remote_name, &branch_name).map_err(LuaError::external)
+        })?,
+    )?;
+
+    git.set(
+        "reset",
+        lua.create_function(|_, (path, spec): (String, String)| {
+            git_reset(&path, &spec).map_err(LuaError::external)
         })?,
     )?;
 
