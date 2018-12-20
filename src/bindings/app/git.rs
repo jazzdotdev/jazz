@@ -1,5 +1,6 @@
 use rlua::Lua;
 use git2;
+use rlua::prelude::LuaError;
 
 /// git add
 ///
@@ -44,15 +45,14 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> ::Res
 }
 
 fn git_clone(url: &str, into: &str) -> ::Result<()> {
-	let _ = git2::Repository::clone(url, into)?;
+    git2::Repository::clone(url, into)?;
     Ok(())
 }
 
-fn git_pull(path: &str) -> ::Result<()> {
+fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> ::Result<()> {
     let repo = git2::Repository::open(&path)?;
-    repo.find_remote("origin")?
-        .fetch(&["master"], None, None)?;
-
+    repo.find_remote(remote_name)?
+        .fetch(&[branch_name], None, None)?;
     Ok(())
 }
 
@@ -118,20 +118,19 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         })?,
     )?;
 
-	git.set(
-		"clone",
-		lua.create_function(|_, (url, into): (String, String)| {
-			Ok(git_clone(&url, &into).is_ok())
-		})?,
-	)?;
+    git.set(
+	"clone",
+	lua.create_function(|_, (url, into): (String, String)| {
+	    git_clone(&url, &into).map_err(LuaError::external)
+	})?,
+    )?;
 
     git.set(
         "pull",
-        lua.create_function(|_, path: String| {
-            Ok(git_pull(&path).is_ok())
+        lua.create_function(|_, (path, remote_name, branch_name): (String, String, String)| {
+            git_pull(&path, &remote_name, &branch_name).map_err(LuaError::external)
         })?,
     )?;
-
 
     let globals = lua.globals();
     globals.set("git", git)?;
