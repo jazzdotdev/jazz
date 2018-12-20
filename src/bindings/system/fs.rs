@@ -81,7 +81,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     })?)?;
 
     module.set("symlink", lua.create_function( |_, (src_path, symlink_dest): (String, String)| {
-        create_symlink(src_path, symlink_dest).map_err(|err| LuaError::external(err))
+        create_symlink(src_path, symlink_dest).map_err(LuaError::external)
     })?)?;
 
     module.set("metadata", lua.create_function( |lua, path: String| {
@@ -114,12 +114,12 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     Ok(())
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(target_family = "windows")]
 fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
     use std::os::windows::fs::symlink_file;
     symlink_file(src_path, dest)
 }
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_family = "unix")]
 fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
     use std::os::unix::fs::symlink;
     symlink(src_path, dest)
