@@ -58,12 +58,19 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> ::Result<()> {
 
 /// path: path to the repository
 /// spec: revision string aka commit hash or commit reference
-/// example: git_reset("torchbear", "origin/master")
-fn git_reset(path: &str, spec: &str) -> ::Result<()> {
+/// reset_type: Reset type(hard, soft or mixed)
+/// example: git_reset("torchbear", "origin/master", "hard")
+fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> ::Result<()> {
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     let repo = git2::Repository::open(&path)?;
+    let reset_type = match reset_type_str {
+        "soft" => git2::ResetType::Soft,
+        "mixed" => git2::ResetType::Mixed,
+        "hard" => git2::ResetType::Hard,
+        _ => git2::ResetType::Soft,
+    };
     let rev = repo.revparse_single(spec)?;
-    repo.reset(&rev, git2::ResetType::Hard, Some(&mut checkout_builder))?;
+    repo.reset(&rev, reset_type, Some(&mut checkout_builder))?;
     Ok(())
 }
 
@@ -145,8 +152,8 @@ pub fn init(lua: &Lua) -> ::Result<()> {
 
     git.set(
         "reset",
-        lua.create_function(|_, (path, spec): (String, String)| {
-            git_reset(&path, &spec).map_err(LuaError::external)
+        lua.create_function(|_, (path, spec, reset_type): (String, String, String)| {
+            git_reset(&path, &spec, &reset_type).map_err(LuaError::external)
         })?,
     )?;
 
