@@ -7,7 +7,7 @@ const SMART: &str = "smart";
 const GITHUB_PRE_LANG: &str = "github_pre_lang";
 const WIDTH: &str = "width";
 const DEFAULT_INFO_STRING: &str = "default_info_string";
-const SAFE: &str = "safe";
+const UNSAFE: &str = "unsafe";
 const EXT_STRIKETHROUGH: &str = "ext_strikethrough";
 const EXT_TAGFILTER: &str = "ext_tagfilter";
 const EXT_TABLE: &str = "ext_table";
@@ -31,7 +31,7 @@ fn comrak_options_from_table(table: &HashMap<String, LuaValue>) -> Result<Comrak
             (DEFAULT_INFO_STRING, LuaValue::String(val)) => {
                 options.default_info_string = Some(val.to_str()?.to_string())
             }
-            (SAFE, LuaValue::Boolean(val)) => options.unsafe_ = *val,
+            (UNSAFE, LuaValue::Boolean(val)) => options.unsafe_ = *val,
             (EXT_STRIKETHROUGH, LuaValue::Boolean(val)) => options.ext_strikethrough = *val,
             (EXT_TAGFILTER, LuaValue::Boolean(val)) => options.ext_tagfilter = *val,
             (EXT_TABLE, LuaValue::Boolean(val)) => options.ext_table = *val,
@@ -96,7 +96,7 @@ mod tests {
         let lua = Lua::new();
         init(&lua).unwrap();
         let result = lua.exec::<_, LuaValue>(
-            r#"return markdown_to_html("Hello, **世界**!<script></script>", {safe = true})"#,
+            r#"return markdown_to_html("Hello, **世界**!<script></script>", {unsafe = false})"#,
             None,
         );
 
@@ -105,7 +105,7 @@ mod tests {
                 let s = html.to_str().unwrap().to_string();
                 //                println!("html = {}", s);
                 assert!(s.contains("<p>Hello, <strong>世界</strong>!"));
-                assert!(s.contains("<script>"));
+                assert!(!s.contains("<script>"));
             }
             _ => unimplemented!("Unexpected value returned from markdown_to_html"),
         }
