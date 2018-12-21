@@ -24,7 +24,8 @@ extern crate chrono;
 extern crate log;
 extern crate fern;
 extern crate colored;
-extern crate log_panics;
+#[macro_use]
+extern crate human_panic;
 extern crate select;
 #[macro_use]
 extern crate serde_derive;
@@ -161,6 +162,8 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
+        
+        setup_panic!();
 
         let mut init_path: Option<PathBuf> = None;
         let mut init_args: Option<Vec<String>> = None;
@@ -217,7 +220,6 @@ impl ApplicationBuilder {
         }
 
         logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
-        //log_panics::init();
 
         let sys = actix::System::new("torchbear");
 
