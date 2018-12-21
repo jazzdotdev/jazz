@@ -105,7 +105,7 @@ mod tests {
                 let s = html.to_str().unwrap().to_string();
                 //                println!("html = {}", s);
                 assert!(s.contains("<p>Hello, <strong>世界</strong>!"));
-                assert!(!s.contains("<script>"));
+                assert!(s.contains("<script>"));
             }
             _ => unimplemented!("Unexpected value returned from markdown_to_html"),
         }
