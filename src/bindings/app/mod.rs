@@ -2,8 +2,7 @@ pub mod git;
 pub mod log;
 pub mod markdown;
 pub mod tera;
-pub mod diff;
-pub mod patch;
+
 
 use rlua::prelude::*;
 
@@ -22,8 +21,6 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     markdown::init(&lua)?;
     tantivy::init(&lua)?;
     tera::init(&lua)?;
-    diff::init(&lua)?;
-    patch::init(&lua)?;
 
     Ok(())
 }
