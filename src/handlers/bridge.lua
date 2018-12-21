@@ -1,3 +1,13 @@
+
+-- Patch require to log all executed modules
+_G._require = require
+function _G.require (module_name)
+    if package.loaded[module_name] == nil then
+        _log.trace("[running] " .. module_name)
+    end
+    return _require(module_name)
+end
+
 xpcall(function ()
     local init_f, err = loadfile(torchbear.init_filename)
     if not init_f then error(err) end
