@@ -93,7 +93,12 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     })?)?;
 
     module.set("touch", lua.create_function( |_, path: String| {
-        fs::write(&path, "").map_err(LuaError::external)
+        fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(&path)
+            .map(|_| ())
+            .map_err(LuaError::external)
     })?)?;
 
     module.set("metadata", lua.create_function( |lua, path: String| {
