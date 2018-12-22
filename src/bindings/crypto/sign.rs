@@ -69,13 +69,13 @@ pub fn new_keypair(_lua: &Lua, _: ()) -> LuaResult<(LuaSecretKey, LuaPublicKey)>
 /// Constructs and returns a LuaSecretKey object from it's base64 string encoding
 pub fn load_secret(_: &Lua, base64_key: String) -> Result<LuaSecretKey, LuaError> {
     base64::decode(&base64_key).map_err(Error::from)
-        .and_then(|vec| sign::SecretKey::from_slice(&vec).ok_or(Error::InvalidKeys).map(|key| LuaSecretKey(key)))
+        .and_then(|vec| sign::SecretKey::from_slice(&vec).ok_or(Error::InvalidKeys).map(LuaSecretKey))
         .map_err(LuaError::external)
 }
 
 /// Constructs and returns a LuaPublicKey object from it's base64 string encoding
 pub fn load_public(_: &Lua, base64_key: String) -> Result<LuaPublicKey, LuaError> {
     base64::decode(&base64_key).map_err(Error::from)
-        .and_then(|vec| sign::PublicKey::from_slice(&vec).ok_or(Error::InvalidKeys).map(|key| LuaPublicKey(key)))
+        .and_then(|vec| sign::PublicKey::from_slice(&vec).ok_or(Error::InvalidKeys).map(LuaPublicKey))
         .map_err(LuaError::external)
 } 
