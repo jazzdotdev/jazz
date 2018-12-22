@@ -68,6 +68,10 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         env::set_current_dir(path).map_err(LuaError::external)
     })?)?;
 
+    module.set("current_dir", lua.create_function(|_, _:()| {
+        env::current_dir().map(|path| path.to_str().map(|s| s.to_string())).map_err(LuaError::external)
+    })?)?;
+
     module.set("exists", lua.create_function( |_, path: String| {
         Ok(::std::path::Path::new(&path).exists())
     })?)?;
