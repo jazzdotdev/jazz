@@ -88,6 +88,10 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         create_symlink(src_path, symlink_dest).map_err(LuaError::external)
     })?)?;
 
+    module.set("remove_recursive", lua.create_function( |_, path: String| {
+        fs::remove_dir_all(&path).map_err(LuaError::external)
+    })?)?;
+
     module.set("metadata", lua.create_function( |lua, path: String| {
         match fs::metadata(path) {
             Ok(md) => {
