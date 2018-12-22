@@ -63,8 +63,10 @@ impl LuaUserData for LuaPath {
                     Ok(lua.create_function_mut(f)?)
                 }, Err(err) => Err(LuaError::ExternalError(Arc::new(::failure::Error::from_boxed_compat(Box::new(err)))))
             }
-        })
-
+        });
+        methods.add_meta_method(LuaMetaMethod::ToString, |_, this: &LuaPath, _: ()| {
+            Ok(this.0.to_str().map(|s| s.to_string()))
+        });
     }
 }
 
