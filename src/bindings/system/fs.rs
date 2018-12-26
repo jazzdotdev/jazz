@@ -1,12 +1,20 @@
 use rlua::prelude::*;
 use std::sync::Arc;
+use std::env;
 use std::fs;
 use serde_json;
 use rlua_serde;
-    
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let module = lua.create_table()?;
+
+    module.set("canonicalize", lua.create_function( |lua, path: String| {
+        match fs::canonicalize(path).map_err(|err| LuaError::external(err)) {
+            Ok(i) => Ok(Some(lua.create_string(&i.to_str().unwrap()).unwrap())),
+            _ => Ok(None)
+        }
+    })? )?;
 
     module.set("create_dir", lua.create_function( |_, (path, all): (String, Option<bool>)| {
         let result = match all {
@@ -56,6 +64,14 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(lua.create_string(&String::from_utf8_lossy(&data[..]).to_owned().to_string())?)
     })?)?;
 
+    module.set("chdir", lua.create_function(|_, path: String| {
+        env::set_current_dir(path).map_err(LuaError::external)
+    })?)?;
+
+    module.set("current_dir", lua.create_function(|_, _:()| {
+        env::current_dir().map(|path| path.to_str().map(|s| s.to_string())).map_err(LuaError::external)
+    })?)?;
+
     module.set("exists", lua.create_function( |_, path: String| {
         Ok(::std::path::Path::new(&path).exists())
     })?)?;
@@ -66,6 +82,23 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
 
     module.set("is_dir", lua.create_function( |_, path: String| {
         Ok(::std::path::Path::new(&path).is_dir())
+    })?)?;
+
+    module.set("symlink", lua.create_function( |_, (src_path, symlink_dest): (String, String)| {
+        create_symlink(src_path, symlink_dest).map_err(LuaError::external)
+    })?)?;
+
+    module.set("remove_recursive", lua.create_function( |_, path: String| {
+        fs::remove_dir_all(&path).map_err(LuaError::external)
+    })?)?;
+
+    module.set("touch", lua.create_function( |_, path: String| {
+        fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(&path)
+            .map(|_| ())
+            .map_err(LuaError::external)
     })?)?;
 
     module.set("metadata", lua.create_function( |lua, path: String| {
@@ -98,6 +131,17 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
     Ok(())
 }
 
+#[cfg(target_family = "windows")]
+fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
+    use std::os::windows::fs::symlink_file;
+    symlink_file(src_path, dest)
+}
+#[cfg(target_family = "unix")]
+fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
+    use std::os::unix::fs::symlink;
+    symlink(src_path, dest)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,6 +156,9 @@ mod tests {
                 local md = fs.metadata(entry)
                 print(md.type .. ": " .. entry)
             end
+
+            assert(fs.canonicalize("."), "expected path")
+            assert(fs.canonicalize("/no/such/path/here") == nil, "expected nil")
         "#, None).unwrap();
     }
 }

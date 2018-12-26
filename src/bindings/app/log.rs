@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use rlua::{Variadic, Value};
 
-pub fn init(lua: &Lua) -> Result<(), LuaError> {
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     fn tostr (lua: &Lua, args: Variadic<Value>) -> LuaResult<String> {
         let f: LuaFunction = lua.globals().get("tostring")?;
@@ -41,7 +41,7 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(())
     })? )?;
 
-    lua.globals().set("log", module)?;
+    lua.globals().set("_log", module)?;
 
     Ok(())
 }
@@ -69,11 +69,11 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            log.info(4, "foo", nil, {})
-            log.error("Some Scary Error")
-            log.warn("Warning")
-            log.debug("Debug")
-            log.trace("Trace", "with", {}, "data")
+            _log.info(4, "foo", nil, {})
+            _log.error("Some Scary Error")
+            _log.warn("Warning")
+            _log.debug("Debug")
+            _log.trace("Trace", "with", {}, "data")
         "#, None).unwrap();
     }
 }

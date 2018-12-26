@@ -102,20 +102,28 @@ download_and_extract() {
 
 }
 
-#TODO: Add a simple check to see if path already
-set_path() {
-    if [[ "$(system)" == *"windows"* ]]; then
-        if [[ "$PATH" != *"torchbear"* ]]; then
-            setx PATH $HOME/.bin/:$PATH
-        fi
-    fi
+torchbear_path() {
+    case $(get_os) in
+        Linux | Darwin)
+            echo "/usr/local/bin/torchbear"
+            ;;
+        Android)
+            echo "/data/data/com.termux/files/usr/bin/torchbear"
+            ;;
+        Windows)
+            if [ -d "$CMDER_ROOT" ]; then
+                echo "$CMDER_ROOT/bin/torchbear.exe"
+            else
+                error Cmder is required to run this installer.
+            fi
+            ;;
+    esac
 }
 
 install() {
     echo System Type: $(get_os)
-
-    if [ -f "/usr/local/bin/torchbear" ] || [ -f "$HOME/.bin/torchbear.exe" ] || [ -f "/data/data/com.termux/files/usr/bin/torchbear" ] || [ ! -x $(command -v torchbear) ]; then
-	    local curr_version=($(echo $(torchbear -V)))
+    if [ -f "$(torchbear_path)" ]; then
+	    local curr_version=($(echo $($(torchbear_path) -V)))
 	    local repo_version=$(get_latest_version)
 
 	    if [ "${curr_version[1]}" == "$repo_version" ]; then
@@ -128,27 +136,23 @@ install() {
 
     echo Downloading torchbear
 
-    case $(system) in
-        linux | apple)
+    case $(get_os) in
+        Linux | Darwin)
             download_and_extract "/usr/local/bin"
             ;;
-        android)
+        Android)
             download_and_extract "/data/data/com.termux/files/usr/bin"
             ;;
-        *windows*)
-            if [ ! -d "$HOME/.bin" ]; then
-                mkdir "$HOME/.bin"
-            fi
-            download_and_extract "$HOME/.bin"
-            set_path
+        Windows)
+            download_and_extract "$CMDER_ROOT/bin"
             ;;
         *)
             error "System is not supported at this time"
             ;;
     esac
 
-    if [ -x $(command -v torchbear) ] || [ -f "$HOME/.bin/torchbear.exe" ]; then
-	    local version=($(echo $(torchbear -V)))
+   if [ -f "$(torchbear_path)" ]; then
+	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
     fi
 }

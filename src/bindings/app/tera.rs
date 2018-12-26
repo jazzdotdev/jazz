@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use rlua::prelude::*;
 use rlua_serde;
 use tera::{Tera, Value as JsonValue, Context as TeraContext};
+use error::Error;
 
 struct LuaTera (Arc<Mutex<Tera>>);
 
@@ -48,6 +49,17 @@ impl LuaUserData for LuaTera {
             })
         });
 
+        methods.add_method("add_raw_templates", |_, this, hashmap: HashMap<String, String>| {
+            let mut templates = Vec::new();
+            for (key, val) in &hashmap {
+                templates.push( (key.as_str(), val.as_str()) );
+            }
+            let mut tera = this.0.try_lock().unwrap();
+            tera.add_raw_templates(templates).map_err(|err| {
+                LuaError::external(format_err!("{}", err.to_string()))
+            })
+        });
+
         methods.add_method("render", |_, this, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
             let tera = this.0.try_lock().unwrap();
             let text = match params {
@@ -68,7 +80,7 @@ impl LuaUserData for LuaTera {
     }
 }
 
-pub fn init(lua: &Lua) -> LuaResult<()> {
+pub fn init(lua: &Lua) -> ::Result<()> {
 
     let new_tera = lua.create_function(move |_, dir: String| {
         let tera = Tera::new(&dir).unwrap();
@@ -78,7 +90,7 @@ pub fn init(lua: &Lua) -> LuaResult<()> {
 
     let module = lua.create_table()?;
     module.set("new", new_tera)?;
-    lua.globals().set("tera", module)?;
+    lua.globals().set("tera", module).map_err(Error::from)?;
 
     Ok(())
 }

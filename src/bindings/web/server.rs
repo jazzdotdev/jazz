@@ -8,7 +8,7 @@ use futures::Future;
 use serde_urlencoded;
 use serde_json;
 
-use ::app_state::AppState;
+use AppState;
 
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {
@@ -26,8 +26,8 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
     let host = request.uri().host()
         .map(|host| LuaMessage::String(host.to_owned()))
         .unwrap_or(LuaMessage::Nil);
-    let port = request.uri().port()
-        .map(|port| LuaMessage::Number(port as f64))
+    let port = request.uri().port_part()
+        .map(|port| LuaMessage::Number(port.as_u16() as f64))
         .unwrap_or(LuaMessage::Nil);
     let fragment = request.uri().to_string()
         .rsplit("#")
@@ -107,9 +107,15 @@ fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> 
 pub fn handler((request, body): (HttpRequest<AppState>, String)) -> FutureResponse<HttpResponse> {
     let table = extract_table_from_request(&request, body);
 
-    request.state()
-        .lua
-        .send(LuaMessage::Table(table))
+    let app_state = request.state();
+
+    let own_addr = if app_state.lua.is_none() {
+        Some(app_state.create_addr())
+    } else { None };
+
+    let addr = own_addr.as_ref().unwrap_or_else(|| { app_state.lua.as_ref().unwrap() });
+
+    addr.send(LuaMessage::Table(table))
         .from_err()
         .and_then(|res| match res {
             LuaMessage::String(s) => Ok(HttpResponse::Ok().body(s)),
