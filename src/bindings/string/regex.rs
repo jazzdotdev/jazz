@@ -1,27 +1,66 @@
 use rlua::prelude::*;
 use regex;
 
+pub struct LuaRegex(regex::Regex);
+pub struct LuaCapture<'a>(regex::Captures<'a>);
+pub struct LuaCaptureMatches<'a, 'b>(regex::CaptureMatches<'a, 'b>);
+
+impl LuaUserData for LuaRegex {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("match", |_, this: &LuaRegex, val: String| {
+            Ok(this.0.is_match(&val))
+        });
+        methods.add_method("replace_all", |_, this: &LuaRegex, (val, patt): (String, String)| {
+            Ok(this.0.replace_all(&val, patt.as_str()).into_owned())
+        });
+        methods.add_method("capture", |_, this: &LuaRegex, val: String| {
+            Ok(this.0.captures(Box::leak(val.into_boxed_str())).map(LuaCapture))
+        });
+        methods.add_method("capture_all", |_, _this: &LuaRegex, _val: String| {
+            Ok(())
+        });
+    } 
+}
+
+impl<'a> LuaUserData for LuaCapture<'a> {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("get", |_, this: &LuaCapture, index: usize| {
+            Ok(this.0.get(index).map(|s| s.as_str().to_string()))
+        });
+        methods.add_method("name", |_, this: &LuaCapture, name: String| {
+            Ok(this.0.name(&name).map(|s| s.as_str().to_string()))
+        });
+        methods.add_method("to_table", |_, this: &LuaCapture, _: ()| {
+            Ok(this.0.iter().filter_map(|s| s).map(|s| s.as_str().to_string()).collect::<Vec<String>>())
+        })
+    }
+}
+
 pub fn init(lua: &Lua) -> ::Result<()> {
     let module = lua.create_table()?;
 
-    module.set("match", lua.create_function(|_, (expr, val): (String, String)| {
-        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
-        Ok(re.is_match(&val))
+    module.set("new", lua.create_function(|_, expr: String| {
+        regex::Regex::new(&expr).map(LuaRegex).map_err(LuaError::external)
     })?)?;
 
-    module.set("replace_all", lua.create_function(|_, (expr, val, patt): (String, String, String)| {
-        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
-        Ok(re.replace_all(&val, patt.as_str()).into_owned())
-    })?)?;
-
-    module.set("captures", lua.create_function(|_, (expr, val): (String, String)| {
-        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
-
-        Ok(re.captures(&val).and_then(|v| {
-            Some(v.iter().filter_map(|s| s).map(|s| s.as_str().to_string()).collect::<Vec<String>>())
-        }))
-
-    })?)?;
+//    module.set("match", lua.create_function(|_, (expr, val): (String, String)| {
+//        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
+//        Ok(re.is_match(&val))
+//    })?)?;
+//
+//    module.set("replace_all", lua.create_function(|_, (expr, val, patt): (String, String, String)| {
+//        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
+//        Ok(re.replace_all(&val, patt.as_str()).into_owned())
+//    })?)?;
+//
+//    module.set("captures", lua.create_function(|_, (expr, val): (String, String)| {
+//        let re = regex::Regex::new(&expr).map_err(LuaError::external)?;
+//
+//        Ok(re.captures(&val).and_then(|v| {
+//            Some(v.iter().filter_map(|s| s).map(|s| s.as_str().to_string()).collect::<Vec<String>>())
+//        }))
+//
+//    })?)?;
 
     lua.globals().set("regex", module)?;
 
