@@ -1,10 +1,15 @@
 use rlua::prelude::*;
 use std::path;
 use std::sync::Arc;
+use std::fs::{Permissions, Metadata};
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::MetadataExt;
 
 pub struct LuaPath(path::PathBuf);
-//TODO: Clean up metadata for `Path::metadata` (Internal #1b8b1ed373cd1901b2)
-//pub struct LuaMetadata(Metadata);
+pub struct LuaMetadata(Metadata);
+pub struct LuaPermissions(Permissions);
 
 impl LuaUserData for LuaPath {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
@@ -45,27 +50,79 @@ impl LuaUserData for LuaPath {
         methods.add_method("join", |_, this: &LuaPath, path: String |{
             Ok(LuaPath(this.0.join(path)))
         });
+        methods.add_method("metadata", |_, this: &LuaPath, _:() |{
+            Ok(LuaMetadata(this.0.metadata().map_err(LuaError::external)?))
+        });
         methods.add_method("read_dir", |lua, this: &LuaPath, _: ()| {
             match this.0.read_dir() {
                 Ok(iter) => {
                     let mut arc_iter = Arc::new(Some(iter));
                     let mut f = move |_, _: ()| {
                         let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
-                            Some(iter) => match iter.next() {
-                                Some(Ok(entry)) => Some(entry.file_name().into_string().unwrap()),
-                                _ => None
-                            },
+                            Some(iter) => iter.next().map(|entry| entry.map(|e| e.file_name().into_string().unwrap()).ok()),
                             None => None
                         };
                         if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
                         Ok(result)
                     };
                     Ok(lua.create_function_mut(f)?)
-                }, Err(err) => Err(LuaError::ExternalError(Arc::new(::failure::Error::from_boxed_compat(Box::new(err)))))
+                }, Err(err) => Err(LuaError::external(err))
             }
         });
         methods.add_meta_method(LuaMetaMethod::ToString, |_, this: &LuaPath, _: ()| {
             Ok(this.0.to_str().map(|s| s.to_string()))
+        });
+    }
+}
+
+impl LuaUserData for LuaMetadata {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("created", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+        });
+        methods.add_method("modified", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+        });
+        methods.add_method("accessed", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+        });
+        methods.add_method("type", |_, this: &LuaMetadata, _: ()| {
+            let _type = this.0.file_type();
+            if _type.is_dir() { Ok("directory") }
+            else if _type.is_file() { Ok("file") }
+            else if _type.is_symlink() { Ok("syslink") }
+            else { Ok("unknown") }
+        });
+        #[cfg(target_family = "unix")]
+        methods.add_method("mode", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.mode() as u8)
+        });
+        #[cfg(target_family = "unix")]
+        methods.add_method("set_mode", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.mode() as u8)
+        });
+        methods.add_method("permissions", |_, this: &LuaMetadata, _: ()| {
+            Ok(LuaPermissions(this.0.permissions()))
+        });
+
+    }
+}
+
+impl LuaUserData for LuaPermissions {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("readonly", |_, this: &LuaPermissions, _: ()| {
+            Ok(this.0.readonly())
+        });
+        methods.add_method_mut("set_readonly", |_, this: &mut LuaPermissions, val: bool| {
+            this.0.set_readonly(val);
+            Ok(())
+        });
+        #[cfg(target_family = "unix")]
+        methods.add_method("mode", |_, this: &LuaPermissions, _: ()| {
+            Ok(this.0.mode() as u8)
+        });
+        methods.add_method("set_mode", |_, this: &LuaPermissions, _: ()| {
+            Ok(this.0.mode() as u8)
         });
     }
 }
