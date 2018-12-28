@@ -30,9 +30,11 @@ impl LuaUserData for LuaMetadata {
                     else if _type.is_symlink() { Ok("syslink") }
                         else { Ok("unknown") }
         });
+        #[cfg(target_family = "unix")]
         methods.add_method("mode", |_, this: &LuaMetadata, _: ()| {
             Ok(this.0.mode() as u8)
         });
+        #[cfg(target_family = "unix")]
         methods.add_method("set_mode", |_, this: &LuaMetadata, _: ()| {
             Ok(this.0.mode() as u8)
         });
@@ -55,9 +57,11 @@ impl LuaUserData for LuaPermissions {
             this.0.set_readonly(val);
             Ok(())
         });
+        #[cfg(target_family = "unix")]
         methods.add_method("mode", |_, this: &LuaPermissions, _: ()| {
             Ok(this.0.mode() as u8)
         });
+        #[cfg(target_family = "unix")]
         methods.add_method("set_mode", |_, this: &LuaPermissions, _: ()| {
             Ok(this.0.mode() as u8)
         });
