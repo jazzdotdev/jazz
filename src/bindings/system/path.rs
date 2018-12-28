@@ -82,7 +82,7 @@ impl LuaUserData for LuaPath {
                     let mut arc_iter = Arc::new(Some(iter));
                     let mut f = move |_, _: ()| {
                         let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
-                            Some(iter) => iter.next().map(|entry| entry.map(|e| e.file_name().into_string().unwrap()).ok()),
+                            Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.path())).ok()),
                             None => None
                         };
                         if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }

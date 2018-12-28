@@ -36,6 +36,9 @@ impl LuaUserData for LuaMetadata {
         methods.add_method("set_mode", |_, this: &LuaMetadata, _: ()| {
             Ok(this.0.mode() as u8)
         });
+        methods.add_method("size", |_, this: &LuaMetadata, _: ()| {
+            Ok(this.0.len())
+        });
         methods.add_method("permissions", |_, this: &LuaMetadata, _: ()| {
             Ok(LuaPermissions(this.0.permissions()))
         });
