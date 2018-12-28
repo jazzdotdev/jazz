@@ -200,7 +200,7 @@ impl ApplicationBuilder {
         let setting_file = Path::new("torchbear.scl");
 
         let config = if setting_file.exists() {
-            conf::Conf::load_file(&setting_file)
+            conf::Conf::load_file(&setting_file)?
         } else {
             SettingConfig::default()
         };
