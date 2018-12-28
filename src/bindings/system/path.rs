@@ -1,15 +1,9 @@
 use rlua::prelude::*;
-use std::path;
+use bindings::system::LuaMetadata;
+use std::{fs, path};
 use std::sync::Arc;
-use std::fs::{Permissions, Metadata};
-#[cfg(target_family = "unix")]
-use std::os::unix::fs::PermissionsExt;
-#[cfg(target_family = "unix")]
-use std::os::unix::fs::MetadataExt;
 
 pub struct LuaPath(path::PathBuf);
-pub struct LuaMetadata(Metadata);
-pub struct LuaPermissions(Permissions);
 
 impl LuaUserData for LuaPath {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
@@ -31,6 +25,33 @@ impl LuaUserData for LuaPath {
         methods.add_method("is_file", |_, this: &LuaPath, _:() |{
             Ok(this.0.is_file())
         });
+        methods.add_method("create_file", |_, this: &LuaPath, _: ()| {
+            fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(this.0.as_path())
+                .map(|_| ())
+                .map_err(LuaError::external)
+        });
+        methods.add_method("create_dir", |_, this: &LuaPath, opt: Option<bool>| {
+            match opt {
+                Some(true) => fs::create_dir_all(this.0.as_path()).map_err(LuaError::external),
+                _ => fs::create_dir(this.0.as_path()).map_err(LuaError::external)
+            }
+        });
+        methods.add_method("remove", |_, this: &LuaPath, opt: Option<bool>| {
+            if this.0.exists() {
+                if this.0.is_file() {
+                    return fs::remove_file(&this.0).map_err(LuaError::external);
+                } else if this.0.is_dir() {
+                    return match opt {
+                        Some(true) => fs::create_dir_all(&this.0).map_err(LuaError::external),
+                        _ => fs::create_dir(&this.0).map_err(LuaError::external)
+                    };
+                }
+            }
+            Ok(())
+        });
         methods.add_method("is_relative", |_, this: &LuaPath, _:() |{
             Ok(this.0.is_relative())
         });
@@ -44,14 +65,16 @@ impl LuaUserData for LuaPath {
             Ok(this.0.parent().map(|p| LuaPath(p.to_path_buf())))
         });
         methods.add_method_mut("push", |_, this: &mut LuaPath, val: String |{
-            this.0.push(&val);
-            Ok(())
+            Ok(this.0.push(&val))
         });
         methods.add_method("join", |_, this: &LuaPath, path: String |{
             Ok(LuaPath(this.0.join(path)))
         });
         methods.add_method("metadata", |_, this: &LuaPath, _:() |{
             Ok(LuaMetadata(this.0.metadata().map_err(LuaError::external)?))
+        });
+        methods.add_method("canonicalize", |_, this: &LuaPath, _:() |{
+            fs::canonicalize(&this.0).map(|can| can.to_str().map(|s| s.to_string())).map_err(LuaError::external)
         });
         methods.add_method("read_dir", |lua, this: &LuaPath, _: ()| {
             match this.0.read_dir() {
@@ -71,58 +94,6 @@ impl LuaUserData for LuaPath {
         });
         methods.add_meta_method(LuaMetaMethod::ToString, |_, this: &LuaPath, _: ()| {
             Ok(this.0.to_str().map(|s| s.to_string()))
-        });
-    }
-}
-
-impl LuaUserData for LuaMetadata {
-    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_method("created", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
-        });
-        methods.add_method("modified", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
-        });
-        methods.add_method("accessed", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
-        });
-        methods.add_method("type", |_, this: &LuaMetadata, _: ()| {
-            let _type = this.0.file_type();
-            if _type.is_dir() { Ok("directory") }
-            else if _type.is_file() { Ok("file") }
-            else if _type.is_symlink() { Ok("syslink") }
-            else { Ok("unknown") }
-        });
-        #[cfg(target_family = "unix")]
-        methods.add_method("mode", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.mode() as u8)
-        });
-        #[cfg(target_family = "unix")]
-        methods.add_method("set_mode", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.mode() as u8)
-        });
-        methods.add_method("permissions", |_, this: &LuaMetadata, _: ()| {
-            Ok(LuaPermissions(this.0.permissions()))
-        });
-
-    }
-}
-
-impl LuaUserData for LuaPermissions {
-    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_method("readonly", |_, this: &LuaPermissions, _: ()| {
-            Ok(this.0.readonly())
-        });
-        methods.add_method_mut("set_readonly", |_, this: &mut LuaPermissions, val: bool| {
-            this.0.set_readonly(val);
-            Ok(())
-        });
-        #[cfg(target_family = "unix")]
-        methods.add_method("mode", |_, this: &LuaPermissions, _: ()| {
-            Ok(this.0.mode() as u8)
-        });
-        methods.add_method("set_mode", |_, this: &LuaPermissions, _: ()| {
-            Ok(this.0.mode() as u8)
         });
     }
 }
