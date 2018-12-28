@@ -15,13 +15,13 @@ pub struct LuaPermissions(Permissions);
 impl LuaUserData for LuaMetadata {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("created", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+            this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).map_err(LuaError::external)
         });
         methods.add_method("modified", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+            this.0.modified().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).map_err(LuaError::external)
         });
         methods.add_method("accessed", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.created().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).ok())
+            this.0.accessed().map(|time| time.duration_since(::std::time::SystemTime::UNIX_EPOCH).map(|s| s.as_secs()).unwrap_or(0)).map_err(LuaError::external)
         });
         methods.add_method("type", |_, this: &LuaMetadata, _: ()| {
             let _type = this.0.file_type();
