@@ -50,6 +50,7 @@ patch-rs = "0.3"
 select = "0.4"
 scl = "0.0"
 # string
+ulid = "0.2.3"
 uuid = "0.7"
 regex = "1"
 mime_guess = "1.8"

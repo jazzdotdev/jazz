@@ -4,6 +4,7 @@ pub mod regex;
 pub mod stringset;
 pub mod uuid;
 pub mod base64;
+pub mod ulid;
 
 use rlua::prelude::*;
 
@@ -14,6 +15,6 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     stringset::init(&lua)?;
     uuid::init(&lua)?;
     base64::init(&lua)?;
-
+    ulid::init(&lua)?;
     Ok(())
 }
