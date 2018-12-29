@@ -6,6 +6,8 @@ use std::io::{SeekFrom, prelude::*};
 use serde_json;
 use rlua_serde;
 use bindings::system::LuaMetadata;
+use fs_extra;
+use std::path;
 
 pub struct LuaFile(fs::File);
 
@@ -189,6 +191,25 @@ pub fn init(lua: &Lua) -> ::Result<()> {
             .map(|_| ())
             .map_err(LuaError::external)
     })?)?;
+
+	module.set("copy_file", lua.create_function(|_, (src, dest): (String, String)| {
+		fs::copy(src, dest)
+			.map_err(LuaError::external)
+	})?)?;
+
+	// TODO custom implementation
+	module.set("copy_dir", lua.create_function(|_, (src, dest): (String, String)| {
+		if !path::Path::new(&dest).exists() {
+			match fs::create_dir_all(&dest) {
+				Ok(()) => (),
+				Err(_) => error!("Could not create directory")
+			}
+		}
+		let mut copy_options = fs_extra::dir::CopyOptions::new();
+		copy_options.overwrite = true;
+		fs_extra::dir::copy(src, dest, &copy_options)
+			.map_err(LuaError::external)
+	})?)?; 
 
     //Deprecated for fs:metadata
     module.set("metadata", lua.create_function( |lua, path: String| {

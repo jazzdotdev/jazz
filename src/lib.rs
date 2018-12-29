@@ -46,6 +46,8 @@ extern crate patch_rs;
 extern crate tantivy;
 extern crate scl;
 
+extern crate fs_extra;
+
 pub mod bindings;
 pub mod logger;
 pub mod conf;
