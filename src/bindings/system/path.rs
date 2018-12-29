@@ -45,8 +45,8 @@ impl LuaUserData for LuaPath {
                     return fs::remove_file(&this.0).map_err(LuaError::external);
                 } else if this.0.is_dir() {
                     return match opt {
-                        Some(true) => fs::create_dir_all(&this.0).map_err(LuaError::external),
-                        _ => fs::create_dir(&this.0).map_err(LuaError::external)
+                        Some(true) => fs::remove_dir_all(&this.0).map_err(LuaError::external),
+                        _ => fs::remove_dir(&this.0).map_err(LuaError::external)
                     };
                 }
             }
