@@ -1,10 +1,9 @@
 use rlua::prelude::*;
-use std::path;
+use bindings::system::LuaMetadata;
+use std::{fs, path};
 use std::sync::Arc;
 
 pub struct LuaPath(path::PathBuf);
-//TODO: Clean up metadata for `Path::metadata` (Internal #1b8b1ed373cd1901b2)
-//pub struct LuaMetadata(Metadata);
 
 impl LuaUserData for LuaPath {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
@@ -26,6 +25,33 @@ impl LuaUserData for LuaPath {
         methods.add_method("is_file", |_, this: &LuaPath, _:() |{
             Ok(this.0.is_file())
         });
+        methods.add_method("create_file", |_, this: &LuaPath, _: ()| {
+            fs::OpenOptions::new()
+                .write(true)
+                .create(true)
+                .open(this.0.as_path())
+                .map(|_| ())
+                .map_err(LuaError::external)
+        });
+        methods.add_method("create_dir", |_, this: &LuaPath, opt: Option<bool>| {
+            match opt {
+                Some(true) => fs::create_dir_all(this.0.as_path()).map_err(LuaError::external),
+                _ => fs::create_dir(this.0.as_path()).map_err(LuaError::external)
+            }
+        });
+        methods.add_method("remove", |_, this: &LuaPath, opt: Option<bool>| {
+            if this.0.exists() {
+                if this.0.is_file() {
+                    return fs::remove_file(&this.0).map_err(LuaError::external);
+                } else if this.0.is_dir() {
+                    return match opt {
+                        Some(true) => fs::remove_dir_all(&this.0).map_err(LuaError::external),
+                        _ => fs::remove_dir(&this.0).map_err(LuaError::external)
+                    };
+                }
+            }
+            Ok(())
+        });
         methods.add_method("is_relative", |_, this: &LuaPath, _:() |{
             Ok(this.0.is_relative())
         });
@@ -39,11 +65,16 @@ impl LuaUserData for LuaPath {
             Ok(this.0.parent().map(|p| LuaPath(p.to_path_buf())))
         });
         methods.add_method_mut("push", |_, this: &mut LuaPath, val: String |{
-            this.0.push(&val);
-            Ok(())
+            Ok(this.0.push(&val))
         });
         methods.add_method("join", |_, this: &LuaPath, path: String |{
             Ok(LuaPath(this.0.join(path)))
+        });
+        methods.add_method("metadata", |_, this: &LuaPath, _:() |{
+            Ok(LuaMetadata(this.0.metadata().map_err(LuaError::external)?))
+        });
+        methods.add_method("canonicalize", |_, this: &LuaPath, _:() |{
+            fs::canonicalize(&this.0).map(|can| can.to_str().map(|s| s.to_string())).map_err(LuaError::external)
         });
         methods.add_method("read_dir", |lua, this: &LuaPath, _: ()| {
             match this.0.read_dir() {
@@ -51,17 +82,14 @@ impl LuaUserData for LuaPath {
                     let mut arc_iter = Arc::new(Some(iter));
                     let mut f = move |_, _: ()| {
                         let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
-                            Some(iter) => match iter.next() {
-                                Some(Ok(entry)) => Some(entry.file_name().into_string().unwrap()),
-                                _ => None
-                            },
+                            Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.path())).ok()),
                             None => None
                         };
                         if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
                         Ok(result)
                     };
                     Ok(lua.create_function_mut(f)?)
-                }, Err(err) => Err(LuaError::ExternalError(Arc::new(::failure::Error::from_boxed_compat(Box::new(err)))))
+                }, Err(err) => Err(LuaError::external(err))
             }
         });
         methods.add_meta_method(LuaMetaMethod::ToString, |_, this: &LuaPath, _: ()| {

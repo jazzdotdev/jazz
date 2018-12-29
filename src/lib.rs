@@ -16,6 +16,7 @@ extern crate serde_yaml;
 extern crate serde_urlencoded;
 extern crate rlua_serde;
 extern crate uuid;
+extern crate ulid;
 extern crate comrak;
 extern crate rust_sodium;
 extern crate base64;
@@ -199,7 +200,7 @@ impl ApplicationBuilder {
         let setting_file = Path::new("torchbear.scl");
 
         let config = if setting_file.exists() {
-            conf::Conf::load_file(&setting_file)
+            conf::Conf::load_file(&setting_file)?
         } else {
             SettingConfig::default()
         };

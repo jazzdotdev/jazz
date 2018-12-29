@@ -1,4 +1,4 @@
-use std::{io, string};
+use std::{io, string, time};
 use serde_json;
 use serde_yaml;
 use rlua_serde;
@@ -44,6 +44,8 @@ pub enum Error {
     StringUtf8Error(string::FromUtf8Error),
     #[fail(display = "{}", _0)]
     SclError(scl::Error),
+    #[fail(display = "{}", _0)]
+    SysTimeError(time::SystemTimeError),
     //TODO: This is only temp as a place holder for anything making use of a string for error messages
     #[fail(display = "{}", _0)]
     Other(String),
@@ -100,6 +102,12 @@ impl From<string::FromUtf8Error> for Error {
 impl From<scl::Error> for Error {
     fn from(err: scl::Error) -> Error {
         Error::SclError(err)
+    }
+}
+
+impl From<time::SystemTimeError> for Error {
+    fn from(err: time::SystemTimeError) -> Error {
+        Error::SysTimeError(err)
     }
 }
 

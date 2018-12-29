@@ -1,32 +1,37 @@
 use rlua::prelude::*;
 use heck::*;
 
+pub struct LuaHeck(String);
+
+impl LuaUserData for LuaHeck {
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("to_camel_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_camel_case())
+        });
+        methods.add_method("to_kebab_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_kebab_case())
+        });
+        methods.add_method("to_mixed_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_mixed_case())
+        });
+        methods.add_method("to_shouty_snake_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_shouty_snake_case())
+        });
+        methods.add_method("to_snake_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_snake_case())
+        });
+        methods.add_method("to_title_case", |_, this: &LuaHeck, _:()| {
+            Ok(this.0.to_title_case())
+        });
+    }
+}
+
 pub fn init(lua: &Lua) -> ::Result<()> {
 
     let module = lua.create_table()?;
 
-    module.set("to_camel_case", lua.create_function(|_, text: String| {
-        Ok(text.to_camel_case())
-    })?)?;
-
-    module.set("to_kebab_case", lua.create_function(|_, text: String| {
-        Ok(text.to_kebab_case())
-    })?)?;
-
-    module.set("to_mixed_case", lua.create_function(|_, text: String| {
-        Ok(text.to_mixed_case())
-    })?)?;
-
-    module.set("to_shouty_snake_case", lua.create_function(|_, text: String| {
-        Ok(text.to_shouty_snake_case())
-    })?)?;
-
-    module.set("to_snake_case", lua.create_function(|_, text: String| {
-        Ok(text.to_snake_case())
-    })?)?;
-
-    module.set("to_title_case", lua.create_function(|_, text: String| {
-        Ok(text.to_title_case())
+    module.set("new", lua.create_function(|_, text: String| {
+        Ok(LuaHeck(text))
     })?)?;
 
     lua.globals().set("heck", module)?;
@@ -44,8 +49,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "We are not in the least afraid of ruins"
-            assert(heck.to_camel_case(val) == "WeAreNotInTheLeastAfraidOfRuins")
+            local val = heck.new("We are not in the least afraid of ruins")
+            assert(val:to_camel_case() == "WeAreNotInTheLeastAfraidOfRuins")
         "#, None).unwrap();
     }
 
@@ -55,8 +60,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "We are going to inherit the earth"
-            assert(heck.to_kebab_case(val) == "we-are-going-to-inherit-the-earth")
+            local val = heck.new("We are going to inherit the earth")
+            assert(val:to_kebab_case() == "we-are-going-to-inherit-the-earth")
         "#, None).unwrap();
     }
 
@@ -66,8 +71,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "It is we who built these palaces and cities"
-            assert(heck.to_mixed_case(val) == "itIsWeWhoBuiltThesePalacesAndCities")
+            local val = heck.new("It is we who built these palaces and cities")
+            assert(val:to_mixed_case() == "itIsWeWhoBuiltThesePalacesAndCities")
         "#, None).unwrap();
     }
 
@@ -77,8 +82,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "That world is growing in this minute"
-            assert(heck.to_shouty_snake_case(val) == "THAT_WORLD_IS_GROWING_IN_THIS_MINUTE")
+            local val = heck.new("That world is growing in this minute")
+            assert(val:to_shouty_snake_case() == "THAT_WORLD_IS_GROWING_IN_THIS_MINUTE")
         "#, None).unwrap();
     }
 
@@ -88,8 +93,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "We carry a new world here, in our hearts"
-            assert(heck.to_snake_case(val) == "we_carry_a_new_world_here_in_our_hearts")
+            local val = heck.new("We carry a new world here, in our hearts")
+            assert(val:to_snake_case() == "we_carry_a_new_world_here_in_our_hearts")
         "#, None).unwrap();
     }
 
@@ -99,8 +104,8 @@ mod tests {
         init(&lua).unwrap();
 
         lua.exec::<_, ()>(r#"
-            local val = "We have always lived in slums and holes in the wall"
-            assert(heck.to_title_case(val) == "We Have Always Lived In Slums And Holes In The Wall")
+            local val = heck.new("We have always lived in slums and holes in the wall")
+            assert(val:to_title_case() == "We Have Always Lived In Slums And Holes In The Wall")
         "#, None).unwrap();
     }
 }
