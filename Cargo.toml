@@ -27,6 +27,7 @@ actix-lua = "0.5"
 futures = "0.1"
 rlua = "0.15"
 rlua_serde = "0.2"
+fs_extra = "1.1"
 # web
 actix-web = { version = "0.7", features = ["ssl"] }
 # cli and log
