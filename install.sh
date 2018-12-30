@@ -186,16 +186,20 @@ install() {
         echo Torchbear ${version[1]} has been installed.
     fi
 
-    read -p "Do you want to install machu-picchu (y/n)?" choice
-    case "$choice" in 
-        y|Y )
-            install_machu_picchu
-            ;;
-        n|N )
-            # Ignore
-            ;;
-        * ) echo "Invalid option";;
-    esac
+    # Only install mp if not detected
+    if [ ! -x "$(command -v mp)" ]; then
+        read -p "Do you want to install machu-picchu (y/n)?" choice
+        case "$choice" in 
+            y|Y )
+                install_machu_picchu
+                ;;
+            n|N )
+                # Ignore
+                ;;
+            * ) echo "Invalid option";;
+        esac
+    fi
+
 }
 
 error() { echo "$*" 1>&2 ; exit 1; }
