@@ -110,24 +110,17 @@ install_machu_picchu () {
     if [ -x "$(command -v curl)" ]; then
         echo Downloading Machu Picchu
         curl -L $URL -o $TEMP
-
         echo Installing Machu Picchu
-
-        case $(get_os) in
-            Linux | Darwin )
-                sudo unzip -q -o temp.zip -d $DIR
-                ;;
-            * )
-                unzip -q -o temp.zip -d $DIR
-                ;;
-        esac
-        cd $DIR/mp-installer-master
-        torchbear
-        STATUS=$?
-
-        cd ../..
+        unzip -q -o temp.zip -d $DIR
         rm $TEMP
-        rm -r $DIR
+        cd $DIR/mp-installer-master
+        case $(get_os) in
+            Linux | Darwin ) sudo torchbear;;
+            * ) torchbear;;
+        esac
+        STATUS=$?
+        cd ../..
+        rm -rf $DIR
     else
         error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
     fi
