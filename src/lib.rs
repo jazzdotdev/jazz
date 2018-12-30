@@ -18,7 +18,7 @@ extern crate rlua_serde;
 extern crate uuid;
 extern crate ulid;
 extern crate comrak;
-extern crate rust_sodium;
+extern crate sodiumoxide as rust_sodium;
 extern crate base64;
 extern crate chrono;
 #[macro_use]

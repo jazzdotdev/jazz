@@ -62,7 +62,7 @@ chrono = "0.4"
 base64 = "0.10"
 git2 = "0.8"
 # crypto
-rust_sodium = "0.10"
+sodiumoxide = "0.2"
 blake2 = "0.8"
 openssl = { version = "0.10", features = ["vendored"] }
 # archive
