@@ -102,6 +102,36 @@ download_and_extract() {
 
 }
 
+install_machu_picchu () {
+    URL="https://github.com/foundpatterns/mp-installer/archive/master.zip"
+    TEMP=temp.zip
+    DIR=.mp-installer
+
+    if [ -x "$(command -v curl)" ]; then
+        echo Downloading Machu Picchu
+        curl -L $URL -o $TEMP
+
+        echo Installing Machu Picchu
+
+        unzip -q -o temp.zip -d $DIR
+        cd $DIR/mp-installer-master
+        torchbear
+        STATUS=$?
+
+        cd ../..
+        rm $TEMP
+        rm -r $DIR
+    else
+        error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
+    fi
+
+    if [ $STATUS = "0" ]; then
+        echo Machu Picchu installed succesfully
+    else
+        echo Machu Picchu install was unsuccesfull
+    fi
+}
+
 torchbear_path() {
     case $(get_os) in
         Linux | Darwin)
@@ -151,10 +181,25 @@ install() {
             ;;
     esac
 
-   if [ -f "$(torchbear_path)" ]; then
+    if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
     fi
+
+    # Only install mp if not detected
+    if [ ! -x "$(command -v mp)" ]; then
+        read -p "Do you want to install machu-picchu (y/n)?" choice
+        case "$choice" in 
+            y|Y )
+                install_machu_picchu
+                ;;
+            n|N )
+                # Ignore
+                ;;
+            * ) echo "Invalid option";;
+        esac
+    fi
+
 }
 
 error() { echo "$*" 1>&2 ; exit 1; }
