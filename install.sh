@@ -113,7 +113,14 @@ install_machu_picchu () {
 
         echo Installing Machu Picchu
 
-        unzip -q -o temp.zip -d $DIR
+        case $(get_os) in
+            Linux | Darwin )
+                sudo unzip -q -o temp.zip -d $DIR
+                ;;
+            * )
+                unzip -q -o temp.zip -d $DIR
+                ;;
+        esac
         cd $DIR/mp-installer-master
         torchbear
         STATUS=$?
@@ -209,7 +216,7 @@ install() {
 
     # Only install mp if not detected
     if [ ! -x "$(command -v mp)" ]; then
-        read -p "Do you want to install machu-picchu (y/n)?" choice
+        read -p "Do you want to install machu-picchu (y/n)? " choice </dev/tty
         case "$choice" in 
             y|Y )
                 install_machu_picchu
