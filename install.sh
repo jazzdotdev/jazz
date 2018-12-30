@@ -150,6 +150,27 @@ torchbear_path() {
     esac
 }
 
+uninstall() {
+    if [ -f "$(torchbear_path)" ]; then
+        echo Uninstalling torchbear.
+        case $(get_os) in
+            Linux | Darwin)
+                sudo rm $(torchbear_path)
+                ;;
+            * )
+                rm $(torchbear_path)
+                ;;
+        esac
+        if [ -f "$(torchbear_path)" ]; then
+            error Torchbear could not be uninstalled.
+        else
+            echo Torchbear is now uninstalled.
+        fi
+    else
+        error Torchbear is not installed.
+    fi
+}
+
 install() {
     echo System Type: $(get_os)
     if [ -f "$(torchbear_path)" ]; then
@@ -204,4 +225,8 @@ install() {
 
 error() { echo "$*" 1>&2 ; exit 1; }
 
-install
+if [[ $1 = "--uninstall" ]]; then
+    uninstall
+else
+    install
+fi
