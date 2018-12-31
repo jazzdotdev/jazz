@@ -128,29 +128,43 @@ install_machu_picchu () {
     if [ $STATUS = "0" ]; then
         echo Machu Picchu installed succesfully
     else
-        echo Machu Picchu install was unsuccesfull
+        error Machu Picchu install was unsuccesfull
     fi
 }
 
-torchbear_path() {
+install_path() {
     case $(get_os) in
         Linux | Darwin)
-            echo "/usr/local/bin/torchbear"
+            echo "/usr/local/bin"
             ;;
         Android)
-            echo "/data/data/com.termux/files/usr/bin/torchbear"
+            echo "/data/data/com.termux/files/usr/bin"
             ;;
         Windows)
             if [ -d "$CMDER_ROOT" ]; then
-                echo "$CMDER_ROOT/bin/torchbear.exe"
+                echo "$CMDER_ROOT/bin"
             else
                 error Cmder is required to run this installer.
             fi
             ;;
+        *)
+            error "System is not supported at this time"
+            ;;
     esac
 }
 
-uninstall() {
+torchbear_path() {
+    case $(get_os) in
+        Linux | Darwin | Android)
+            echo "$(install_path)/torchbear"
+            ;;
+        Windows)
+            echo "$(install_path)/torchbear.exe"
+            ;;
+    esac
+}
+
+uninstall_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
         echo Uninstalling torchbear.
         case $(get_os) in
@@ -171,6 +185,29 @@ uninstall() {
     fi
 }
 
+uninstall_mp() {
+    if [ -f "$(install_path)/mp" ]; then
+        echo Uninstalling machu picchu.
+        case $(get_os) in
+            Linux | Darwin)
+                sudo rm $(install_path)/mp
+                sudo rm -rf $(install_path)/machu-pichu
+                ;;
+            * )
+                rm $(install_path)/mp
+                rm -rf $(install_path)/machu-pichu
+                ;;
+        esac
+        if [ -f "$(install_path)/mp" ]; then
+            error Machu Picchu could not be uninstalled.
+        else
+            echo Machu Picchu is now uninstalled.
+        fi
+    else
+        error Machu Picchu is not installed.
+    fi
+}
+
 install() {
     echo System Type: $(get_os)
     if [ -f "$(torchbear_path)" ]; then
@@ -187,20 +224,7 @@ install() {
 
     echo Downloading torchbear
 
-    case $(get_os) in
-        Linux | Darwin)
-            download_and_extract "/usr/local/bin"
-            ;;
-        Android)
-            download_and_extract "/data/data/com.termux/files/usr/bin"
-            ;;
-        Windows)
-            download_and_extract "$CMDER_ROOT/bin"
-            ;;
-        *)
-            error "System is not supported at this time"
-            ;;
-    esac
+    download_and_extract $(install_path)
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
@@ -226,7 +250,10 @@ install() {
 error() { echo "$*" 1>&2 ; exit 1; }
 
 if [[ $1 = "--uninstall" ]]; then
-    uninstall
+    uninstall_torchbear
+    uninstall_mp
+elif [[ $1 = "--uninstall-mp" ]]; then
+    uninstall_mp
 else
     install
 fi
