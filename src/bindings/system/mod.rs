@@ -6,8 +6,6 @@ use rlua::prelude::*;
 use std::fs::{Metadata, Permissions};
 #[cfg(target_family = "unix")]
 use std::os::unix::fs::PermissionsExt;
-#[cfg(target_family = "unix")]
-use std::os::unix::fs::MetadataExt;
 
 pub struct LuaMetadata(Metadata);
 pub struct LuaPermissions(Permissions);
@@ -26,17 +24,9 @@ impl LuaUserData for LuaMetadata {
         methods.add_method("type", |_, this: &LuaMetadata, _: ()| {
             let _type = this.0.file_type();
             if _type.is_dir() { Ok("directory") }
-                else if _type.is_file() { Ok("file") }
-                    else if _type.is_symlink() { Ok("syslink") }
-                        else { Ok("unknown") }
-        });
-        #[cfg(target_family = "unix")]
-        methods.add_method("mode", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.mode() as u8)
-        });
-        #[cfg(target_family = "unix")]
-        methods.add_method("set_mode", |_, this: &LuaMetadata, _: ()| {
-            Ok(this.0.mode() as u8)
+            else if _type.is_file() { Ok("file") }
+            else if _type.is_symlink() { Ok("syslink") }
+            else { Ok("unknown") }
         });
         methods.add_method("size", |_, this: &LuaMetadata, _: ()| {
             Ok(this.0.len())
@@ -44,7 +34,6 @@ impl LuaUserData for LuaMetadata {
         methods.add_method("permissions", |_, this: &LuaMetadata, _: ()| {
             Ok(LuaPermissions(this.0.permissions()))
         });
-
     }
 }
 
@@ -59,11 +48,11 @@ impl LuaUserData for LuaPermissions {
         });
         #[cfg(target_family = "unix")]
         methods.add_method("mode", |_, this: &LuaPermissions, _: ()| {
-            Ok(this.0.mode() as u8)
+            Ok(this.0.mode())
         });
         #[cfg(target_family = "unix")]
-        methods.add_method("set_mode", |_, this: &LuaPermissions, _: ()| {
-            Ok(this.0.mode() as u8)
+        methods.add_method_mut("set_mode", |_, this: &mut LuaPermissions, mode: u32| {
+            Ok(this.0.set_mode(mode))
         });
     }
 }

@@ -1,5 +1,7 @@
 use rlua::prelude::*;
 use bindings::system::LuaMetadata;
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
 use std::{fs, path};
 use std::sync::Arc;
 
@@ -72,6 +74,14 @@ impl LuaUserData for LuaPath {
         });
         methods.add_method("metadata", |_, this: &LuaPath, _:() |{
             Ok(LuaMetadata(this.0.metadata().map_err(LuaError::external)?))
+        });
+        //TODO: Use `LuaPermissions instead
+        #[cfg(target_family = "unix")]
+        methods.add_method("set_permissions", |_, this: &LuaPath, perms: u32 |{
+            let metadata = this.0.metadata().map_err(LuaError::external)?;
+            let mut permissions = metadata.permissions();
+            permissions.set_mode(perms);
+            fs::set_permissions(&this.0, permissions).map_err(LuaError::external)
         });
         methods.add_method("canonicalize", |_, this: &LuaPath, _:() |{
             fs::canonicalize(&this.0).map(|can| can.to_str().map(|s| s.to_string())).map_err(LuaError::external)
