@@ -53,7 +53,7 @@ matrix:
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
       - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
-      - unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
+      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
       - mv target/aarch64-linux-android/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - /usr/local/bin/torchbear
@@ -75,7 +75,7 @@ matrix:
       - export PATH="$PATH:$PWD/NDK/arm/bin"
       - cargo build --target="arm-linux-androideabi" --release
       - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
-      - unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
+      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
       - mv target/arm-linux-androideabi/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - /usr/local/bin/torchbear
