@@ -6,8 +6,9 @@ use std::io::{SeekFrom, prelude::*};
 use serde_json;
 use rlua_serde;
 use bindings::system::LuaMetadata;
-use fs_extra;
-use std::path;
+use std::path::Path;
+use std::io;
+use regex::Regex;
 
 pub struct LuaFile(fs::File);
 
@@ -197,18 +198,9 @@ pub fn init(lua: &Lua) -> ::Result<()> {
 			.map_err(LuaError::external)
 	})?)?;
 
-	// TODO custom implementation
+	// This binding has a known side effect that this doesn't copy .git directory
 	module.set("copy_dir", lua.create_function(|_, (src, dest): (String, String)| {
-		if !path::Path::new(&dest).exists() {
-			match fs::create_dir_all(&dest) {
-				Ok(()) => (),
-				Err(_) => error!("Could not create directory")
-			}
-		}
-		let mut copy_options = fs_extra::dir::CopyOptions::new();
-		copy_options.overwrite = true;
-		fs_extra::dir::copy(src, dest, &copy_options)
-			.map_err(LuaError::external)
+		recursive_copy(src, dest).map_err(LuaError::external) 
 	})?)?; 
 
     //Deprecated for fs:metadata
@@ -254,6 +246,37 @@ fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
 fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
     use std::os::unix::fs::symlink;
     symlink(src_path, dest)
+}
+
+fn recursive_copy<A: AsRef<Path>, B: AsRef<Path>>(src: A, dest: B) -> io::Result<()> {
+    let path = src.as_ref();
+    if !src.as_ref().exists() {
+       return Err(io::Error::from(io::ErrorKind::NotFound));
+    }
+    if !dest.as_ref().exists() {
+        fs::create_dir(&dest)?;
+    }
+    for entry in path.read_dir()? {
+        let src = entry.map(|e| e.path())?;
+        let src_name = match src.file_name().map(|s| s.to_string_lossy().to_string()) {
+            Some(s) => s,
+            None => return Err(io::Error::from(io::ErrorKind::InvalidData))
+        }; 
+		let re = Regex::new(r"^\.git").unwrap();
+		// don't copy .git directory
+		if re.is_match(&src_name) { 
+			continue;
+		}
+        let dest = dest.as_ref().join(src_name); 
+        if src.is_file() {
+            fs::copy(src, &dest)?;
+        } 
+		else {
+            fs::create_dir_all(&dest)?;
+            recursive_copy(src, &dest)?;
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
