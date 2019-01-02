@@ -194,18 +194,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     })?)?;
 
 	module.set("copy_file", lua.create_function(|_, (src, dest): (String, String)| {
-		let mut dest = dest;
-		if Path::new(&dest).is_dir() {
-			let file_name = match Path::new(&src)
-				.file_name() {
-					Some(s) => s.to_string_lossy().to_string(),
-					None => return Err(io::Error::from(io::ErrorKind::NotFound))
-										.map_err(LuaError::external)
-			};
-			dest += file_name.as_str();
-		}
-		fs::copy(src, dest)
-			.map_err(LuaError::external)
+		copy_file(src, dest)
 	})?)?;
 
 	// This binding has a known side effect that this doesn't copy .git directory
@@ -256,6 +245,19 @@ fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
 fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
     use std::os::unix::fs::symlink;
     symlink(src_path, dest)
+}
+
+fn copy_file<S: AsRef<Path>, D: AsRef<Path>>(src: S, dest: D) -> LuaResult<()> {
+	let mut dest = dest.as_ref().to_path_buf();
+    if dest.is_dir() {
+		let file_name = src.as_ref()
+            .file_name()
+            .map(|s| s.to_string_lossy().to_string())
+            .ok_or(LuaError::external(io::Error::from(io::ErrorKind::InvalidInput)))?;
+		dest.push(file_name);
+    };
+    fs::copy(src, dest).map(|_| ())
+        .map_err(LuaError::external)
 }
 
 fn recursive_copy<A: AsRef<Path>, B: AsRef<Path>>(src: A, dest: B) -> io::Result<()> {
