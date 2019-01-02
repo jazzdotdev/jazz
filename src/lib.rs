@@ -94,6 +94,18 @@ impl AppState {
             tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
             tb_table.set("init_filename", self.init_path.to_str())?;
             tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
+            let os = if cfg!(target_os = "windows") {
+                "windows"
+            } else if cfg!(target_os = "linux") {
+                "linux"
+            } else if cfg!(target_os = "macos") {
+                "macos"
+            } else if cfg!(target_os = "android") {
+                "android"
+            } else {
+                "unknown"
+            };
+            tb_table.set("os", os)?;
             lua.globals().set("torchbear", tb_table)?;
         }
 
