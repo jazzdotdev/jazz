@@ -194,6 +194,16 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     })?)?;
 
 	module.set("copy_file", lua.create_function(|_, (src, dest): (String, String)| {
+		let mut dest = dest;
+		if Path::new(&dest).is_dir() {
+			let file_name = match Path::new(&src)
+				.file_name() {
+					Some(s) => s.to_string_lossy().to_string(),
+					None => return Err(io::Error::from(io::ErrorKind::NotFound))
+										.map_err(LuaError::external)
+			};
+			dest += file_name.as_str();
+		}
 		fs::copy(src, dest)
 			.map_err(LuaError::external)
 	})?)?;
