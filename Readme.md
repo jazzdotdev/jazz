@@ -79,7 +79,7 @@ MacOS: comes mostly ready, but [Homebrew](https://brew.sh/) has additional tools
 
 #### [Gut](https://github.com/foundpatterns/gut) · simple version control system
 
-#### [Lighttouch Application Framework](https://github.com/foundpatterns/lighttouch) · application framework, good for web development
+#### [Lighttouch](https://github.com/foundpatterns/lighttouch) · application framework, for web development and much more
 
 #### [Lua Module Map](https://github.com/foundpatterns/lua-module-map) · Rust/Lua code diagram visualization
 

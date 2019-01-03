@@ -52,7 +52,8 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
       - export PATH="$PATH:$PWD/NDK/aarch64/bin"
       - cargo build --target="aarch64-linux-android" --release
-      - bash install.sh
+      - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
+      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
       - mv target/aarch64-linux-android/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - /usr/local/bin/torchbear
@@ -73,7 +74,8 @@ matrix:
       - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
       - export PATH="$PATH:$PWD/NDK/arm/bin"
       - cargo build --target="arm-linux-androideabi" --release
-      - bash install.sh
+      - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
+      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
       - mv target/arm-linux-androideabi/release/${PROJECT} .
       - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
       - /usr/local/bin/torchbear

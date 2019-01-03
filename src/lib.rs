@@ -16,8 +16,9 @@ extern crate serde_yaml;
 extern crate serde_urlencoded;
 extern crate rlua_serde;
 extern crate uuid;
+extern crate ulid;
 extern crate comrak;
-extern crate rust_sodium;
+extern crate sodiumoxide as rust_sodium;
 extern crate base64;
 extern crate chrono;
 #[macro_use]
@@ -93,6 +94,18 @@ impl AppState {
             tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
             tb_table.set("init_filename", self.init_path.to_str())?;
             tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
+            let os = if cfg!(target_os = "windows") {
+                "windows"
+            } else if cfg!(target_os = "linux") {
+                "linux"
+            } else if cfg!(target_os = "macos") {
+                "macos"
+            } else if cfg!(target_os = "android") {
+                "android"
+            } else {
+                "unknown"
+            };
+            tb_table.set("os", os)?;
             lua.globals().set("torchbear", tb_table)?;
         }
 
@@ -199,7 +212,7 @@ impl ApplicationBuilder {
         let setting_file = Path::new("torchbear.scl");
 
         let config = if setting_file.exists() {
-            conf::Conf::load_file(&setting_file)
+            conf::Conf::load_file(&setting_file)?
         } else {
             SettingConfig::default()
         };
