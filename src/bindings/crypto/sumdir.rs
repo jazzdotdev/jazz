@@ -1,7 +1,7 @@
 use rlua::{Error as LuaError, Lua};
-use sumdir;
+use checksumdir;
 
-pub fn gen_checksum(_lua: &Lua, path: String) -> Result<String, LuaError> {
-    sumdir::dir_hash(&path[..])
+pub fn dir_hash(_lua: &Lua, path: String) -> Result<String, LuaError> {
+    checksumdir::dir_hash(&path[..])
         .map_err(LuaError::external)
 }
