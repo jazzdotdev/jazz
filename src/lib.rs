@@ -41,6 +41,7 @@ extern crate xz2;
 extern crate diff_rs;
 extern crate blake2;
 extern crate patch_rs;
+extern crate sumdir;
 
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
