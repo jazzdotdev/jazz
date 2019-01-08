@@ -65,6 +65,7 @@ git2 = "0.8"
 sodiumoxide = "0.2"
 blake2 = "0.8"
 openssl = { version = "0.10", features = ["vendored"] }
+checksumdir = "0.2.0"
 # archive
 zip = "0.5"
 tar = "0.4"
