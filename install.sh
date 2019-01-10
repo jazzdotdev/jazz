@@ -111,6 +111,7 @@ install_machu_picchu () {
         echo Downloading Machu Picchu
         curl -L $URL -o $TEMP
         echo Installing Machu Picchu
+        mkdir $DIR
         unzip -q -o temp.zip -d $DIR
         rm $TEMP
         cd $DIR/mp-installer-master

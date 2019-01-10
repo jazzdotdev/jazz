@@ -2,6 +2,7 @@ mod hash;
 mod sign;
 mod random;
 mod box_;
+mod checksumdir;
 
 use rlua::{Error as LuaError, Lua};
 use rust_sodium;
@@ -15,6 +16,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
     crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
     crypto.set("hash", lua.create_function(hash::hash)?)?;
     crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
+    crypto.set("checksumdir", lua.create_function(checksumdir::checksumdir)?)?;
 
     let sign = lua.create_table()?;
     sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;

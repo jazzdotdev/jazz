@@ -18,7 +18,7 @@ Torchbear gives you power of Rust with the simplicity of Lua.  You can use it fo
 
 You don't need to learn Rust to use Torchbear, and Lua is a very simple language.  You can [Learn in Lua 15 minutes](http://tylerneylon.com/a/learn-lua/).  Below is a list of additional functionality in Torchbear, and you can also browse the [bindings functions documentation](https://foundpatterns.github.io/torchbear-docs/index.html), which is automatically generated using a Torchbear [code map app](http://github.com/foundpatterns/lua-module-map).
 
-## Built-in Tools
+## Built-in Modules
 
 * [rlua](https://github.com/kyren/rlua) *completely safe* Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
@@ -41,7 +41,7 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 * [Diff](https://github.com/foundpatterns/diff-rs) strings and files, and produce [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) outputs 
 * [Patch](https://github.com/foundpatterns/patch-rs) text files with a unidiff input to get a second text output
 
-## Installation
+## Install
 
 Torchbear comes as a single executable, making it very easy to install.  Here's a simple command to install it:
 
@@ -60,6 +60,15 @@ Windows: install [Cmder](http://cmder.net/) Full.
 Android: install [Termux](https://termux.com/).
 
 MacOS: comes mostly ready, but [Homebrew](https://brew.sh/) has additional tools.
+
+### Uninstall
+```sh
+curl https://git.io/fpcV6 -sSfL | bash -s -- --uninstall
+```
+or, if you have `install.sh` already downloaded:
+```sh
+bash install.sh --uninstall
+```
 
 ## Examples
 
