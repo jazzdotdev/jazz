@@ -9,7 +9,6 @@ function _G.require (module_name)
 end
 
 _G.call_with_timer = function(f, arg)
-    print("ping pong")
     local start_time = os.clock()
     f(arg)
     local elapsed = (os.clock() - start_time) * 1000
