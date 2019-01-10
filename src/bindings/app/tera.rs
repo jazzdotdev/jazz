@@ -49,6 +49,17 @@ impl LuaUserData for LuaTera {
             })
         });
 
+        methods.add_method("add_raw_templates", |_, this, hashmap: HashMap<String, String>| {
+            let mut templates = Vec::new();
+            for (key, val) in &hashmap {
+                templates.push( (key.as_str(), val.as_str()) );
+            }
+            let mut tera = this.0.try_lock().unwrap();
+            tera.add_raw_templates(templates).map_err(|err| {
+                LuaError::external(format_err!("{}", err.to_string()))
+            })
+        });
+
         methods.add_method("render", |_, this, (path, params): (String, Option<HashMap<String, LuaValue>>)| {
             let tera = this.0.try_lock().unwrap();
             let text = match params {

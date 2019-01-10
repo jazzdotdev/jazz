@@ -102,22 +102,110 @@ download_and_extract() {
 
 }
 
-torchbear_path() {
+install_machu_picchu () {
+    URL="https://github.com/foundpatterns/mp-installer/archive/master.zip"
+    TEMP=temp.zip
+    DIR=.mp-installer
+
+    if [ -x "$(command -v curl)" ]; then
+        echo Downloading Machu Picchu
+        curl -L $URL -o $TEMP
+        echo Installing Machu Picchu
+        unzip -q -o temp.zip -d $DIR
+        rm $TEMP
+        cd $DIR/mp-installer-master
+        case $(get_os) in
+            Linux | Darwin ) sudo torchbear;;
+            * ) torchbear;;
+        esac
+        STATUS=$?
+        cd ../..
+        rm -rf $DIR
+    else
+        error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
+    fi
+
+    if [ $STATUS = "0" ]; then
+        echo Machu Picchu installed succesfully
+    else
+        error Machu Picchu install was unsuccesfull
+    fi
+}
+
+install_path() {
     case $(get_os) in
         Linux | Darwin)
-            echo "/usr/local/bin/torchbear"
+            echo "/usr/local/bin"
             ;;
         Android)
-            echo "/data/data/com.termux/files/usr/bin/torchbear"
+            echo "/data/data/com.termux/files/usr/bin"
             ;;
         Windows)
             if [ -d "$CMDER_ROOT" ]; then
-                echo "$CMDER_ROOT/bin/torchbear.exe"
+                echo "$CMDER_ROOT/bin"
             else
                 error Cmder is required to run this installer.
             fi
             ;;
+        *)
+            error "System is not supported at this time"
+            ;;
     esac
+}
+
+torchbear_path() {
+    case $(get_os) in
+        Linux | Darwin | Android)
+            echo "$(install_path)/torchbear"
+            ;;
+        Windows)
+            echo "$(install_path)/torchbear.exe"
+            ;;
+    esac
+}
+
+uninstall_torchbear() {
+    if [ -f "$(torchbear_path)" ]; then
+        echo Uninstalling torchbear.
+        case $(get_os) in
+            Linux | Darwin)
+                sudo rm $(torchbear_path)
+                ;;
+            * )
+                rm $(torchbear_path)
+                ;;
+        esac
+        if [ -f "$(torchbear_path)" ]; then
+            error Torchbear could not be uninstalled.
+        else
+            echo Torchbear is now uninstalled.
+        fi
+    else
+        error Torchbear is not installed.
+    fi
+}
+
+uninstall_mp() {
+    if [ -f "$(install_path)/mp" ]; then
+        echo Uninstalling machu picchu.
+        case $(get_os) in
+            Linux | Darwin)
+                sudo rm $(install_path)/mp
+                sudo rm -rf $(install_path)/machu-pichu
+                ;;
+            * )
+                rm $(install_path)/mp
+                rm -rf $(install_path)/machu-pichu
+                ;;
+        esac
+        if [ -f "$(install_path)/mp" ]; then
+            error Machu Picchu could not be uninstalled.
+        else
+            echo Machu Picchu is now uninstalled.
+        fi
+    else
+        error Machu Picchu is not installed.
+    fi
 }
 
 install() {
@@ -136,27 +224,36 @@ install() {
 
     echo Downloading torchbear
 
-    case $(get_os) in
-        Linux | Darwin)
-            download_and_extract "/usr/local/bin"
-            ;;
-        Android)
-            download_and_extract "/data/data/com.termux/files/usr/bin"
-            ;;
-        Windows)
-            download_and_extract "$CMDER_ROOT/bin"
-            ;;
-        *)
-            error "System is not supported at this time"
-            ;;
-    esac
+    download_and_extract $(install_path)
 
-   if [ -f "$(torchbear_path)" ]; then
+    if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
     fi
+
+    # Only install mp if not detected
+    if [ ! -x "$(command -v mp)" ]; then
+        read -p "Do you want to install machu-picchu (y/n)? " choice </dev/tty
+        case "$choice" in 
+            y|Y )
+                install_machu_picchu
+                ;;
+            n|N )
+                # Ignore
+                ;;
+            * ) echo "Invalid option";;
+        esac
+    fi
+
 }
 
 error() { echo "$*" 1>&2 ; exit 1; }
 
-install
+if [[ $1 = "--uninstall" ]]; then
+    uninstall_torchbear
+    uninstall_mp
+elif [[ $1 = "--uninstall-mp" ]]; then
+    uninstall_mp
+else
+    install
+fi

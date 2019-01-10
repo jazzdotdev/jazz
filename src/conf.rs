@@ -3,29 +3,18 @@ use scl::Value as SclValue;
 use serde_json::{self, Value};
 use serde::de::DeserializeOwned;
 use std::path::Path;
+use Result;
+use error::Error;
 
 pub struct Conf;
 
 impl Conf {
-    pub fn load_file<P, T>(path: P) -> T
+    pub fn load_file<P, T>(path: P) -> Result<T>
         where P: AsRef<Path>,
               T: DeserializeOwned
     {
-        let config = match scl::parse_file(path) {
-            Ok(c) => c,
-            Err(e) => {
-                println!("Error loading config file: {}", e);
-                ::std::process::exit(0);
-            }
-        };
-
-        match serde_json::from_value(Conf::from(SclValue::Dict(config))) {
-            Ok(j) => j,
-            Err(e) => {
-                println!("Error occurred while loading config file: {}", e);
-                ::std::process::exit(0);
-            }
-        }
+        let config = scl::parse_file(path)?;
+        serde_json::from_value(Conf::from(SclValue::Dict(config))).map_err(Error::from)
     }
 
     fn from(val: SclValue) -> serde_json::Value {

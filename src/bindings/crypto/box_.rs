@@ -27,29 +27,16 @@ pub fn load_keypair(_lua: &Lua, (secret_key_base64, public_key_base64): (String,
     let public = base64::decode(&public_key_base64).map_err(LuaError::external)?;
 
     let keypair = KeyPair {
-        secret: match box_::SecretKey::from_slice(&secret) {
-            Some(key) => Ok(key),
-            _ => Err(LuaError::external(Error::InvalidKeys))
-        }?,
-        public: match box_::PublicKey::from_slice(&public) {
-            Some(key) => Ok(key),
-            _ => Err(LuaError::external(Error::InvalidKeys))
-        }?,
+        secret: box_::SecretKey::from_slice(&secret).ok_or(LuaError::external(Error::InvalidKeys))?,
+        public: box_::PublicKey::from_slice(&public).ok_or(LuaError::external(Error::InvalidKeys))?
     };
-
     Ok(keypair)
 }
 
 /// Constructs and returns a Nonce object from passed in `nonce_str` base64 string
 pub fn load_nonce(_lua: &Lua, nonce_str: String) -> Result<Nonce, LuaError> {
     let nonce_bytes = base64::decode(&nonce_str).map_err(LuaError::external)?;
-
-    let nonce = match box_::Nonce::from_slice(&nonce_bytes) {
-        Some(n) => Ok(Nonce(n)),
-        _ => Err(LuaError::external(Error::InvalidNonce))
-    }?;
-
-    Ok(nonce)
+    box_::Nonce::from_slice(&nonce_bytes).map(|n| Nonce(n)).ok_or(LuaError::external(Error::InvalidNonce))
 }
 
 /// Returns a new nonce
@@ -64,8 +51,7 @@ fn get_nonce<'a>(val: &'a Option<Value<'a>>) -> Result<Ref<'a, Nonce>, LuaError>
         _ => Err(LuaError::external(Error::InvalidNonceObject))
     }?;
 
-    let result = user_data.borrow::<Nonce>().map_err(LuaError::external)?;
-    Ok(result)
+    user_data.borrow::<Nonce>().map_err(LuaError::external)
 }
 
 // Encrypts and authenticates a message `msg` using the senders secret key, the receivers public key and a nonce `nonce_value`. It returns a base64 ciphertext.
@@ -84,8 +70,7 @@ pub fn open(_lua: &Lua, this: &KeyPair, (msg, nonce_value): (String, Option<Valu
     let msg_bytes = base64::decode(&msg).map_err(LuaError::external)?;
     let text_bytes = box_::open(&msg_bytes, &nonce.0, &this.public, &this.secret)
         .map_err(|_| LuaError::external(Error::FailedToDecrypt))?;
-    let plaintext = String::from_utf8(text_bytes).map_err(LuaError::external)?;
-    Ok(plaintext)
+    String::from_utf8(text_bytes).map_err(LuaError::external)
 }
 
 
@@ -113,8 +98,6 @@ impl UserData for KeyPair {
         methods.add_method("seal", seal);
         methods.add_method("open", open);
         methods.add_method("seal_detached", seal_detached);
-//        methods.add_method("sign_detached", sign_detached);
-//        methods.add_method("verify_detached", verify_detached);
     }
 }
 
