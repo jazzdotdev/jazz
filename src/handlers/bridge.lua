@@ -8,6 +8,14 @@ function _G.require (module_name)
     return _require(module_name)
 end
 
+_G.call_with_timer = function(f, arg)
+    print("ping pong")
+    local start_time = os.clock()
+    f(arg)
+    local elapsed = (os.clock() - start_time) * 1000
+    log.warn("Done in " .. elapsed .. " milliseconds")
+end
+
 xpcall(function ()
     local init_f, err = loadfile(torchbear.init_filename)
     if not init_f then error(err) end
