@@ -8,13 +8,17 @@ function _G.require (module_name)
     return _require(module_name)
 end
 
-function _G.require_time(module_name)
+local default_searcher = package.searchers[2]
+
+function require_time(modulename)
     local start_time = os.clock()
-    local module = _require(module_name)
+    local module =  default_searcher(modulename)
     local elapsed = (os.clock() - start_time) * 1000
-    log.info(module_name .. " elapsed " .. elapsed .. " milliseconds")
-    return module
+    _log.info(modulename .. " done in " .. elapsed .. " milliseconds")
+    return module  
 end
+
+package.searchers[2] = _G.require_time
 
 
 xpcall(function ()
