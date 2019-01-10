@@ -8,12 +8,14 @@ function _G.require (module_name)
     return _require(module_name)
 end
 
-_G.call_with_timer = function(f, arg)
+function _G.require_time(module_name)
     local start_time = os.clock()
-    f(arg)
+    local module = _require(module_name)
     local elapsed = (os.clock() - start_time) * 1000
-    log.warn("Done in " .. elapsed .. " milliseconds")
+    log.info(module_name .. " elapsed " .. elapsed .. " milliseconds")
+    return module
 end
+
 
 xpcall(function ()
     local init_f, err = loadfile(torchbear.init_filename)
