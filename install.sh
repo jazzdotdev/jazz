@@ -209,8 +209,7 @@ uninstall_mp() {
     fi
 }
 
-install() {
-    echo System Type: $(get_os)
+install_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
 	    local curr_version=($(echo $($(torchbear_path) -V)))
 	    local repo_version=$(get_latest_version)
@@ -230,6 +229,11 @@ install() {
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
+    fi
+}
+
+install_mp() {
+    if [ -f "$(torchbear_path)" ]; then
 
         # Only install mp if not detected
         # TODO: Check for updates for mp
@@ -249,15 +253,20 @@ install() {
                 * ) echo "Invalid option";;
             esac
         fi
+    else
+        error Torchbear is not installed.
     fi
-
-
-
 }
 
 error() { echo "$*" 1>&2 ; exit 1; }
 
 case $1 in
+    "--install-torchbear")
+        install_torchbear
+    ;;
+    "--install-mp")
+        install_mp
+    ;;
     "--uninstall")
         uninstall_torchbear
         uninstall_mp
@@ -266,6 +275,7 @@ case $1 in
         uninstall_mp
     ;;
     * )
-        install
+        install_torchbear
+        install_mp
     ;;
 esac
