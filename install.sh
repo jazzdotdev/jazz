@@ -230,31 +230,42 @@ install() {
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
+
+        # Only install mp if not detected
+        # TODO: Check for updates for mp
+        if [ ! -x "$(command -v mp)" ]; then
+            echo "Now that you have Torchbear installed, would you like to install Machu Picchu package manager? You can use it to install more apps, safely and easily."
+            echo "To read more about it, check http://github.com/foundpatterns/machu-picchu. If you choose to install now, then running mp --help will show you what to do next with it"
+
+            read -t 10 -e -p "Do you want to install machu-picchu (Y/n)? " -i "Y" choice || choice="N"
+            #</dev/tty
+            case "$choice" in
+                y|Y )
+                    install_machu_picchu
+                    ;;
+                n|N )
+                    # Ignore
+                    ;;
+                * ) echo "Invalid option";;
+            esac
+        fi
     fi
 
-    # Only install mp if not detected
-    if [ ! -x "$(command -v mp)" ]; then
-        read -p "Do you want to install machu-picchu (y/n)? " choice </dev/tty
-        case "$choice" in 
-            y|Y )
-                install_machu_picchu
-                ;;
-            n|N )
-                # Ignore
-                ;;
-            * ) echo "Invalid option";;
-        esac
-    fi
+
 
 }
 
 error() { echo "$*" 1>&2 ; exit 1; }
 
-if [[ $1 = "--uninstall" ]]; then
-    uninstall_torchbear
-    uninstall_mp
-elif [[ $1 = "--uninstall-mp" ]]; then
-    uninstall_mp
-else
-    install
-fi
+case $1 in
+    "--uninstall")
+        uninstall_torchbear
+        uninstall_mp
+    ;;
+    "--uninstall-mp")
+        uninstall_mp
+    ;;
+    * )
+        install
+    ;;
+esac
