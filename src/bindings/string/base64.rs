@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use base64;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     let module = lua.create_table()?;
 

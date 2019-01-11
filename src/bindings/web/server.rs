@@ -8,7 +8,7 @@ use futures::Future;
 use serde_urlencoded;
 use serde_json;
 
-use AppState;
+use crate::AppState;
 
 /// Creates a lua table from a HttpRequest
 fn extract_table_from_request(request: &HttpRequest<AppState>, body: String) -> HashMap<String, LuaMessage> {

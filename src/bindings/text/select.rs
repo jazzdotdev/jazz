@@ -1,9 +1,9 @@
-use rlua;
-use rlua::{Lua, UserData, UserDataMethods};
-use select;
-use select::node::Raw;
-use std::mem;
-use std::sync::Arc;
+use rlua::{self, Lua, UserData, UserDataMethods};
+use select::{self, node::Raw};
+use std::{
+    mem,
+    sync::Arc
+};
 use rlua_serde;
 
 /// Please read `select`'s documentation to know the meanings of each variants.
@@ -210,7 +210,7 @@ impl UserData for Document {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let select = lua.create_table()?;
 
     // New Document from string

@@ -12,10 +12,10 @@ pub mod tantivy;
 // Dummy modules
 #[cfg(not(feature = "tantivy_bindings"))]
 pub mod tantivy {
-    pub fn init(_: &rlua::Lua) -> ::Result<()> { Ok(()) }
+    pub fn init(_: &rlua::Lua) -> crate::Result<()> { Ok(()) }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     git::init(&lua)?;
     log::init(&lua)?;
     markdown::init(&lua)?;

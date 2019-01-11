@@ -3,8 +3,10 @@ use scl::Value as SclValue;
 use serde_json::{self, Value};
 use serde::de::DeserializeOwned;
 use std::path::Path;
-use Result;
-use error::Error;
+use crate::{
+    Result,
+    error::Error
+};
 
 pub struct Conf;
 

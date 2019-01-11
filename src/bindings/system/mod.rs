@@ -57,7 +57,7 @@ impl LuaUserData for LuaPermissions {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     fs::init(&lua)?;
     time::init(&lua)?;
     path::init(&lua)?;

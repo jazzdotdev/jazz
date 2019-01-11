@@ -1,51 +1,10 @@
-//! A Lua application framework for Rust libraries.
-extern crate actix;
-extern crate actix_lua;
-extern crate actix_web;
-extern crate env_logger;
-extern crate futures;
-extern crate tera;
-extern crate rlua;
-#[macro_use]
-extern crate failure;
-#[macro_use]
-extern crate failure_derive;
-extern crate serde;
-extern crate serde_json;
-extern crate serde_yaml;
-extern crate serde_urlencoded;
-extern crate rlua_serde;
-extern crate uuid;
-extern crate ulid;
-extern crate comrak;
-extern crate sodiumoxide as rust_sodium;
-extern crate base64;
-extern crate chrono;
-#[macro_use]
-extern crate log;
-extern crate fern;
-extern crate colored;
-#[macro_use]
-extern crate human_panic;
-extern crate select;
-#[macro_use]
-extern crate serde_derive;
-extern crate git2;
-extern crate regex;
-extern crate openssl;
-extern crate mime_guess;
-extern crate heck;
-extern crate zip;
-extern crate tar;
-extern crate xz2;
-extern crate diff_rs;
-extern crate blake2;
-extern crate patch_rs;
-extern crate checksumdir;
-
+#[macro_use] extern crate failure;
+#[macro_use] extern crate failure_derive;
+#[macro_use] extern crate log;
+#[macro_use] extern crate human_panic;
+#[macro_use] extern crate serde_derive;
 #[cfg(feature = "tantivy_bindings")]
 extern crate tantivy;
-extern crate scl;
 
 pub mod bindings;
 pub mod logger;
@@ -56,12 +15,13 @@ use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
 use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
-use std::path::Path;
-use std::path::PathBuf;
-use std::result;
+use std::{
+    path::{Path, PathBuf},
+    result
+};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
-use error::Error;
+use crate::error::Error;
 
 type LuaAddr = ::actix::Addr<::actix_lua::LuaActor>;
 pub type Result<T> = result::Result<T, Error>;

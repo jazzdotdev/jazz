@@ -1,6 +1,6 @@
 use rlua::{Error as LuaError, Lua};
 use blake2::*;
-use rust_sodium::crypto::hash;
+use sodiumoxide::crypto::hash;
 use base64;
 
 /// Returns base64 encoded SHA-512 of `msg`

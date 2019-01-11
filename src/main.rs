@@ -1,7 +1,4 @@
-extern crate torchbear_lib;
-#[macro_use]
-extern crate clap;
-extern crate log;
+#[macro_use] extern crate clap;
 
 use clap::{Arg, App as ClapApp};
 use std::{

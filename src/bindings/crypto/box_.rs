@@ -1,8 +1,8 @@
 use rlua::{UserData, UserDataMethods, Error as LuaError, Lua, Value};
-use rust_sodium::crypto::box_;
+use sodiumoxide::crypto::box_;
 use base64;
 use std::cell::Ref;
-use error::Error;
+use crate::error::Error;
 
 pub struct KeyPair {
     secret: box_::SecretKey,

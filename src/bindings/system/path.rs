@@ -1,5 +1,5 @@
 use rlua::prelude::*;
-use bindings::system::LuaMetadata;
+use crate::bindings::system::LuaMetadata;
 use std::{fs, path};
 use std::sync::Arc;
 
@@ -80,7 +80,7 @@ impl LuaUserData for LuaPath {
             match this.0.read_dir() {
                 Ok(iter) => {
                     let mut arc_iter = Arc::new(Some(iter));
-                    let mut f = move |_, _: ()| {
+                    let f = move |_, _: ()| {
                         let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
                             Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.path())).ok()),
                             None => None
@@ -98,7 +98,7 @@ impl LuaUserData for LuaPath {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
 
     module.set("empty", lua.create_function( |_, _: ()| {

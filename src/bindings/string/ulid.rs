@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use ulid::Ulid;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     let module = lua.create_table()?;
     module.set("new", lua.create_function(|_, _: ()| {

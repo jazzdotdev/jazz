@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use mime_guess;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
     module.set("get_mime_type", lua.create_function(|_, ext: String| {
         Ok(mime_guess::get_mime_type(&ext).to_string())

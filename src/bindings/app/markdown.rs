@@ -53,7 +53,7 @@ fn comrak_options_from_table(table: &HashMap<String, LuaValue>) -> Result<Comrak
     Ok(options)
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let render_markdown = lua.create_function(
         |_, (markdown_str, options): (String, Option<HashMap<String, LuaValue>>)| {
             let html_string = match options {

@@ -8,7 +8,7 @@ pub mod ulid;
 
 use rlua::prelude::*;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     heck::init(&lua)?;
     mime::init(&lua)?;
     regex::init(&lua)?;

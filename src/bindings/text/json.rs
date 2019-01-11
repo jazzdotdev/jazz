@@ -2,7 +2,7 @@ use rlua::prelude::*;
 use serde_json;
 use rlua_serde;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     // Decode string to a table
     let module = lua.create_table()?;
     module.set("to_table", lua.create_function(|lua, text: String| {

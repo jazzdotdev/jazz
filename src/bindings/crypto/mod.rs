@@ -5,18 +5,18 @@ mod box_;
 mod checksumdir;
 
 use rlua::{Error as LuaError, Lua};
-use rust_sodium;
-use error::Error;
+use sodiumoxide;
+use crate::error::Error;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
-    rust_sodium::init().map_err(|_| LuaError::external(Error::SodiumInitFailure))?;
+pub fn init(lua: &Lua) -> crate::Result<()> {
+    sodiumoxide::init().map_err(|_| LuaError::external(Error::SodiumInitFailure))?;
 
     let crypto = lua.create_table()?;
 
     crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
     crypto.set("hash", lua.create_function(hash::hash)?)?;
     crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
-    crypto.set("checksumdir", lua.create_function(checksumdir::checksumdir)?)?;
+    crypto.set("checksumdir", lua.create_function(checksumdir::checksum)?)?;
 
     let sign = lua.create_table()?;
     sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;

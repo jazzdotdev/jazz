@@ -1,8 +1,7 @@
-use rlua::prelude::*;
-use rlua::{UserDataMethods, UserData, MetaMethod, Lua};
-use rust_sodium::crypto::sign;
+use rlua::{prelude::*, UserDataMethods, UserData, MetaMethod, Lua};
+use sodiumoxide::crypto::sign;
 use base64;
-use error::Error;
+use crate::error::Error;
 
 pub struct LuaSecretKey (sign::SecretKey);
 pub struct LuaPublicKey (sign::PublicKey);

@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use rlua::{Variadic, Value};
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     fn tostr (lua: &Lua, args: Variadic<Value>) -> LuaResult<String> {
         let f: LuaFunction = lua.globals().get("tostring")?;
