@@ -181,7 +181,6 @@ impl ApplicationBuilder {
         } else {
             SettingConfig::default()
         };
-        //let config = settings.try_into::<SettingConfig>().unwrap_or_default();
 
         fn get_or (map: &Value, key: &str, val: &str) -> String {
             map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
