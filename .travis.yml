@@ -13,7 +13,7 @@ matrix:
       - PLATFORM=linux
       - CHANNEL=stable
       services: docker
-      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "cargo test temporarily disabled"; fi
       before_deploy:
       - |
         if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -32,7 +32,7 @@ matrix:
       - ARCH=x86_64
       - PLATFORM=apple
       - CHANNEL=stable
-      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "cargo test temporarily disabled"; fi
       before_deploy:
       - |
         if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -47,7 +47,7 @@ matrix:
       - ARCH=arm64
       - PLATFORM=android
       - CHANNEL=stable
-      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "cargo test temporarily disabled"; fi
       before_deploy:
       - |
         if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -72,7 +72,7 @@ matrix:
       - ARCH=arm32
       - PLATFORM=android
       - CHANNEL=stable
-      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "cargo test temporarily disabled"; fi
       before_deploy:
       - |
         if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
