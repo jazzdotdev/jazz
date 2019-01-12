@@ -13,75 +13,87 @@ matrix:
       - PLATFORM=linux
       - CHANNEL=stable
       services: docker
-      script: echo "cargo test temporarily disabled"
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
       before_deploy:
-      - docker build -t build-${PROJECT}-image .
-      - docker run -it --name build-${PROJECT} build-${PROJECT}-image
-      - docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
-      - docker rm build-${PROJECT}
-      - docker rmi build-${PROJECT}-image
-      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./${PROJECT}
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - |
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          docker build -t build-${PROJECT}-image .
+          docker run -it --name build-${PROJECT} build-${PROJECT}-image
+          docker cp build-${PROJECT}:/home/rust/src/target/x86_64-unknown-linux-musl/release/${PROJECT} ${PROJECT}
+          docker rm build-${PROJECT}
+          docker rmi build-${PROJECT}-image
+          wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+          ./${PROJECT}
+          zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+        fi
     - os: osx
       rust: stable
       env:
       - ARCH=x86_64
       - PLATFORM=apple
       - CHANNEL=stable
-      script: echo "cargo test temporarily disabled"
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
       before_deploy:
-      - cargo build --release
-      - mv target/release/${PROJECT} .
-      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - ./${PROJECT}
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - |
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          cargo build --release
+          mv target/release/${PROJECT} .
+          wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+          ./${PROJECT}
+          zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+        fi
     - os: linux
       env:
       - ARCH=arm64
       - PLATFORM=android
       - CHANNEL=stable
-      script: echo "cargo test temporarily disabled"
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
       before_deploy:
-      - export PATH="$HOME/.cargo/bin:$PATH"
-      - rustup target add aarch64-linux-android
-      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-      - unzip -qq android-ndk-r18b-linux-x86_64.zip
-      - export NDK_HOME="$PWD/android-ndk-r18b"
-      - mkdir NDK
-      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/aarch64/bin"
-      - cargo build --target="aarch64-linux-android" --release
-      - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
-      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
-      - mv target/aarch64-linux-android/release/${PROJECT} .
-      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - /usr/local/bin/torchbear
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - |
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup target add aarch64-linux-android
+          wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
+          unzip -qq android-ndk-r18b-linux-x86_64.zip
+          export NDK_HOME="$PWD/android-ndk-r18b"
+          mkdir NDK
+          ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm64 --install-dir=NDK/aarch64 --platform=android-22
+          export PATH="$PATH:$PWD/NDK/aarch64/bin"
+          cargo build --target="aarch64-linux-android" --release
+          wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
+          sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
+          mv target/aarch64-linux-android/release/${PROJECT} .
+          wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+          /usr/local/bin/torchbear
+          zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+        fi
     - os: linux
       env:
       - ARCH=arm32
       - PLATFORM=android
       - CHANNEL=stable
-      script: echo "cargo test temporarily disabled"
+      script: if [ "$TRAVIS_PULL_REQUEST" != "false" ]; echo "cargo test temporarily disabled"; fi
       before_deploy:
-      - export PATH="$HOME/.cargo/bin:$PATH"
-      - rustup target add arm-linux-androideabi
-      - wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
-      - unzip -qq android-ndk-r18b-linux-x86_64.zip
-      - export NDK_HOME="$PWD/android-ndk-r18b"
-      - mkdir NDK
-      - ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
-      - export PATH="$PATH:$PWD/NDK/arm/bin"
-      - cargo build --target="arm-linux-androideabi" --release
-      - wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
-      - sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
-      - mv target/arm-linux-androideabi/release/${PROJECT} .
-      - wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
-      - /usr/local/bin/torchbear
-      - zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+      - |
+        if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup target add arm-linux-androideabi
+          wget -q https://dl.google.com/android/repository/android-ndk-r18b-linux-x86_64.zip
+          unzip -qq android-ndk-r18b-linux-x86_64.zip
+          export NDK_HOME="$PWD/android-ndk-r18b"
+          mkdir NDK
+          ${NDK_HOME}/build/tools/make-standalone-toolchain.sh --arch=arm --install-dir=NDK/arm --platform=android-22
+          export PATH="$PATH:$PWD/NDK/arm/bin"
+          cargo build --target="arm-linux-androideabi" --release
+          wget https://github.com/foundpatterns/torchbear/releases/download/0.10.6/torchbear-0.10.6-x86_64-linux-stable.zip
+          sudo unzip -q -o torchbear-0.10.6-x86_64-linux-stable.zip -d /usr/local/bin
+          mv target/arm-linux-androideabi/release/${PROJECT} .
+          wget -O init.lua https://raw.githubusercontent.com/foundpatterns/file-witness/master/sign.lua
+          /usr/local/bin/torchbear
+          zip ${PROJECT}-${TRAVIS_TAG}-${ARCH}-${PLATFORM}-${CHANNEL}.zip ${PROJECT}
+        fi
 before_install:
-- openssl aes-256-cbc -K $encrypted_3f0c7a8b3f66_key -iv $encrypted_3f0c7a8b3f66_iv -in private_key.enc -out private_key -d
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_3f0c7a8b3f66_key -iv $encrypted_3f0c7a8b3f66_iv -in private_key.enc -out private_key -d; fi
 deploy:
   provider: releases
   api_key:
