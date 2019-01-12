@@ -3,7 +3,7 @@ use crate::bindings::system::LuaMetadata;
 use std::{fs, path};
 use std::sync::Arc;
 
-pub struct LuaPath(path::PathBuf);
+pub struct LuaPath(pub path::PathBuf);
 
 impl LuaUserData for LuaPath {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
