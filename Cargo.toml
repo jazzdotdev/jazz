@@ -1,7 +1,7 @@
 [package]
 name = "torchbear"
 description = "Lua programming environment in Rust"
-version = "0.10.9"
+version = "0.11.0"
 authors = ["Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>"]
 repository = "https://github.com/foundpatterns/torchbear"
 readme = "Readme.md"
