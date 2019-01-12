@@ -1,6 +1,9 @@
 pub mod fs;
 pub mod time;
 pub mod path;
+pub mod env;
+pub mod dirs;
+pub mod process;
 
 use rlua::prelude::*;
 use std::fs::{Metadata, Permissions};
@@ -57,10 +60,12 @@ impl LuaUserData for LuaPermissions {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     fs::init(&lua)?;
     time::init(&lua)?;
     path::init(&lua)?;
-
+    env::init(&lua)?;
+    dirs::init(&lua)?;
+    process::init(&lua)?;
     Ok(())
 }

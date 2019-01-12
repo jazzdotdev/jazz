@@ -1,13 +1,14 @@
 use rlua::prelude::*;
-use std::sync::Arc;
-use std::env;
-use std::fs::{self, OpenOptions};
-use std::io::{SeekFrom, prelude::*};
+use std::{
+    sync::Arc,
+    env,
+    fs::{self, OpenOptions},
+    io::{self, SeekFrom, prelude::*},
+    path::Path
+};
 use serde_json;
 use rlua_serde;
-use bindings::system::LuaMetadata;
-use std::path::Path;
-use std::io;
+use crate::bindings::system::LuaMetadata;
 use regex::Regex;
 
 pub struct LuaFile(fs::File);
@@ -87,7 +88,7 @@ impl LuaUserData for LuaFile {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     let module = lua.create_table()?;
 
@@ -114,7 +115,7 @@ pub fn init(lua: &Lua) -> ::Result<()> {
         match fs::read_dir(path) {
             Ok(iter) => {
                 let mut arc_iter = Arc::new(Some(iter));
-                let mut f = move |_, _: ()| {
+                let f = move |_, _: ()| {
                     let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
                         Some(iter) => match iter.next() {
                             Some(Ok(entry)) => Some(entry.file_name().into_string().unwrap()),

@@ -8,7 +8,7 @@ use rlua::prelude::LuaError;
 /// paths: path of files to add. These paths are relative to repo.
 /// For example: current directory is /, repo is /repo, file is /repo/file, we need to call:
 /// git_add("repo", &vec!["file"])
-fn git_add(repo: &str, paths: &Vec<String>) -> ::Result<()> {
+fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let mut index = repo.index()?;
     index.add_all(paths.iter(), git2::IndexAddOption::DEFAULT, None)?;
@@ -19,7 +19,7 @@ fn git_add(repo: &str, paths: &Vec<String>) -> ::Result<()> {
 /// repo: Repository's path
 /// message: commit message
 /// sig: pair of (name, email). If is None, will try to use repo's config.
-fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> ::Result<()> {
+fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let sig = if let Some((name, email)) = sig {
         git2::Signature::now(&name, &email)?
@@ -44,12 +44,12 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> ::Res
     Ok(())
 }
 
-fn git_clone(url: &str, into: &str) -> ::Result<()> {
+fn git_clone(url: &str, into: &str) -> crate::Result<()> {
     git2::Repository::clone(url, into)?;
     Ok(())
 }
 
-fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> ::Result<()> {
+fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<()> {
     let repo = git2::Repository::open(&path)?;
     repo.find_remote(remote_name)?
         .fetch(&[branch_name], None, None)?;
@@ -60,7 +60,7 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> ::Result<()> {
 /// spec: revision string aka commit hash or commit reference
 /// reset_type: Reset type(hard, soft or mixed)
 /// example: git_reset("torchbear", "origin/master", "hard")
-fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> ::Result<()> {
+fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> {
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     let repo = git2::Repository::open(&path)?;
     let reset_type = match reset_type_str {
@@ -74,7 +74,7 @@ fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> ::Result<()> {
     Ok(())
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let git = lua.create_table()?;
 
     git.set(

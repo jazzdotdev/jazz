@@ -195,7 +195,7 @@ impl UserData for Document {
 
         use tantivy::schema::Value;
 
-        fn get_value<'a, 'b> (lua: &'a Lua, tan: &'b Value) -> Result<LuaValue<'a>> {
+        fn get_value<'a, 'b> (lua: &'a Lua, tan: &'b Value) -> crate::Result<LuaValue<'a>> {
             Ok(match tan {
                 Value::Str(s) => LuaValue::String(lua.create_string(&s)?),
                 Value::U64(n) => LuaValue::Integer(*n as rlua::Integer),
@@ -212,7 +212,7 @@ impl UserData for Document {
         });
 
         methods.add_method_mut("get_all", |lua, this, f: Field| {
-            let vals: Result<Vec<_>> =
+            let vals: crate::Result<Vec<_>> =
                 this.0.get_all(f.0).iter().map(
                     |x| get_value(lua, x)
                 ).collect();
@@ -226,7 +226,7 @@ struct Term(tantivy::Term);
 
 impl UserData for Term {}
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let tan = lua.create_table()?;
     tan.set(
         "new_schema_builder",

@@ -26,7 +26,7 @@ impl LuaUserData for LuaHeck {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     let module = lua.create_table()?;
 

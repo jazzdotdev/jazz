@@ -4,7 +4,7 @@ use std::io::Read;
 use xz2::read::*;
 use super::ByteBuf;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
     module.set("decompress", lua.create_function(|_, file: (String)| {
         let file = fs::File::open(&file).map_err(LuaError::external)?;

@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use serde_yaml;
 use rlua_serde;
-use Result;
+use crate::Result;
 
 pub fn init(lua: &Lua) -> Result<()> {
     // Decode string to a table

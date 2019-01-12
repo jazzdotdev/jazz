@@ -1,5 +1,5 @@
 use rlua::{ToLua, FromLua, prelude::LuaError};
-use error::Error;
+use crate::error::Error;
 
 fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
     match val {
@@ -29,7 +29,7 @@ fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
     }
 }
 
-fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> ::Result<scl::Date> {
+fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> crate::Result<scl::Date> {
     if t.len()? == 3
         || t.contains_key("day")?
         || t.contains_key("month")?
@@ -135,7 +135,7 @@ fn to_string(val: scl::Value) -> String {
     }
 }
 
-pub fn init(lua: &rlua::Lua) -> ::Result<()> {
+pub fn init(lua: &rlua::Lua) -> crate::Result<()> {
     // Decode string to a table
     let module = lua.create_table()?;
     module.set(

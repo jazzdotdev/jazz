@@ -25,7 +25,7 @@ impl UserData for LuaTime {
     }
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
 
     module.set("now", lua.create_function( |_, _: ()| {

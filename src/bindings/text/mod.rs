@@ -7,7 +7,7 @@ pub mod patch;
 
 use rlua::prelude::*;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     json::init(&lua)?;
     scl::init(&lua)?;
     select::init(&lua)?;

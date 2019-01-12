@@ -4,7 +4,7 @@ use std::path::Path;
 use std::fs::{File, create_dir, OpenOptions};
 use std::fmt::Display;
 use colored::*;
-use {Error, Result};
+use crate::{error::Error, Result};
 pub use log::{Level, LevelFilter};
 
 #[derive(Copy, Clone)]

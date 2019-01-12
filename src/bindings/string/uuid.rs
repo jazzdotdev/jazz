@@ -1,7 +1,7 @@
 use rlua::prelude::*;
 use uuid::Uuid;
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
 
     let generate_uuid_v4 = lua.create_function(|_, _: ()| {
         let uuid = Uuid::new_v4().to_string();

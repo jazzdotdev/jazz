@@ -1,6 +1,8 @@
 use rlua::prelude::*;
-use std::{fs, io};
-use std::io::BufRead;
+use std::{
+    fs,
+    io::{self, BufRead}
+};
 use chrono::{DateTime, Local};
 use diff_rs::diff;
 
@@ -8,7 +10,7 @@ fn time_format(d: &DateTime<Local>) -> String {
     d.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
 
-fn mtime(path: &str) -> ::Result<DateTime<Local>> {
+fn mtime(path: &str) -> crate::Result<DateTime<Local>> {
     Ok(DateTime::from(fs::metadata(path)?.modified()?))
 }
 
@@ -18,7 +20,7 @@ fn read_file(path: &str) -> io::Result<Vec<String>> {
     file.lines().collect()
 }
 
-pub fn init(lua: &Lua) -> ::Result<()> {
+pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
 
     module.set("compare_strings", lua.create_function( |_, (left, right): (String, String)| {
