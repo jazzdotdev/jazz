@@ -170,6 +170,10 @@ impl ApplicationBuilder {
             None => ()
         }
 
+        if let Some(path) = init_path.clone() {
+            std::env::set_current_dir(path.parent().unwrap_or(Path::new(".")))?;
+        }
+
         let setting_file = Path::new("torchbear.scl");
 
         let config = if setting_file.exists() {
