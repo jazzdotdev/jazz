@@ -3,6 +3,7 @@ pub mod time;
 pub mod path;
 pub mod env;
 pub mod dirs;
+pub mod process;
 
 use rlua::prelude::*;
 use std::fs::{Metadata, Permissions};
@@ -65,5 +66,6 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     path::init(&lua)?;
     env::init(&lua)?;
     dirs::init(&lua)?;
+    process::init(&lua)?;
     Ok(())
 }
