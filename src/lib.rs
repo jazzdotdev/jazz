@@ -170,11 +170,12 @@ impl ApplicationBuilder {
             None => ()
         }
 
-        if let Some(path) = init_path.clone() {
-            std::env::set_current_dir(path.parent().unwrap_or(Path::new(".")))?;
-        }
+        let scl_path = match &init_path {
+            Some(p) => p.parent().unwrap_or(Path::new(".")).join("torchbear.scl"),
+            None => PathBuf::from("torchbear.scl"),
+        };
 
-        let setting_file = Path::new("torchbear.scl");
+        let setting_file = scl_path.as_path();
 
         let config = if setting_file.exists() {
             conf::Conf::load_file(&setting_file)?
