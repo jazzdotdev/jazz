@@ -20,7 +20,7 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 
 ## Built-in Modules
 
-#### Environment
+#### Native
 
 * [rlua](https://github.com/kyren/rlua) *completely safe* Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
