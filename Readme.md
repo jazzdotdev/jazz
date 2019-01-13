@@ -30,7 +30,7 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 * [Blake2](https://github.com/RustCrypto/hashes) cryptographic hash function written in pure Rust
 * [Checksumdir](https://github.com/sh-zam/checksumdir) compute deterministic hash of a directory
 
-### System
+#### System
 * [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
 * [`std::process::*`](https://doc.rust-lang.org/std/process/index.html) inspection and manipulation of the process's environment
 * [`std::env::*`](https://doc.rust-lang.org/std/process/index.html) abort and exit for terminating the current process
