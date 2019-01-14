@@ -28,7 +28,7 @@ impl LuaUserData for LuaMetadata {
             let _type = this.0.file_type();
             if _type.is_dir() { Ok("directory") }
             else if _type.is_file() { Ok("file") }
-            else if _type.is_symlink() { Ok("syslink") }
+            else if _type.is_symlink() { Ok("symlink") }
             else { Ok("unknown") }
         });
         methods.add_method("size", |_, this: &LuaMetadata, _: ()| {
