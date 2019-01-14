@@ -23,7 +23,6 @@ architecture() {
 }
 
 get_os() {
-
     case `uname -s` in
         Linux)
             case `uname -o` in
