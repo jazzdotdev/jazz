@@ -26,6 +26,8 @@ pub enum Error {
     InvalidKeys,
     #[fail(display = "Failed verify, signature is invalid.")]
     InvalidSignature,
+    #[fail(display = "Internal error as occured.")]
+    InternalError,
     #[fail(display = "{}", _0)]
     LuaError(rlua::Error),
     #[fail(display = "{}", _0)]
