@@ -1,17 +1,28 @@
 use rlua::prelude::*;
 use std::{
+    mem,
     collections::HashMap,
+    io::{BufReader, prelude::*},
     process::{
         Command,
         Child,
+        ChildStdout,
+        ChildStdin,
+        ChildStderr,
         ExitStatus,
         Stdio,
         Output
     }
 };
+use crate::error::Error;
 
 pub struct LuaCommand(Command);
-pub struct LuaChild(Child);
+pub struct LuaChild {
+    child: Child,
+    stdin: ChildStdin,
+    stdout: BufReader<ChildStdout>,
+    stderr: BufReader<ChildStderr>
+}
 pub struct LuaOutput(Output);
 pub struct LuaExitStatus(ExitStatus);
 
@@ -66,7 +77,23 @@ impl LuaUserData for LuaCommand {
             Ok(())
         });
         methods.add_method_mut("spawn", |_, this: &mut LuaCommand, _: ()|{
-            this.0.spawn().map(LuaChild).map_err(LuaError::external)
+            //For the time being, we will ignore any stdio set and have the io piped when spawn is used
+            this.0.stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+
+            let mut child = this.0.spawn().map_err(LuaError::external)?;
+            let stdout = mem::replace(&mut child.stdout, None).map(BufReader::new).ok_or(LuaError::external(Error::InternalError))?;
+            let stderr = mem::replace(&mut child.stderr, None).map(BufReader::new).ok_or(LuaError::external(Error::InternalError))?;
+            let stdin = mem::replace(&mut child.stdin, None).ok_or(LuaError::external(Error::InternalError))?;
+            
+            Ok(LuaChild {
+                child: child,
+                stdin: stdin,
+                stdout: stdout,
+                stderr: stderr
+            })
+
         });
         methods.add_method_mut("exec", |_, this: &mut LuaCommand, _: ()|{
             this.0.output().map(LuaOutput).map_err(LuaError::external)
@@ -74,17 +101,73 @@ impl LuaUserData for LuaCommand {
     }
 }
 
-//TODO: Finish io implementation for child processes
+//TODO: Have stdout and stderr share a common binding. Maybe by splitting the method into stdin, and have stdout/stderr share the same interface since they both implement `Read` trait
 impl LuaUserData for LuaChild {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method_mut("kill", |_, this: &mut LuaChild, _: ()|{
-            this.0.kill().map_err(LuaError::external)
+            this.child.kill().map_err(LuaError::external)
         });
         methods.add_method_mut("id", |_, this: &mut LuaChild, _: ()|{
-            Ok(this.0.id())
+            Ok(this.child.id())
         });
         methods.add_method_mut("wait", |_, this: &mut LuaChild, _: ()|{
-            this.0.wait().map(LuaExitStatus).map_err(LuaError::external)
+            this.child.wait().map(LuaExitStatus).map_err(LuaError::external)
+        });
+        methods.add_method_mut("write", |_, this: &mut LuaChild, data: String|{
+            this.stdin.write(data.as_bytes()).map_err(LuaError::external)
+        });
+        methods.add_method_mut("flush", |_, this: &mut LuaChild, _: ()| {
+            this.stdin.flush().map_err(LuaError::external)
+        });
+        methods.add_method_mut("read", |_, this: &mut LuaChild, len: Option<usize>|{
+            let bytes = match len {
+                Some(len) => {
+                    let mut bytes = vec![0u8; len];
+                    this.stdout.read(&mut bytes).map_err(LuaError::external)?;
+                    bytes
+                },
+                None => {
+                    let mut bytes = vec![];
+                    this.stdout.read_to_end(&mut bytes).map_err(LuaError::external)?;
+                    bytes
+                }
+            };
+            Ok(bytes)
+        });
+        methods.add_method_mut("read_to_string", |_, this: &mut LuaChild, _:()|{
+            let mut data = String::new();
+            this.stdout.read_to_string(&mut data).map_err(LuaError::external)?;
+            Ok(data)
+        });
+        methods.add_method_mut("read_line", |_, this: &mut LuaChild, _: ()|{
+            let mut data = String::new();
+            this.stdout.read_line(&mut data).map_err(LuaError::external)?;
+            Ok(data)
+        });
+        methods.add_method_mut("read_error", |_, this: &mut LuaChild, len: Option<usize>|{
+            let bytes = match len {
+                Some(len) => {
+                    let mut bytes = vec![0u8; len];
+                    this.stderr.read(&mut bytes).map_err(LuaError::external)?;
+                    bytes
+                },
+                None => {
+                    let mut bytes = vec![];
+                    this.stderr.read_to_end(&mut bytes).map_err(LuaError::external)?;
+                    bytes
+                }
+            };
+            Ok(bytes)
+        });
+        methods.add_method_mut("read_error_to_string", |_, this: &mut LuaChild, _:()|{
+            let mut data = String::new();
+            this.stderr.read_to_string(&mut data).map_err(LuaError::external)?;
+            Ok(data)
+        });
+        methods.add_method_mut("read_error_line", |_, this: &mut LuaChild, _: ()|{
+            let mut data = String::new();
+            this.stderr.read_line(&mut data).map_err(LuaError::external)?;
+            Ok(data)
         });
     }
 }
