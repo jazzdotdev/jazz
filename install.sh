@@ -23,7 +23,6 @@ architecture() {
 }
 
 get_os() {
-
     case `uname -s` in
         Linux)
             case `uname -o` in
@@ -167,7 +166,7 @@ torchbear_path() {
 
 uninstall_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
-        echo Uninstalling torchbear.
+        echo Uninstalling Torchbear.
         case $(get_os) in
             Linux | Darwin)
                 sudo rm $(torchbear_path)

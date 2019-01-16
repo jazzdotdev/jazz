@@ -20,26 +20,47 @@ You don't need to learn Rust to use Torchbear, and Lua is a very simple language
 
 ## Built-in Modules
 
+#### Native
+
 * [rlua](https://github.com/kyren/rlua) *completely safe* Lua 5.3.5 with traceback error messages
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
+
+#### Crypto
+* [Libsodium](https://github.com/maidsafe/rust_sodium) cryptographic signing and verifying, and encrypting and decrypting
+* [Blake2](https://github.com/RustCrypto/hashes) cryptographic hash function written in pure Rust
+* [Checksumdir](https://github.com/sh-zam/checksumdir) compute deterministic hash of a directory
+
+#### System
+* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
+* [`std::process::*`](https://doc.rust-lang.org/std/process/index.html) inspection and manipulation of the process's environment
+* [`std::env::*`](https://doc.rust-lang.org/std/process/index.html) abort and exit for terminating the current process
+* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
+* [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
+
+#### App
 * [Tera](https://github.com/Keats/tera) Jinja template rendering
 * [Comrak](https://github.com/kivikakk/comrak) Markdown to HTML outputting
-* [Libsodium](https://github.com/maidsafe/rust_sodium) cryptographic signing and verifying, and encrypting and decrypting
-* [`std::fs::*`](https://doc.rust-lang.org/std/fs/index.html) filesystem operations
-* [`std::collections::HashSet`](https://doc.rust-lang.org/std/collections/struct.HashSet.html) set-theoretic operations
-* [Serde](https://github.com/serde-rs/serde) YAML and JSON serializing/deserializing
-* [SCL](https://github.com/Keats/scl) simple, safe configuration language serializing/deserializing
-* [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
-* [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
-* [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
-* [Git](https://github.com/alexcrichton/git2-rs) cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
 * [Tantivy](https://github.com/tantivy-search/tantivy) schema building, document adding/updating/deleting, and searching
+* [Git](https://github.com/alexcrichton/git2-rs) cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
+
+#### Strings
+* [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
+* [ulid](https://github.com/dylanhart/ulid-rs) Universally Unique Lexicographically Sortable Identifier
+* [Heck](https://github.com/withoutboats/heck) case conversions
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
-* [Heck](https://github.com/withoutboats/heck) case conversions
-* [Zip](https://github.com/mvdnes/zip-rs), [Tar](https://github.com/alexcrichton/tar-rs), and [xz](https://github.com/alexcrichton/xz2-rs) (lzma) file decompression
+
+#### Text
+* [Serde](https://github.com/serde-rs/serde) YAML and JSON serializing/deserializing
+* [SCL](https://github.com/Keats/scl) simple, safe configuration language serializing/deserializing
 * [Diff](https://github.com/foundpatterns/diff-rs) strings and files, and produce [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) outputs 
 * [Patch](https://github.com/foundpatterns/patch-rs) text files with a unidiff input to get a second text output
+* [Select-rs](https://github.com/utkarshkukreti/select.rs) HTML scraping
+
+#### Archive
+* [Zip](https://github.com/mvdnes/zip-rs) file decompression
+* [Tar](https://github.com/alexcrichton/tar-rs) file decompression
+* [xz](https://github.com/alexcrichton/xz2-rs) lzma file decompression
 
 ## Install
 
