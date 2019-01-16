@@ -106,6 +106,9 @@ impl LuaUserData for LuaChild {
         methods.add_method_mut("wait", |_, this: &mut LuaChild, _: ()|{
             this.child.wait().map(LuaExitStatus).map_err(LuaError::external)
         });
+        methods.add_method_mut("write", |_, this: &mut LuaChild, bytes: Vec<u8>|{
+            this.stdin.write(bytes.as_slice()).map_err(LuaError::external)
+        });
         methods.add_method_mut("write", |_, this: &mut LuaChild, data: String|{
             this.stdin.write(data.as_bytes()).map_err(LuaError::external)
         });
