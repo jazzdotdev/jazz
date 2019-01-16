@@ -11,6 +11,7 @@ use rlua_serde;
 use crate::bindings::system::LuaMetadata;
 use regex::Regex;
 
+//TODO: Move to having a common interface so IO can share the same binding
 pub struct LuaFile(fs::File);
 
 pub fn fs_open(_: &Lua, (path, mode): (String, Option<String>)) -> Result<LuaFile, LuaError> {

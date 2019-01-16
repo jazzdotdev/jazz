@@ -29,11 +29,11 @@ pub struct LuaExitStatus(ExitStatus);
 impl LuaUserData for LuaCommand {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
 
-        fn stdio_type<A: AsRef<str>>(stdtype: A) -> Stdio {
-            match stdtype.as_ref() {
-                "inherit" => Stdio::inherit(),
-                "null" => Stdio::null(),
-                "piped" | _ => Stdio::piped(),
+        fn stdio_type(stdtype: Option<&String>) -> Stdio {
+            match stdtype.map(|s| s.as_str()) {
+                Some("inherit") => Stdio::inherit(),
+                Some("null") => Stdio::null(),
+                Some("piped") | _ => Stdio::piped(),
             }
         }
 
@@ -64,23 +64,16 @@ impl LuaUserData for LuaCommand {
             this.0.current_dir(dir);
             Ok(())
         });
-        methods.add_method_mut("stdin", |_, this: &mut LuaCommand, stdtype: String|{
-            this.0.stdin(stdio_type(stdtype));
-            Ok(())
-        });
-        methods.add_method_mut("stdout", |_, this: &mut LuaCommand, stdtype: String|{
-            this.0.stdout(stdio_type(stdtype));
-            Ok(())
-        });
-        methods.add_method_mut("stderr", |_, this: &mut LuaCommand, stdtype: String|{
-            this.0.stderr(stdio_type(stdtype));
-            Ok(())
-        });
-        methods.add_method_mut("spawn", |_, this: &mut LuaCommand, _: ()|{
-            //For the time being, we will ignore any stdio set and have the io piped when spawn is used
-            this.0.stdin(Stdio::piped())
-                .stdout(Stdio::piped())
-                .stderr(Stdio::piped());
+        methods.add_method_mut("spawn", |_, this: &mut LuaCommand, args: Option<HashMap<String, String>>|{
+            if let Some(args) = args {
+                this.0.stdin(stdio_type(args.get("stdin")))
+                    .stdout(stdio_type(args.get("stdout")))
+                    .stderr(stdio_type(args.get("stderr")));
+            } else {
+                this.0.stdin(Stdio::piped())
+                    .stdout(Stdio::piped())
+                    .stderr(Stdio::piped());
+            }
 
             let mut child = this.0.spawn().map_err(LuaError::external)?;
             let stdout = mem::replace(&mut child.stdout, None).map(BufReader::new).ok_or(LuaError::external(Error::InternalError))?;
