@@ -71,7 +71,7 @@ impl LuaUserData for LuaTera {
                     tera.render(&path, &())
                 },
             }.map_err(|err| {
-                // can't convert error_chain to failure directly
+                //::error::create_lua_error(err)
                 LuaError::external(format_err!("{}", err.to_string()))
             })?;
 
