@@ -6,6 +6,7 @@ use rlua;
 use git2;
 use base64;
 use scl;
+use rlua::Error as LuaError;
 
 //Due to number of number of crates that have different errors, we will handle them this way for the time being which would just create a base for
 //handling errors properly. The errors will be bound to change in the near future
@@ -117,4 +118,15 @@ impl From<String> for Error {
     fn from(err: String) -> Error {
         Error::Other(err)
     }
+}
+
+pub fn create_lua_error <T> (err: T) -> LuaError
+    where T: std::error::Error + Sync + Send + 'static {
+    LuaError::ExternalError(
+        std::sync::Arc::new(
+            ::failure::Error::from_boxed_compat(
+                Box::new(err)
+            )
+        )
+    )
 }
