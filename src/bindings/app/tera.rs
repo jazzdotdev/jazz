@@ -65,14 +65,15 @@ impl LuaUserData for LuaTera {
             let text = match params {
                 Some(params) => {
                     let context = get_tera_context_from_table(&params)?;
-                    tera.render(&path, &context)
+                    tera.render(&path, context)
                 },
                 None => {
-                    tera.render(&path, &())
+                    tera.render(&path, TeraContext::new())
                 },
             }.map_err(|err| {
-                //::error::create_lua_error(err)
-                LuaError::external(format_err!("{}", err.to_string()))
+                // https://github.com/Keats/tera/issues/381
+                //crate::error::create_lua_error(err)
+                LuaError::external(format_err!("{:?}", err.to_string()))
             })?;
 
             Ok(text)
