@@ -40,7 +40,7 @@ Read on for more about these functions.  (note: every module is completely built
 * [Standard directory](https://github.com/soc/dirs-rs) cross-platform config, cache, and data paths
 * [Standard process](https://doc.rust-lang.org/std/process/index.html) environment inspection and manipulation
 * [Standard environment](https://doc.rust-lang.org/std/process/index.html) terminating to abort and exit the current process
-* [Standard memory](https://doc.rust-lang.org/std/mem/index.html) querying, aligning, initializing, and manipulating
+* [Standard memory](https://doc.rust-lang.org/std/io/struct.Cursor.html) querying, aligning, initializing, and manipulating
 * [Chrono](https://github.com/chronotope/chrono) time/date generation and verification
 
 #### Crypto
@@ -135,7 +135,7 @@ bash install.sh --uninstall
 
 #### Hello World
 
-- in `init.lua`
+- put in `init.lua`:
 
 ```lua
 #!/usr/bin/env torchbear
@@ -143,7 +143,9 @@ bash install.sh --uninstall
 print("hello from Torchbear")
 ```
 
-- run `./init.lua`
+- make it executable with `chmod +x init.lua`
+
+- then run it with `./init.lua`
 
 ## App Stores
 
