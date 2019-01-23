@@ -152,7 +152,7 @@ print("hello from Torchbear")
 * [Found Patterns Studio App Store](https://github.com/foundpatterns/app-store) (installed by default)
 * yours?
 
-## Contributions wanted
+## Contributors wanted
 
 Torchbear extends Rust's growing library ecosystem. Developers and users alike are welcomed to participate in [Torchbear's issue queue](https://github.com/foundpatterns/torchbear/issues) for small changes and high impact contributions.  Everyone is invited.
 
