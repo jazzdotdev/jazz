@@ -1,9 +1,9 @@
 use rlua::Lua;
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 use git2;
 use rlua::prelude::LuaError;
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 use std::process::Command;
 
 /// git add
@@ -12,7 +12,7 @@ use std::process::Command;
 /// paths: path of files to add. These paths are relative to repo.
 /// For example: current directory is /, repo is /repo, file is /repo/file, we need to call:
 /// git_add("repo", &vec!["file"])
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let mut index = repo.index()?;
@@ -21,12 +21,12 @@ fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     Command::new("git")
         .current_dir(&repo)
-        .arg(&["add"])
-        .arg(paths.as_slice())
+        .arg("add")
+        .args(paths.as_slice())
         .output()?;
     Ok(())
 }
@@ -35,7 +35,7 @@ fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
 /// message: commit message
 /// sig: pair of (name, email). If is None, will try to use repo's config.
 
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let sig = if let Some((name, email)) = sig {
@@ -61,22 +61,25 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate
     Ok(())
 }
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
-    Command::new("git")
+    let mut cmd = Command::new("git")
         .current_dir(&repo)
-        .args(&["commit", "-m", message])
-        .output()?;
+        .args(&["commit", "-m", message]);
+    if let Some((name, email)) = sig {
+        cmd.arg(&format!("--author=\"{} <{}>\"", name, email));
+    }
+        cmd.output()?;
     Ok(())
 }
 
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 fn git_clone(url: &str, into: &str) -> crate::Result<()> {
     git2::Repository::clone(url, into)?;
     Ok(())
 }
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 fn git_clone(url: &str, into: &str) -> crate::Result<()> {
     Command::new("git")
         .args(&["clone", url, into])
@@ -84,7 +87,7 @@ fn git_clone(url: &str, into: &str) -> crate::Result<()> {
     Ok(())
 }
 
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<()> {
     let repo = git2::Repository::open(&path)?;
     repo.find_remote(remote_name)?
@@ -92,7 +95,7 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<(
     Ok(())
 }
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<()> {
     Command::new("git")
         .current_dir(&path)
@@ -106,7 +109,7 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<(
 /// reset_type: Reset type(hard, soft or mixed)
 /// example: git_reset("torchbear", "origin/master", "hard")
 
-#[cfg(not(feature = "git-fallback"))]
+#[cfg(not(target_os = "android"))]
 fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> {
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     let repo = git2::Repository::open(&path)?;
@@ -121,18 +124,41 @@ fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> 
     Ok(())
 }
 
-#[cfg(feature = "git-fallback")]
+#[cfg(target_os = "android")]
 fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> {
+    let reset_type = match reset_type_str {
+        "mixed" => "--mixed",
+        "hard" => "--hard",
+        "soft" | _ => "--soft",
+    };
+    Command::new("git")
+        .current_dir(&path)
+        .args(&["reset", reset_type, spec])
+        .output()?;
     Ok(())
 }
 
+#[cfg(not(target_os = "android"))]
+fn git_init(repo: &str) -> crate::Result<()> {
+    git2::Repository::init(&repo)?;
+    Ok(())
+}
+
+#[cfg(target_os = "android")]
+fn git_init(repo: &str) -> crate::Result<()> {
+    Command::new("git")
+        .current_dir(&repo)
+        .arg("init")
+        .output()?;
+    Ok(())
+}
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
     let git = lua.create_table()?;
 
     git.set(
         "init",
-        lua.create_function(|_, path: String| Ok(::git2::Repository::init(&path).is_ok()))?,
+        lua.create_function(|_, path: String| Ok(git_init(&path).is_ok()))?,
     )?;
 
     git.set(
@@ -156,6 +182,8 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
         )?,
     )?;
 
+    //TODO: Fallback for android
+    #[cfg(not(target_os = "android"))]
     git.set(
         "log",
         lua.create_function(|lua, repo: String| {
