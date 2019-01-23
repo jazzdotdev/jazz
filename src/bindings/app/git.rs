@@ -1,6 +1,10 @@
 use rlua::Lua;
+#[cfg(not(feature = "git-fallback"))]
 use git2;
 use rlua::prelude::LuaError;
+
+#[cfg(feature = "git-fallback")]
+use std::process::Command;
 
 /// git add
 ///
@@ -8,6 +12,7 @@ use rlua::prelude::LuaError;
 /// paths: path of files to add. These paths are relative to repo.
 /// For example: current directory is /, repo is /repo, file is /repo/file, we need to call:
 /// git_add("repo", &vec!["file"])
+#[cfg(not(feature = "git-fallback"))]
 fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let mut index = repo.index()?;
@@ -16,9 +21,21 @@ fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "git-fallback")]
+fn git_add(repo: &str, paths: &Vec<String>) -> crate::Result<()> {
+    Command::new("git")
+        .current_dir(&repo)
+        .arg(&["add"])
+        .arg(paths.as_slice())
+        .output()?;
+    Ok(())
+}
+
 /// repo: Repository's path
 /// message: commit message
 /// sig: pair of (name, email). If is None, will try to use repo's config.
+
+#[cfg(not(feature = "git-fallback"))]
 fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
     let repo = git2::Repository::open(&repo)?;
     let sig = if let Some((name, email)) = sig {
@@ -44,11 +61,30 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate
     Ok(())
 }
 
+#[cfg(feature = "git-fallback")]
+fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
+    Command::new("git")
+        .current_dir(&repo)
+        .args(&["commit", "-m", message])
+        .output()?;
+    Ok(())
+}
+
+#[cfg(not(feature = "git-fallback"))]
 fn git_clone(url: &str, into: &str) -> crate::Result<()> {
     git2::Repository::clone(url, into)?;
     Ok(())
 }
 
+#[cfg(feature = "git-fallback")]
+fn git_clone(url: &str, into: &str) -> crate::Result<()> {
+    Command::new("git")
+        .args(&["clone", url, into])
+        .output()?;
+    Ok(())
+}
+
+#[cfg(not(feature = "git-fallback"))]
 fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<()> {
     let repo = git2::Repository::open(&path)?;
     repo.find_remote(remote_name)?
@@ -56,10 +92,21 @@ fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<(
     Ok(())
 }
 
+#[cfg(feature = "git-fallback")]
+fn git_pull(path: &str, remote_name: &str, branch_name: &str) -> crate::Result<()> {
+    Command::new("git")
+        .current_dir(&path)
+        .args(&["pull", remote_name, branch_name])
+        .output()?;
+    Ok(())
+}
+
 /// path: path to the repository
 /// spec: revision string aka commit hash or commit reference
 /// reset_type: Reset type(hard, soft or mixed)
 /// example: git_reset("torchbear", "origin/master", "hard")
+
+#[cfg(not(feature = "git-fallback"))]
 fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> {
     let mut checkout_builder = git2::build::CheckoutBuilder::new();
     let repo = git2::Repository::open(&path)?;
@@ -73,6 +120,12 @@ fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> 
     repo.reset(&rev, reset_type, Some(&mut checkout_builder))?;
     Ok(())
 }
+
+#[cfg(feature = "git-fallback")]
+fn git_reset(path: &str, spec: &str, reset_type_str: &str) -> crate::Result<()> {
+    Ok(())
+}
+
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
     let git = lua.create_table()?;
