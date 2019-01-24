@@ -26,7 +26,7 @@ path = "src/main.rs"
 actix = "0.7"
 actix-lua = "0.5"
 futures = "0.1"
-rlua = "0.15"
+rlua = "0.16"
 rlua_serde = "0.2"
 # system
 dirs = "1.0"

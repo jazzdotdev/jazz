@@ -2071,6 +2071,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rlua"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cc 1.0.28 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.47 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "rlua_serde"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2451,7 +2462,7 @@ dependencies = [
 
 [[package]]
 name = "tantivy"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "atomicwrites 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2801,7 +2812,7 @@ dependencies = [
 
 [[package]]
 name = "torchbear"
-version = "0.11.3"
+version = "0.11.4"
 dependencies = [
  "actix 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-lua 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2829,7 +2840,7 @@ dependencies = [
  "openssl 0.10.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "patch-rs 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rlua 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rlua 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rlua_serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "scl 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "select 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2840,7 +2851,7 @@ dependencies = [
  "serde_yaml 0.8.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "sodiumoxide 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "splitdiff-rs 0.3.0 (git+https://github.com/foundpatterns/splitdiff-rs)",
- "tantivy 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "tera 1.0.0-alpha.2 (git+https://github.com/Keats/tera?branch=v1)",
@@ -3535,6 +3546,7 @@ dependencies = [
 "checksum resolv-conf 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b263b4aa1b5de9ffc0054a2386f96992058bb6870aab516f8cdeb8a667d56dcb"
 "checksum ring 0.13.5 (registry+https://github.com/rust-lang/crates.io-index)" = "2c4db68a2e35f3497146b7e4563df7d4773a2433230c5e4b448328e31740458a"
 "checksum rlua 0.15.3 (registry+https://github.com/rust-lang/crates.io-index)" = "187f5174337682c1ae2d957b107f4c84e204ce2e084c76532194d3849db09a28"
+"checksum rlua 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8cb5fea4ac126375b9765668e12bf18350a7a76b2f22f35230b11496be60309e"
 "checksum rlua_serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "78ba9f3fb6b174d50c5181937b246371b6811cab40821f57c3e25df72f2203bf"
 "checksum rust-stemmers 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "fbf06149ec391025664a5634200ced1afb489f0f3f8a140d515ebc0eb04b4bc0"
 "checksum rustc-demangle 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "adacaae16d02b6ec37fdc7acfcddf365978de76d1983d3ee22afc260e1ca9619"
@@ -3582,7 +3594,7 @@ dependencies = [
 "checksum syn 0.15.26 (registry+https://github.com/rust-lang/crates.io-index)" = "f92e629aa1d9c827b2bb8297046c1ccffc57c99b947a680d3ccff1f136a3bee9"
 "checksum synom 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "a393066ed9010ebaed60b9eafa373d4b1baac186dd7e008555b0f702b51945b6"
 "checksum synstructure 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "73687139bf99285483c96ac0add482c3776528beac1d97d444f6e91f203a2015"
-"checksum tantivy 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8c326ada20e6ca90d39c3d10a51a740e4069d530b6d393b3af62d7f5f685ee11"
+"checksum tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "252c9134bcd3a045c770ecc3a896a73e98fd8ed124b4380b837451f17b04d96b"
 "checksum tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)" = "a303ba60a099fcd2aaa646b14d2724591a96a75283e4b7ed3d1a1658909d9ae2"
 "checksum tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
 "checksum tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "7e91405c14320e5c79b3d148e1c86f40749a36e490642202a31689cb1a3452b2"
