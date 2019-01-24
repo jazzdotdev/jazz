@@ -62,14 +62,11 @@ fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate
 }
 
 #[cfg(target_os = "android")]
-fn git_commit(repo: &str, message: &str, sig: Option<(String, String)>) -> crate::Result<()> {
-    let mut cmd = Command::new("git")
+fn git_commit(repo: &str, message: &str, _sig: Option<(String, String)>) -> crate::Result<()> {
+    Command::new("git")
         .current_dir(&repo)
-        .args(&["commit", "-m", message]);
-    if let Some((name, email)) = sig {
-        cmd.arg(&format!("--author=\"{} <{}>\"", name, email));
-    }
-        cmd.output()?;
+        .args(&["commit", "-m", message])
+        .output()?;
     Ok(())
 }
 
