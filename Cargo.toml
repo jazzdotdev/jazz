@@ -51,7 +51,7 @@ serde_json = "1.0"
 serde_derive = "1.0"
 diff-rs = "0.2"
 patch-rs = "0.5"
-splitdiff-rs = { git = "https://github.com/foundpatterns/splitdiff-rs", version = "0.3" }
+splitdiff-rs = "0.4"
 select = "0.4"
 scl = "0.0"
 # string
