@@ -26,7 +26,7 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
         Ok(dirs::executable_dir().map(LuaPath))
     })? )?;
     module.set("runtime", lua.create_function( |_, _: ()| {
-        Ok(dirs::executable_dir().map(LuaPath))
+        Ok(dirs::runtime_dir().map(LuaPath))
     })? )?;
     module.set("desktop", lua.create_function( |_, _: ()| {
         Ok(dirs::desktop_dir().map(LuaPath))
