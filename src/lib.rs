@@ -30,7 +30,7 @@ pub type Result<T> = result::Result<T, Error>;
 pub struct AppState {
     pub lua: Option<LuaAddr>,
     pub init_path: PathBuf,
-    pub init_args: Option<Vec<String>>,
+    pub init_args: Vec<String>,
     pub package_path: Option<String>,
     pub settings: Value,
 }
@@ -83,10 +83,7 @@ impl AppState {
         }
 
         // Lua arg
-        match self.init_args {
-            Some(ref init_args) => lua.globals().set("arg", lua.create_sequence_from(init_args.clone())?)?,
-            None => ()
-        }
+        lua.globals().set("arg", lua.create_sequence_from(self.init_args.clone())?)?;
 
         // Lua Bridge
         lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
@@ -140,7 +137,7 @@ impl ApplicationBuilder {
         setup_panic!();
 
         let mut init_path: Option<PathBuf> = None;
-        let mut init_args: Option<Vec<String>> = None;
+        let mut init_args: Vec<String> = vec![];
         let mut package_path: Option<String> = None;
 
         match args {
@@ -156,7 +153,7 @@ impl ApplicationBuilder {
                     .ok();
 
 
-                init_args = Some(args.to_vec());
+                init_args = args.to_vec();
 
                 package_path = match &init_path {
                     Some(p) => p.parent().map(|p| {
