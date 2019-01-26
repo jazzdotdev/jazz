@@ -1,0 +1,13 @@
+- [Mitchell Tannenbaum](https://github.com/mitchtbaum) ([lead](https://github.com/foundpatterns/rolling-projects))
+- [Dmitry Vdovin](https://github.com/voidxnull)
+- [Arnaud Castellanos Galea](https://github.com/Arnaz87)
+- [Darius Clark](https://github.com/dariusc93)
+- [sineemore](https://github.com/sineemore)
+- [Michael Ravits](https://github.com/michaelr524)
+- [Do Duy](https://github.com/juchiast)
+- [Aleksander Włodarczyk](https://github.com/aleksanderwlodarczyk)
+- [sh-zam](https://github.com/sh-zam)
+- [Hummer12007](https://github.com/Hummer12007)
+- [Alex Zarudnyy](https://github.com/hedgar2017)
+- [Many, many, many more Rust contributors](https://github.com/search?l=Rust&q=library&type=Repositories)
+- ...
