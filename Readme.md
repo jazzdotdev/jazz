@@ -1,13 +1,13 @@
 <p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"><br>This Project is Currently in Stealth Mode.<br>please do not post a news story until v1 is released very shortly.<br>thank you.</p>
 
 <p align="center">
-  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/174/174836.svg" alt="android logo"></a>
+  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/174/174836.svg" alt="android logo"></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/179/179331.svg" alt="windows logo"></a>
+  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/179/179331.svg" alt="windows logo"></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/732/732181.svg" alt="macos logo"></a>
+  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/732/732181.svg" alt="macos logo"></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://i.imgur.com/T4Aa1rb.png" alt="linux logo"></a>
+  <a href="#get-started"><img width="70" src="https://i.imgur.com/T4Aa1rb.png" alt="linux logo"></a>
 </p>
 
 <p align="center">
