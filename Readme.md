@@ -7,7 +7,7 @@
   &nbsp;&nbsp;
   <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/732/732181.svg" alt="macos logo"></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/226/226772.svg" alt="linux logo"></a>
+  <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://vignette.wikia.nocookie.net/logopedia/images/0/04/Linux_logo.png/revision/latest" alt="linux logo"></a>
 </p>
 
 <p align="center">
