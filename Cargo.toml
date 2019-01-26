@@ -24,9 +24,9 @@ path = "src/main.rs"
 [dependencies]
 # base
 actix = "0.7"
-actix-lua = "0.5"
+actix-lua = "0.6"
 futures = "0.1"
-rlua = "0.15"
+rlua = "0.16"
 rlua_serde = "0.2"
 # system
 dirs = "1.0"
