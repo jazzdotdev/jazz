@@ -2,8 +2,11 @@
 
 <p align="center">
   <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/174/174836.svg" alt="android logo"></a>
+  &nbsp;&nbsp;
   <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/179/179331.svg" alt="windows logo"></a>
+  &nbsp;&nbsp;
   <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/732/732181.svg" alt="macos logo"></a>
+  &nbsp;&nbsp;
   <a href="https://github.com/foundpatterns/torchbear/blob/master/Readme.md#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/226/226772.svg" alt="linux logo"></a>
 </p>
 
