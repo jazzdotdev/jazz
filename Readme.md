@@ -143,7 +143,7 @@ cd torchbear
 cargo build --release
 ```
 
-Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in ./target/release/torchbear.
+Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in `./target/release/torchbear`.
 
 #### Hello World App
 
