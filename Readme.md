@@ -92,9 +92,7 @@ Read on for more about these functions.  (note: every module is completely built
 
 ## Get Started
 
-Torchbear comes as a single executable (eg an .exe file) which makes it easy to install and easy to run.  (Apps simply need this [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)), `#!/usr/bin/env torchbear`).
-
-Torchbear also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which you can use to download more apps; it also works as a dependency manager which makes deployment of component-oriented software easier.
+Torchbear comes as a single executable (eg a binary .exe file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps, and it also works as a dependency manager, making deploying and developing component-oriented software easy.
 
 ### Install
 
@@ -131,7 +129,23 @@ or, if you have `install.sh` already downloaded:
 bash install.sh --uninstall
 ```
 
-#### Hello World
+## Development
+
+You can compile from source by [installing Cargo](https://www.rust-lang.org/tools/install) (Rust's package manager) and installing `torchbear` using Cargo:
+
+`cargo install torchbear`
+
+Compiling from this repository also works similarly:
+
+```
+git clone https://github.com/foundpatterns/torchbear
+cd torchbear
+cargo build --release
+```
+
+Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in ./target/release/torchbear.
+
+#### Hello World App
 
 - put in `init.lua`:
 
@@ -144,6 +158,8 @@ print("hello from Torchbear")
 - make it executable with `chmod +x init.lua`
 
 - then run it with `./init.lua`
+
+#### Rust Development
 
 ## App Stores
 
