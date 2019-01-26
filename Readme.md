@@ -38,7 +38,9 @@ Read on for more about Torchbear's functions.  (Note: every module is completely
 ## Built-in Modules
 
 #### Environment
-* [rlua](https://github.com/kyren/rlua)* *safe* Lua 5.3.5, also with traceback error messages, logs, and performance profiles
+* [Actix](https://github.com/actix/actix) actor-model [concurrency](http://berb.github.io/diploma-thesis/original/023_concurrency.html#models) framework
+* [Actix Lua](https://github.com/poga/actix-lua) safe Lua scripting environment for Actix
+* [rlua](https://github.com/kyren/rlua)* Lua 5.3.5 (also with tools for traceback error messages, logs, and performance profiling)
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 
 #### System
