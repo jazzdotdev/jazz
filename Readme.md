@@ -92,7 +92,7 @@ Read on for more about these functions.  (note: every module is completely built
 
 ## Get Started
 
-Torchbear comes as a single executable (eg an .exe file) which makes it easy to install and easy to run.  (Apps simply need this [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)), `#!/usr/bin/env torchbear`.
+Torchbear comes as a single executable (eg an .exe file) which makes it easy to install and easy to run.  (Apps simply need this [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)), `#!/usr/bin/env torchbear`).
 
 Torchbear also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which you can use to download more apps; it also works as a dependency manager which makes deployment of component-oriented software easier.
 
