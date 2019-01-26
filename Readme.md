@@ -21,17 +21,17 @@
   <a href="https://discord.gg/b6MY7dG"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>
 </p>
 
-Torchbear gives you power of Rust with the simplicity of Lua.  You can use it for web automation, embedded programming, data analysis, numerical computing, and anything else you can imagine.  It's a general-purpose application development environment.
+Torchbear gives you a simple, yet powerful, general-purpose, application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing, .. really anything you can imagine.
 
-It builds on [Rust Lang](https://rust-lang.org), but you don't need to learn Rust to use Torchbear.  Its whole aim is to make Lua, a simple language programming language, more easily available and  more powerful, using Rust's libraries.
+It builds on [Rust Lang](https://rust-lang.org), but you don't need to learn Rust to use Torchbear.  Its main aim is to make a simple programming language with powerful addon libraries.
 
-For those without a programming background, you can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/).  And then Torchbear's additional functions, described below, can be accessed using the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html).  (That web site is actualy made with a Torchbear [code map](http://github.com/foundpatterns/lua-module-map) app, which  which is automatically generated using Regex matches and Jinja templates.)
+Even for those without a programming background, you can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/), its programming langauge syntax, or notation.  And then you can acess Torchbear's additional functions, described below, with the help of the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html).  (That web site is actualy made with a Torchbear [code map](http://github.com/foundpatterns/lua-module-map) app, which is automatically generated using Regex matches and Jinja templates, more info below and elsewhere.)
 
-Read on for more about these functions.  (note: every module is completely built-in and written in pure Rust or otherwise in C, noted with an asterisk *)
+Read on for more about Torchbear's functions.  (Note: every module is completely built-in, and they're written in pure Rust or otherwise in C, noted with an asterisk *.)
 
 ## Built-in Modules
 
-#### Base
+#### Environment
 * [rlua](https://github.com/kyren/rlua)* *safe* Lua 5.3.5, also with traceback error messages, logs, and performance profiles
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
 
@@ -131,6 +131,8 @@ bash install.sh --uninstall
 
 ## Development
 
+#### Rust Development
+
 You can compile from source by [installing Cargo](https://www.rust-lang.org/tools/install) (Rust's package manager) and installing `torchbear` using Cargo:
 
 `cargo install torchbear`
@@ -158,8 +160,6 @@ print("hello from Torchbear")
 - make it executable with `chmod +x init.lua`
 
 - then run it with `./init.lua`
-
-#### Rust Development
 
 ## App Stores
 
