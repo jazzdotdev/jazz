@@ -27,18 +27,18 @@
   <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
 </p>
 
-Torchbear gives you a simple, yet powerful, general-purpose, application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing, .. really anything you can imagine.
+Torchbear gives you a simple, yet powerful, general-purpose application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
-It builds on [Rust Lang](https://rust-lang.org), but you don't need to learn Rust to use Torchbear.  Its main aim is to make a simple programming language with powerful addon libraries.
+It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear! - because it aims to have the simplest possible programming emvironment with most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc develoeprs should feel right at home... with many more bells and whistles.
 
-Even for those without a programming background, you can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/), its programming langauge syntax, or notation.  And then you can acess Torchbear's additional functions, described below, with the help of the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html).  (That web site is actualy made with a Torchbear [code map](http://github.com/foundpatterns/lua-module-map) app, which is automatically generated using Regex matches and Jinja templates, more info below and elsewhere.)
+Those without a programming background can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  Then you can also access Torchbear's functions, which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
 
-Read on for more about Torchbear's functions.  (Note: every module is completely built-in, and they're written in pure Rust or otherwise in C, noted with an asterisk *.)
+Read on for more about Torchbear's functions.  **Note:**  every module is completely built-in, and they're written in pure Rust, or otherwise they wrap a [C](https://en.wikipedia.org/wiki/C_(programming_language)) library (noted with an asterisk `*`).
 
 ## Built-in Modules
 
 #### Environment
-* [Actix](https://github.com/actix/actix) actor-model [concurrency](http://berb.github.io/diploma-thesis/original/023_concurrency.html#models) framework
+* [Actix](https://github.com/actix/actix) actor-model [concurrency](http://berb.github.io/diploma-thesis/original/023_concurrency.html#models) framework (see [RFC 613](https://github.com/rust-lang/rfcs/issues/613) for more info)
 * [Actix Lua](https://github.com/poga/actix-lua) safe Lua scripting environment for Actix
 * [rlua](https://github.com/kyren/rlua)* Lua 5.3.5 (also with tools for traceback error messages, logs, and performance profiling)
 * [Actix Web](https://github.com/actix/actix-web) HTTP/1.x and HTTP/2.0 web servers and clients
