@@ -2,6 +2,9 @@ use rlua::prelude::*;
 use libm;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
+
+    lua.exec::<_, ()>("lua_math=math", None)?;
+
     let module = lua.create_table()?;
 
     module.set("acos", lua.create_function( |_, num| {
