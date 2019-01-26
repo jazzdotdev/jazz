@@ -49,6 +49,8 @@ impl AppState {
         bindings::text::init(&lua).map_err(LuaError::external)?;
         bindings::web::init(&lua).map_err(LuaError::external)?;
         bindings::number::init(&lua).map_err(LuaError::external)?;
+        bindings::net::init(&lua).map_err(LuaError::external)?;
+
         // torchbear global table
         {
             let tb_table = lua.create_table()?;
