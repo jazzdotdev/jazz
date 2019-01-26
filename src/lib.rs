@@ -190,14 +190,15 @@ impl ApplicationBuilder {
         let general = config.general.unwrap_or_default();
 
         let init_path = init_path.unwrap_or(Path::new(&get_or(&general, "init", "init.lua")).to_path_buf());
-        let log_path = get_or(&general, "log_path", "log");
         
         if !init_path.exists() {
             println!("Error: Specified init.lua not found. You may have not completed installing your app");
             std::process::exit(1);
         }
 
-        logger::init(::std::path::Path::new(&log_path), self.log_settings.clone());
+        let log_path = general.get("log_path").and_then(|log| log.as_str());
+
+        logger::init(log_path, self.log_settings.clone());
 
         let sys = actix::System::new("torchbear");
 

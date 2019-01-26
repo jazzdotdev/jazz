@@ -35,7 +35,7 @@ pub fn get_log_file (path: &Path) -> Result<File> {
         .map_err(|e| Error::from(format!("could not log to {:?}: {}", &path_buf, e)))
 }
 
-pub fn init (path: &Path, settings: Settings) {
+pub fn init<P: AsRef<Path>>(path: Option<P>, settings: Settings) {
 
     let colors = ::fern::colors::ColoredLevelConfig::new()
         .trace(Color::Blue)
@@ -84,18 +84,21 @@ pub fn init (path: &Path, settings: Settings) {
         );
 
     // File Logging (uncolored, only info or worse)
-    match ::std::fs::create_dir_all(path) {
-        Err(err) => error!("{}", err),
-        _ => match get_log_file(path) {
-            Ok(file) => {
-                dispatch = dispatch.chain(Dispatch::new()
-                    .format( format_msg!(false) )
-                    .chain(file)
-                );
-            },
-            Err(err) => error!("{}", err)
-        }
-    };
+    if let Some(path) = path {
+        let path = path.as_ref();
+        match ::std::fs::create_dir_all(path) {
+            Err(err) => error!("{}", err),
+            _ => match get_log_file(path) {
+                Ok(file) => {
+                    dispatch = dispatch.chain(Dispatch::new()
+                        .format(format_msg!(false))
+                        .chain(file)
+                    );
+                },
+                Err(err) => error!("{}", err)
+            }
+        };
+    }
 
 
     if dispatch.apply().is_err() {
