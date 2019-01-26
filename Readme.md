@@ -92,25 +92,25 @@ Read on for more about these functions.  (note: every module is completely built
 
 ## Get Started
 
-Torchbear comes as a single executable (eg an .exe file) which makes it easy to install and easy to run any of its programs.  Lua programs simply need this [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)):
+Torchbear comes as a single executable (eg an .exe file) which makes it easy to install and easy to run any of its programs.  Apps simply need this [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)):
 
 `#!/usr/bin/env torchbear`
 
-Torchbear also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which you can use to download more apps.  It also works as a dependency manager for easy component-oriented development and deployment.
+Torchbear also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which you can use to download more apps; it also works as a dependency manager which makes deployment of component-oriented software easier.
 
 ### Install
 
-To install Torchbear, run this command using your terminal (more info below)
+To install Torchbear, run this command using your terminal (more info below):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
 ```
 
-[The installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) gives you the latest version, which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases), so you can download the zip file for your operating system and hardware architecture and unzip the executable wherever is most convenient for you.  The install script automates those steps.
+[The installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) automatically gets the latest version (which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases)) and puts it in a convenient file location for you.  To do this, it downloads the latest zip file for your operating system and hardware architecture, then it unzips the executable to a place where it will run as a command.  You can do that manually or differently, as you like.
 
 #### What is a terminal?
 
-If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  This works similarly on Android, Windows, MacOS, and Linux devices, but you might need one other thing:
+If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  This works on Android, Windows, MacOS, and Linux devices very similarly, but you might need one other tool first:
 
 * Android: install [Termux](https://termux.com/).
 
