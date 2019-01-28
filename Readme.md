@@ -100,11 +100,11 @@ Read on for more about Torchbear's functions.  **Note:**  every module is comple
 
 ## Get Started
 
-Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps, and it also works as a dependency manager, making deploying and developing component-oriented software easy.
+Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps; it also works as a dependency manager, making deploying and developing component-oriented software easy.
 
 ### Install
 
-To install Torchbear, run this command using your terminal (more info below):
+To install Torchbear, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
