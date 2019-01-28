@@ -29,11 +29,11 @@
 
 Torchbear gives you a simple, yet powerful, general-purpose application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
-It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear! - because it aims to have the simplest possible programming emvironment with most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc develoeprs should feel right at home... with many more bells and whistles.
+It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear, because it aims to give you the simplest possible programming environment with the most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc developers should feel right at home... and with what one might call "more bells and whistles" - or just `complete`.
 
 Those without a programming background can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  Then you can also access Torchbear's functions, which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
 
-Read on for more about Torchbear's functions.  **Note:**  every module is completely built-in, and they're written in pure Rust, or otherwise they wrap a [C](https://en.wikipedia.org/wiki/C_(programming_language)) library (noted with an asterisk `*`).
+Read on for more about Torchbear's functions.  **Note:** every module is completely built-in, and they're written in pure Rust, or they otherwise wrap a [C](https://en.wikipedia.org/wiki/C_(programming_language)) library, safely (noted with an asterisk `*`).
 
 ## Built-in Modules
 
