@@ -33,7 +33,7 @@ It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to
 
 Those without a [programming background](http://holowczak.com/programming-concepts-tutorial-programmers/) can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  You only need general [scripting skills](http://wiki.c2.com/?ScriptingLanguage) to start.
 
-As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).  Every module is completely built-in and coded in pure Rust, or otherwise safely wraps a [C library](https://en.wikipedia.org/wiki/C_(programming_language)) (noted with an asterisk*).  Also, you can add library scripts to your programs, like ones in our [Lunar Transit](https://github.com/lunar-transit) account, using Machu Picchu.
+As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).  Every module is completely built-in and coded in pure Rust, or otherwise safely wraps a [C library](https://en.wikipedia.org/wiki/C_(programming_language)) (noted with an asterisk*).  Also, you can add library scripts to your programs, like ones in our [Lunar Transit](https://github.com/lunar-transit) account.
 
 ## Built-in Modules
 
