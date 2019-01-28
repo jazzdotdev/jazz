@@ -138,6 +138,20 @@ bash install.sh --uninstall
 ```
 ## Development
 
+#### Hello World App
+
+1. put this in `init.lua`:
+
+```lua
+#!/usr/bin/env torchbear
+
+print("hello from Torchbear")
+```
+
+2. make it executable with `chmod +x init.lua`
+
+3. then run it with `./init.lua`
+
 #### Rust Development
 
 You can compile from source by [installing Cargo](https://www.rust-lang.org/tools/install) (Rust's package manager) and installing `torchbear` using Cargo:
@@ -153,20 +167,6 @@ cargo build --release
 ```
 
 Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in `./target/release/torchbear`.
-
-#### Hello World App
-
-- put in `init.lua`:
-
-```lua
-#!/usr/bin/env torchbear
-
-print("hello from Torchbear")
-```
-
-- make it executable with `chmod +x init.lua`
-
-- then run it with `./init.lua`
 
 ## App Stores
 
@@ -194,4 +194,4 @@ To back this project and join this list, ask Mitchell for more info on Discord.
 
 To sponsor this project and put your logo here, ask Mitchell for more info on Discord.
 
-### Thank you, Namaste.  Aloha.
+### Thank you · Namaste · Aloha
