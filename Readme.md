@@ -100,7 +100,7 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 
 ## Get Started
 
-Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps; this also works as a dependency manager, making deploying and developing component-oriented software easy.
+Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps.
 
 ### Install
 
@@ -152,6 +152,8 @@ print("hello from Torchbear")
 
 3. then run it with `./init.lua`
 
+**Note:** [Machu Picchu](https://github.com/foundpatterns/machu-picchu) also works as a dependency manager, making deploying and developing component-oriented software easy.  Check how other projects use it until more documentation is available.
+
 #### Rust Development
 
 You can compile from source by [installing Cargo](https://www.rust-lang.org/tools/install) (Rust's package manager) and installing `torchbear` using Cargo:
@@ -194,4 +196,4 @@ To back this project and join this list, ask Mitchell for more info on Discord.
 
 To sponsor this project and put your logo here, ask Mitchell for more info on Discord.
 
-### Thank you · Namaste · Aloha
+### Thank you · Namaste · Aloha 👋
