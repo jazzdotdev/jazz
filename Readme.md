@@ -100,7 +100,7 @@ Read on for more about Torchbear's functions.  **Note:** every module is complet
 
 ## Get Started
 
-Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps; it also works as a dependency manager, making deploying and developing component-oriented software easy.
+Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps; this also works as a dependency manager, making deploying and developing component-oriented software easy.
 
 ### Install
 
@@ -136,7 +136,6 @@ or, if you have `install.sh` already downloaded:
 ```sh
 bash install.sh --uninstall
 ```
-
 ## Development
 
 #### Rust Development
@@ -183,3 +182,16 @@ Even moderately experienced Rust developers can work on [adding bindings](https:
 Experienced Rust developers' reviews would be greatly appreciated, eg those familiar with low-level library idioms and especially those well-versed in [Actix](https://github.com/actix/actix).  Much of the power functionality built-in to Torchbear comes from libraries like Actix, Actix-Web, [Actix-Lua](https://github.com/poga/actix-lua), [rlua](https://github.com/kyren/rlua), and many more well-picked ones which need thorough review and careful analysis to make a good programming environment.
 
 Users who who want to add a 'review' or 'story' about your use cases, simply add this "issue label" (type/review) or (type/story).  Everyone is welcomed to do so, and this will help users and developers understand Torchbear from eachother's points of view.  Developers who want to post other feedback and analysis will receive a hearty thank you.
+
+## Community
+Eveyone interested in learning and solving problems with programming and open-source tools in general is welcomed to come to [Found Patterns Studio's Discord Server](https://discord.gg/b6MY7dG) to meet fellow engineers and to work together on team-driven projects, like Torchbear.  If you haven't heard of [Discord](https://discordapp.com/) before, you could start with these videos, [Discord For Dummies: Basic Use and Set up Instructions for Discord App](https://www.youtube.com/watch?v=7BFytSpuAWs) and [How To Setup And Use Discord - Basic Overview Of Features and Tools](https://www.youtube.com/watch?v=E7xznRGg9WM).  We use it to help eachother use and build Torchbear and many other projects.  It's a safe and friendly place to get things done.
+
+## Backers
+
+To back this project and join this list, ask Mitchell for more info on Discord.
+
+## Sponsors
+
+To sponsor this project and put your logo here, ask Mitchell for more info on Discord.
+
+### Thank you, Namaste.  Aloha.
