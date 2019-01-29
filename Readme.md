@@ -1,4 +1,4 @@
-<p align="center"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"><br>This Project is Currently in Stealth Mode.<br>please do not post a news story until v1 is released very shortly.<br>thank you.</p>
+<p align="center"><a href="https://github.com/foundpatterns/torchbear"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"></a><br>This Project is Currently in Stealth Mode.<br>please do not post a news story until v1 is released very shortly.<br>thank you.</p>
 
 <p align="center">
   <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/174/174836.svg" alt="android logo"></a>
@@ -11,14 +11,14 @@
 </p>
 
 <p align="center">
-  User badges:
+  user badges
   <br>
   <a href="https://github.com/rust-lang/crates.io/issues/704"><img src="https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg" alt="Actively Maintained"></a>
   <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
   <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
   <a href="https://discord.gg/b6MY7dG"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>  <br>
-  Developer badges:
+  developer badges
   <br>
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
   <a href="https://ci.appveyor.com/project/mitchtbaum/torchbear"><img src="https://ci.appveyor.com/api/projects/status/mg6e0p7s5v7j61ja?svg=true" alt="Appveyor Build Status"></a>
@@ -29,11 +29,11 @@
 
 Torchbear gives you a simple, yet powerful, general-purpose application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
-It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear! - because it aims to have the simplest possible programming emvironment with most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc develoeprs should feel right at home... with many more bells and whistles.
+It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear, because it aims to give you the simplest possible programming environment with the most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc developers should feel right at home... and with what one might call "more bells and whistles" - or just `complete`.
 
-Those without a programming background can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  Then you can also access Torchbear's functions, which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
+Those without a [programming background](http://holowczak.com/programming-concepts-tutorial-programmers/) can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  You only need general [scripting skills](http://wiki.c2.com/?ScriptingLanguage) to start.
 
-Read on for more about Torchbear's functions.  **Note:**  every module is completely built-in, and they're written in pure Rust, or otherwise they wrap a [C](https://en.wikipedia.org/wiki/C_(programming_language)) library (noted with an asterisk `*`).
+As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).  Every module is completely built-in and coded in pure Rust, or otherwise safely wraps a [C library](https://en.wikipedia.org/wiki/C_(programming_language)) (noted with an asterisk*).
 
 ## Built-in Modules
 
@@ -100,11 +100,11 @@ Read on for more about Torchbear's functions.  **Note:**  every module is comple
 
 ## Get Started
 
-Torchbear comes as a single executable (eg a binary .exe file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps, and it also works as a dependency manager, making deploying and developing component-oriented software easy.
+Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps.
 
 ### Install
 
-To install Torchbear, run this command using your terminal (more info below):
+To install Torchbear, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
@@ -136,8 +136,23 @@ or, if you have `install.sh` already downloaded:
 ```sh
 bash install.sh --uninstall
 ```
-
 ## Development
+
+#### Hello World App
+
+1. put this in `init.lua`:
+
+```lua
+#!/usr/bin/env torchbear
+
+print("hello from Torchbear")
+```
+
+2. make it executable with `chmod +x init.lua`
+
+3. then run it with `./init.lua`
+
+**Note:** [Machu Picchu](https://github.com/foundpatterns/machu-picchu) also works as a dependency manager, making deploying and developing component-oriented software easy.  Check how other projects use it until more documentation is available.  Also can start finding some useful library scripts for your programs in our [Lunar Transit](https://github.com/lunar-transit) account.
 
 #### Rust Development
 
@@ -155,20 +170,6 @@ cargo build --release
 
 Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in `./target/release/torchbear`.
 
-#### Hello World App
-
-- put in `init.lua`:
-
-```lua
-#!/usr/bin/env torchbear
-
-print("hello from Torchbear")
-```
-
-- make it executable with `chmod +x init.lua`
-
-- then run it with `./init.lua`
-
 ## App Stores
 
 * [Found Patterns Studio App Store](https://github.com/foundpatterns/app-store) (installed by default)
@@ -183,3 +184,16 @@ Even moderately experienced Rust developers can work on [adding bindings](https:
 Experienced Rust developers' reviews would be greatly appreciated, eg those familiar with low-level library idioms and especially those well-versed in [Actix](https://github.com/actix/actix).  Much of the power functionality built-in to Torchbear comes from libraries like Actix, Actix-Web, [Actix-Lua](https://github.com/poga/actix-lua), [rlua](https://github.com/kyren/rlua), and many more well-picked ones which need thorough review and careful analysis to make a good programming environment.
 
 Users who who want to add a 'review' or 'story' about your use cases, simply add this "issue label" (type/review) or (type/story).  Everyone is welcomed to do so, and this will help users and developers understand Torchbear from eachother's points of view.  Developers who want to post other feedback and analysis will receive a hearty thank you.
+
+## Community
+Eveyone interested in learning and solving problems with programming and open-source tools in general is welcomed to come to [Found Patterns Studio's Discord Server](https://discord.gg/b6MY7dG) to meet fellow engineers and to work together on team-driven projects, like Torchbear.  If you haven't heard of [Discord](https://discordapp.com/) before, you could start with these videos, [Discord For Dummies: Basic Use and Set up Instructions for Discord App](https://www.youtube.com/watch?v=7BFytSpuAWs) and [How To Setup And Use Discord - Basic Overview Of Features and Tools](https://www.youtube.com/watch?v=E7xznRGg9WM).  We use it to help eachother use and build Torchbear and many other projects.  It's a safe and friendly place to get things done.
+
+## Backers
+
+To back this project and join this list, ask Mitchell for more info on Discord.
+
+## Sponsors
+
+To sponsor this project and put your logo here, ask Mitchell for more info on Discord.
+
+### Thank you · Namaste · Aloha 👋
