@@ -1318,7 +1318,7 @@ dependencies = [
 [[package]]
 name = "lsdiff-rs"
 version = "0.1.1"
-source = "git+https://github.com/foundpatterns/lsdiff-rs#2448fef260bb11b6c313e35322e6c02742564d13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2351,12 +2351,12 @@ dependencies = [
 
 [[package]]
 name = "splitdiff-rs"
-version = "0.3.0"
-source = "git+https://github.com/foundpatterns/splitdiff-rs#0578f38bd6586949ca571f4e9cddf7ba316d6d76"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "lsdiff-rs 0.1.1 (git+https://github.com/foundpatterns/lsdiff-rs)",
+ "lsdiff-rs 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2451,7 +2451,7 @@ dependencies = [
 
 [[package]]
 name = "tantivy"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "atomicwrites 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2801,7 +2801,7 @@ dependencies = [
 
 [[package]]
 name = "torchbear"
-version = "0.11.3"
+version = "0.11.5"
 dependencies = [
  "actix 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-lua 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2839,8 +2839,8 @@ dependencies = [
  "serde_urlencoded 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_yaml 0.8.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "sodiumoxide 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "splitdiff-rs 0.3.0 (git+https://github.com/foundpatterns/splitdiff-rs)",
- "tantivy 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "splitdiff-rs 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "tera 1.0.0-alpha.2 (git+https://github.com/Keats/tera?branch=v1)",
@@ -3450,7 +3450,7 @@ dependencies = [
 "checksum log 0.3.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e19e8d5c34a3e0e2223db8e060f9e8264aeeb5c5fc64a4ee9965c062211c024b"
 "checksum log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c84ec4b527950aa83a329754b01dbe3f58361d1c5efacd1f6d68c494d08a17c6"
 "checksum lru-cache 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4d06ff7ff06f729ce5f4e227876cb88d10bc59cd4ae1e09fbb2bde15c850dc21"
-"checksum lsdiff-rs 0.1.1 (git+https://github.com/foundpatterns/lsdiff-rs)" = "<none>"
+"checksum lsdiff-rs 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "87cbcb58d86bacf00d2e6078e4b5ee5e7f4aa0da4e57de4d8f07d56b012e5af2"
 "checksum lzma-sys 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "4a835908718d46ba9b311ccdd5ddbf4685a6cc477841bb3ed08be3b9bba34ee3"
 "checksum mac 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
 "checksum maplit 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "08cbb6b4fef96b6d77bfc40ec491b1690c779e77b05cd9f07f787ed376fd4c43"
@@ -3570,7 +3570,7 @@ dependencies = [
 "checksum snap 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)" = "95d697d63d44ad8b78b8d235bf85b34022a78af292c8918527c5f0cffdde7f43"
 "checksum socket2 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)" = "c4d11a52082057d87cb5caa31ad812f4504b97ab44732cd8359df2e9ff9f48e7"
 "checksum sodiumoxide 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a06bd29033e47935a0284c65edfee528f737c36cd79f3be195b3d479ffa83573"
-"checksum splitdiff-rs 0.3.0 (git+https://github.com/foundpatterns/splitdiff-rs)" = "<none>"
+"checksum splitdiff-rs 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5fd8925d5c6aeafe989607f3cdbf364ce87025306bed56604a41ab255270ad50"
 "checksum stable_deref_trait 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "dba1a27d3efae4351c8051072d619e3ade2820635c3958d826bfea39d59b54c8"
 "checksum string 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)" = "b639411d0b9c738748b5397d5ceba08e648f4f1992231aa859af1a017f31f60b"
 "checksum string_cache 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "413fc7852aeeb5472f1986ef755f561ddf0c789d3d796e65f0b6fe293ecd4ef8"
@@ -3582,7 +3582,7 @@ dependencies = [
 "checksum syn 0.15.26 (registry+https://github.com/rust-lang/crates.io-index)" = "f92e629aa1d9c827b2bb8297046c1ccffc57c99b947a680d3ccff1f136a3bee9"
 "checksum synom 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "a393066ed9010ebaed60b9eafa373d4b1baac186dd7e008555b0f702b51945b6"
 "checksum synstructure 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "73687139bf99285483c96ac0add482c3776528beac1d97d444f6e91f203a2015"
-"checksum tantivy 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8c326ada20e6ca90d39c3d10a51a740e4069d530b6d393b3af62d7f5f685ee11"
+"checksum tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "252c9134bcd3a045c770ecc3a896a73e98fd8ed124b4380b837451f17b04d96b"
 "checksum tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)" = "a303ba60a099fcd2aaa646b14d2724591a96a75283e4b7ed3d1a1658909d9ae2"
 "checksum tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
 "checksum tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "7e91405c14320e5c79b3d148e1c86f40749a36e490642202a31689cb1a3452b2"
