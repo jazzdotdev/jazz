@@ -1,4 +1,4 @@
-pub mod heck;
+pub mod case;
 pub mod mime;
 pub mod regex;
 pub mod stringset;
@@ -9,7 +9,7 @@ pub mod ulid;
 use rlua::prelude::*;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    heck::init(&lua)?;
+    case::init(&lua)?;
     mime::init(&lua)?;
     regex::init(&lua)?;
     stringset::init(&lua)?;
