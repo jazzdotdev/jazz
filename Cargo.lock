@@ -2538,9 +2538,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "tera"
-version = "1.0.0-alpha.2"
-source = "git+https://github.com/Keats/tera?branch=v1#7189735eb5c4aef225dd3a5294ddf21f5c2fb5fa"
+name = "tera-v1"
+version = "1.0.0-alpha.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "globwalk 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2554,6 +2554,7 @@ dependencies = [
  "slug 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "unic-segment 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 1.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "v_htmlescape 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2843,7 +2844,7 @@ dependencies = [
  "tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "tera 1.0.0-alpha.2 (git+https://github.com/Keats/tera?branch=v1)",
+ "tera-v1 1.0.0-alpha.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "ulid 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "xz2 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3128,8 +3129,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "v_escape"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "v_escape_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "version_check 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "v_escape_derive"
 version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "nom 4.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "proc-macro2 0.4.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 0.15.26 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "v_escape_derive"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "nom 4.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3145,6 +3166,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cfg-if 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "v_escape 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "version_check 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "v_htmlescape"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "cfg-if 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "v_escape 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "version_check 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -3587,7 +3618,7 @@ dependencies = [
 "checksum tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
 "checksum tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "7e91405c14320e5c79b3d148e1c86f40749a36e490642202a31689cb1a3452b2"
 "checksum tendril 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8c1b72f8e2f5b73b65c315b1a70c730f24b9d7a25f39e98de8acbe2bb795caea"
-"checksum tera 1.0.0-alpha.2 (git+https://github.com/Keats/tera?branch=v1)" = "<none>"
+"checksum tera-v1 1.0.0-alpha.4 (registry+https://github.com/rust-lang/crates.io-index)" = "2433e7aabebd142cbcbccb11bf1b8da609dc9dd26b2c080ff37bb66e5c77e28c"
 "checksum termcolor 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)" = "adc4587ead41bf016f11af03e55a624c06568b5a19db4e90fde573d805074f83"
 "checksum termcolor 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4096add70612622289f2fdcdbd5086dc81c1e2675e6ae58d6c4f62a16c6d7f2f"
 "checksum termion 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "689a3bdfaab439fd92bc87df5c4c78417d3cbe537487274e9b0b2dce76e92096"
@@ -3643,8 +3674,11 @@ dependencies = [
 "checksum uuid 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)" = "e1436e58182935dcd9ce0add9ea0b558e8a87befe01c1a301e6020aeb0876363"
 "checksum uuid 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "dab5c5526c5caa3d106653401a267fed923e7046f35895ffcb5ca42db64942e6"
 "checksum v_escape 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c8b50688edb86f4c092a1a9fe8bda004b0faa3197100897653809e97e09a2814"
+"checksum v_escape 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6177565a30b7091835dd4a33a81fc4f064e671729a6b7cb964675b2a0bb295a1"
 "checksum v_escape_derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7cd994c63b487fef7aad31e5394ec04b9e24de7b32ea5251c9fb499cd2cbf44c"
+"checksum v_escape_derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ebc450df00e6b12b42f963f620156611891dfc6475533d9b7d5a607a527a403d"
 "checksum v_htmlescape 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "020cae817dc82693aa523f01087b291b1c7a9ac8cea5c12297963f21769fb27f"
+"checksum v_htmlescape 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "168b0208dc58f378f35a743f39c93f199dd981be5ed24615f2b467d55f37e959"
 "checksum variance 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3abfc2be1fb59663871379ea884fd81de80c496f2274e021c01d6fe56cd77b05"
 "checksum vcpkg 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "def296d3eb3b12371b2c7d0e83bfe1403e4db2d7a0bba324a12b21c4ee13143d"
 "checksum vec_map 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "05c78687fb1a80548ae3250346c3db86a80a7cdd77bda190189f2d0a0987c81a"

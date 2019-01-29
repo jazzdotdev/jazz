@@ -61,7 +61,7 @@ regex = "1.1"
 mime_guess = "1.8"
 heck = "0.3"
 # app
-tera = { git = "https://github.com/Keats/tera", branch = "v1" }
+tera-v1 = "1.0.0-alpha.4"
 tantivy = "0.8"
 chrono = "0.4"
 base64 = "0.10"
