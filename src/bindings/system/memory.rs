@@ -3,8 +3,6 @@ use std::{
     mem,
     io::{Cursor, SeekFrom, prelude::*}
 };
-use serde_json;
-use rlua_serde;
 
 //TODO: Move to having a common interface so IO can share the same binding
 pub struct LuaMemory(Cursor<Vec<u8>>);
