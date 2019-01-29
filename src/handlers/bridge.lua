@@ -1,4 +1,3 @@
-
 -- Patch require to log all executed modules
 _G._require = require
 function _G.require (module_name)
