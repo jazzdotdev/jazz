@@ -33,6 +33,7 @@ pub struct AppState {
     pub init_args: Vec<String>,
     pub package_path: Option<String>,
     pub settings: Value,
+    pub app_settings: Option<(String, Value)>,
 }
 
 impl AppState {
@@ -70,6 +71,14 @@ impl AppState {
             };
             tb_table.set("os", os)?;
             lua.globals().set("torchbear", tb_table)?;
+        }
+
+        // app table
+
+        if let Some((name, app_settings)) = &self.app_settings {
+            let tb_table = lua.create_table()?;
+            tb_table.set("settings", rlua_serde::to_value(&lua, app_settings).map_err(LuaError::external)?)?;
+            lua.globals().set(name.as_str(), tb_table)?;
         }
 
         // Lua package.path
@@ -169,12 +178,18 @@ impl ApplicationBuilder {
             None => ()
         }
 
-        let scl_path = match &init_path {
-            Some(p) => p.parent().unwrap_or(Path::new(".")).join("torchbear.scl"),
-            None => PathBuf::from("torchbear.scl"),
+        fn get_or (map: &Value, key: &str, val: &str) -> String {
+            map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
+        }
+
+        let root_path = match &init_path {
+            Some(p) => p.parent().unwrap_or(Path::new(".")),
+            None => Path::new("."),
         };
 
-        let setting_file = scl_path.as_path();
+        let config_path = root_path.join("torchbear.scl");
+
+        let setting_file = config_path.as_path();
 
         let config = if setting_file.exists() {
             conf::Conf::load_file(&setting_file)?
@@ -182,15 +197,21 @@ impl ApplicationBuilder {
             SettingConfig::default()
         };
 
-        fn get_or (map: &Value, key: &str, val: &str) -> String {
-            map.get(key).map(|s| String::from(s.as_str().unwrap_or(val)) ).unwrap_or(String::from(val))
-        }
-        
         let general = config.general.unwrap_or_default();
 
-        let init_path = init_path.unwrap_or(Path::new(&get_or(&general, "init", "init.lua")).to_path_buf());
+        let app_config: Option<(String, Value)> = general.get("app-name").and_then(Value::as_str).map(PathBuf::from).and_then(|name| {
+            let mut config_path = root_path.join(&name);
+            config_path.set_extension("scl");
+            if config_path.exists() && config_path.is_file() {
+                conf::Conf::load_file(&config_path).map(|s| (name.to_string_lossy().to_string(), s)).ok()
+            } else {
+                None
+            }
+        });
+
+        let init_path = init_path.unwrap_or(PathBuf::from(&get_or(&general, "init", "init.lua")));
         
-        if !init_path.exists() {
+        if !init_path.exists() || !init_path.is_file() {
             println!("Error: Specified init.lua not found. You may have not completed installing your app");
             std::process::exit(1);
         }
@@ -206,7 +227,8 @@ impl ApplicationBuilder {
             init_path: init_path,
             init_args: init_args,
             package_path: package_path,
-            settings: general
+            settings: general,
+            app_settings: app_config,
         };
 
         if let Some(web) = config.web_server {
