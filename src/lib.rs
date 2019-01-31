@@ -189,10 +189,8 @@ impl ApplicationBuilder {
 
         let config_path = root_path.join("torchbear.scl");
 
-        let setting_file = config_path.as_path();
-
-        let config = if setting_file.exists() {
-            conf::Conf::load_file(&setting_file)?
+        let config = if config_path.exists() {
+            conf::Conf::load_file(&config_path)?
         } else {
             SettingConfig::default()
         };
