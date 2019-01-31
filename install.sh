@@ -237,20 +237,7 @@ install_mp() {
         # Only install mp if not detected
         # TODO: Check for updates for mp
         if [ ! -x "$(command -v mp)" ]; then
-            echo "Now that you have Torchbear installed, would you like to install Machu Picchu package manager? You can use it to install more apps, safely and easily."
-            echo "To read more about it, check http://github.com/foundpatterns/machu-picchu. If you choose to install now, then running mp --help will show you what to do next with it"
-
-            read -t 10 -e -p "Do you want to install machu-picchu (Y/n)? " -i "Y" choice </dev/tty || choice="N"
-
-            case "$choice" in
-                y|Y )
-                    install_machu_picchu
-                    ;;
-                n|N )
-                    # Ignore
-                    ;;
-                * ) echo "Invalid option";;
-            esac
+            install_machu_picchu
         fi
     else
         error Torchbear is not installed.
