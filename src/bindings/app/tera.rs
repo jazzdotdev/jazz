@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use rlua::prelude::*;
 use rlua_serde;
-use tera_v1::{Tera, Value as JsonValue, Context as TeraContext};
+use tera::{Tera, Value as JsonValue, Context as TeraContext};
 use crate::error::Error;
 
 struct LuaTera (Arc<Mutex<Tera>>);

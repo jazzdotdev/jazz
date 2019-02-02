@@ -53,7 +53,7 @@ diff-rs = "0.2"
 patch-rs = "0.5"
 splitdiff-rs = "0.4"
 select = "0.4"
-scl = "0.0"
+scl = { git = "https://github.com/foundpatterns/scl" }
 # string
 ulid = "0.3"
 uuid = "0.7"
@@ -61,7 +61,7 @@ regex = "1.1"
 mime_guess = "1.8"
 heck = "0.3"
 # app
-tera-v1 = "1.0.0-alpha.4"
+tera = { git = "https://github.com/foundpatterns/tera" }
 tantivy = { version = "0.8", optional = true }
 chrono = "0.4"
 base64 = "0.10"
