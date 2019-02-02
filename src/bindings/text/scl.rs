@@ -79,18 +79,24 @@ fn to_scl_value(lua: &rlua::Lua, val: rlua::Value) -> scl::Value {
 }
 
 fn escape(s: String) -> String {
-    if s.contains(r##"""""##) {
-        // escape \n and "
-        // return "\"".to_owned() + &s.replace('"', r##"\""##).replace('\n', "\\n") + "\"";
-        //
-        // this doesn't work, see:
-        // https://github.com/Keats/scl/issues/10
-        //
-        // Because it doesn't work, just panic instead
-        panic!("Don't use a string containing \"\"\"");
-    } else {
+    // TODO: the sting may be traversed up to 6 times!
+    // Make it a single loop that at once replaces escape sequences and
+    // determine if it's better to multiline it
+
+    if s.contains("\n")
+        && !s.contains(r##"""""##)
+        && s.chars().last().unwrap() != '"'
+    {
         // use multiline string
         r##"""""##.to_owned() + &s + r##"""""##
+    } else {
+        // Regular string escaping
+        "\"".to_owned() +
+            &s
+            .replace('\\', "\\\\") // Always must be escaped first
+            .replace('"', "\\\"")
+            .replace('\n', "\\n")
+        + "\""
     }
 }
 
