@@ -1,9 +1,9 @@
 use rlua::prelude::*;
-use crate::bindings::system::{fs::LuaFile, LuaMetadata};
+use crate::bindings::system::{LuaCommonIO, LuaMetadata};
 use std::{
     collections::HashMap,
     fs, path,
-    sync::Arc
+    sync::{Mutex, Arc},
 };
 
 use globwalk::GlobWalkerBuilder;
@@ -35,7 +35,16 @@ impl<P> LuaUserData for LuaPath<P> where P: AsRef<path::Path> {
                 .write(true)
                 .create(true)
                 .open(&this.0)
-                .map(LuaFile)
+                .map(Box::new)
+                .map(Mutex::new)
+                .map(Arc::new)
+                .map(|fs| LuaCommonIO {
+                    inner: Some(fs.clone()),
+                    stdin: Some(fs.clone()),
+                    stdout: Some(fs.clone()),
+                    stderr: None,
+                    seek: Some(fs.clone())
+                })
                 .map_err(LuaError::external)
         });
         methods.add_method("create_dir", |_, this: &LuaPath<P>, opt: Option<bool>| {

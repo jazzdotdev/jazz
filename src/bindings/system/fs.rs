@@ -1,9 +1,9 @@
 use rlua::prelude::*;
 use std::{
-    sync::Arc,
+    sync::{Mutex, Arc},
     env,
     fs::{self, OpenOptions},
-    io::{self, SeekFrom, prelude::*},
+    io,
     path::Path,
 };
 #[cfg(target_family = "windows")]
@@ -13,13 +13,13 @@ use std::os::unix::fs::symlink;
 
 use serde_json;
 use rlua_serde;
-use crate::bindings::system::LuaMetadata;
+use crate::bindings::system::LuaCommonIO;
 use regex::Regex;
 
 //TODO: Move to having a common interface so IO can share the same binding
 pub struct LuaFile(pub fs::File);
 
-pub fn fs_open(_: &Lua, (path, mode): (String, Option<String>)) -> Result<LuaFile, LuaError> {
+pub fn fs_open(_: &Lua, (path, mode): (String, Option<String>)) -> Result<LuaCommonIO, LuaError> {
     let mut option = OpenOptions::new();
     if let Some(mode) = mode {
         match mode.as_ref() {
@@ -34,64 +34,18 @@ pub fn fs_open(_: &Lua, (path, mode): (String, Option<String>)) -> Result<LuaFil
     }
 
     option.open(path)
-        .map(LuaFile)
+        .map(Box::new)
+        .map(Mutex::new)
+        .map(Arc::new)
+        .map(|fs| LuaCommonIO {
+            inner: Some(fs.clone()),
+            stdin: Some(fs.clone()),
+            stdout: Some(fs.clone()),
+            stderr: None,
+            seek: Some(fs.clone())
+        })
         .map_err(LuaError::external)
-}
 
-impl LuaUserData for LuaFile {
-    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_method_mut("read", |_, this: &mut LuaFile, len: Option<usize>|{
-            let bytes = match len {
-                Some(len) => {
-                    let mut bytes = vec![0u8; len];
-                    this.0.read(&mut bytes).map_err(LuaError::external)?;
-                    bytes
-                },
-                None => {
-                    let mut bytes = vec![];
-                    this.0.read_to_end(&mut bytes).map_err(LuaError::external)?;
-                    bytes
-                }
-            };
-            Ok(bytes)
-        });
-        methods.add_method_mut("read_to_string", |_, this: &mut LuaFile, _: ()|{
-            let mut data = String::new();
-            this.0.read_to_string(&mut data).map_err(LuaError::external)?;
-            Ok(data)
-        });
-        methods.add_method_mut("write", |_, this: &mut LuaFile, bytes: Vec<u8>|{
-            Ok(this.0.write(bytes.as_slice()).map_err(LuaError::external)?)
-        });
-        methods.add_method_mut("write", |_, this: &mut LuaFile, str: String|{
-            Ok(this.0.write(str.as_bytes()).map_err(LuaError::external)?)
-        });
-        methods.add_method_mut("flush", |_, this: &mut LuaFile, _: ()|{
-            Ok(this.0.flush().map_err(LuaError::external)?)
-        });
-        methods.add_method_mut("sync_all", |_, this: &mut LuaFile, _: ()|{
-            Ok(this.0.sync_all().map_err(LuaError::external)?)
-        });
-        methods.add_method_mut("sync_data", |_, this: &mut LuaFile, _: ()|{
-            Ok(this.0.sync_data().map_err(LuaError::external)?)
-        });
-        methods.add_method("metadata", |_, this: &LuaFile, _: ()| {
-            Ok(LuaMetadata(this.0.metadata().map_err(LuaError::external)?))
-        });
-        methods.add_method_mut("seek", |_, this: &mut LuaFile, (pos, size): (Option<String>, Option<usize>)| {
-            let size = size.unwrap_or(0);
-
-            let seekfrom = pos.and_then(|s_pos| {
-                Some(match s_pos.as_ref() {
-                    "start" => SeekFrom::Start(size as u64),
-                    "end" => SeekFrom::End(size as i64),
-                    "current" | _ => SeekFrom::Current(size as i64),
-                })
-            }).unwrap_or(SeekFrom::Current(size as i64));
-            Ok(this.0.seek(seekfrom).map_err(LuaError::external)?)
-        });
-
-    }
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
