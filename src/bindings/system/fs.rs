@@ -4,15 +4,20 @@ use std::{
     env,
     fs::{self, OpenOptions},
     io::{self, SeekFrom, prelude::*},
-    path::Path
+    path::Path,
 };
+#[cfg(target_family = "windows")]
+use std::os::windows::fs::symlink_file as symlink;
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::symlink;
+
 use serde_json;
 use rlua_serde;
 use crate::bindings::system::LuaMetadata;
 use regex::Regex;
 
 //TODO: Move to having a common interface so IO can share the same binding
-pub struct LuaFile(fs::File);
+pub struct LuaFile(pub fs::File);
 
 pub fn fs_open(_: &Lua, (path, mode): (String, Option<String>)) -> Result<LuaFile, LuaError> {
     let mut option = OpenOptions::new();
@@ -173,7 +178,7 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     })?)?;
 
     module.set("symlink", lua.create_function( |_, (src_path, symlink_dest): (String, String)| {
-        create_symlink(src_path, symlink_dest).map_err(LuaError::external)
+        symlink(src_path, symlink_dest).map_err(LuaError::external)
     })?)?;
 
     //Probably deprecate for path:remove
@@ -238,16 +243,6 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
 
 //TODO: Have it set to use either `syslink_file` or `syslink_dir` depending on if the endpoint is a file or directory in the `src_path`
 //      Probably move functions into path binding.
-#[cfg(target_family = "windows")]
-fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
-    use std::os::windows::fs::symlink_file;
-    symlink_file(src_path, dest)
-}
-#[cfg(target_family = "unix")]
-fn create_symlink(src_path: String, dest: String) -> std::io::Result<()> {
-    use std::os::unix::fs::symlink;
-    symlink(src_path, dest)
-}
 
 fn copy_file<S: AsRef<Path>, D: AsRef<Path>>(src: S, dest: D) -> LuaResult<()> {
 	let mut dest = dest.as_ref().to_path_buf();
