@@ -31,6 +31,7 @@ rlua_serde = "0.2"
 # system
 dirs = "1.0"
 libm = "0.1"
+globwalk = "0.6"
 # web
 actix-web = { version = "0.7", features = ["ssl"] }
 # cli and log
