@@ -2569,7 +2569,7 @@ dependencies = [
 [[package]]
 name = "tera"
 version = "1.0.0-alpha.4"
-source = "git+https://github.com/foundpatterns/tera#737f1203072a3359ce008b0329b96dcedd2addc0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "globwalk 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2884,7 +2884,7 @@ dependencies = [
  "tantivy 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tar 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "tera 1.0.0-alpha.4 (git+https://github.com/foundpatterns/tera)",
+ "tera 1.0.0-alpha.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "ulid 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "xz2 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3664,7 +3664,7 @@ dependencies = [
 "checksum tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
 "checksum tempfile 3.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "7e91405c14320e5c79b3d148e1c86f40749a36e490642202a31689cb1a3452b2"
 "checksum tendril 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8c1b72f8e2f5b73b65c315b1a70c730f24b9d7a25f39e98de8acbe2bb795caea"
-"checksum tera 1.0.0-alpha.4 (git+https://github.com/foundpatterns/tera)" = "<none>"
+"checksum tera 1.0.0-alpha.4 (registry+https://github.com/rust-lang/crates.io-index)" = "0fbadfbcaeb99c662f4855b43b023cb9ad98c62007263c64a5ffe78d4bf0a3d2"
 "checksum termcolor 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)" = "adc4587ead41bf016f11af03e55a624c06568b5a19db4e90fde573d805074f83"
 "checksum termcolor 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4096add70612622289f2fdcdbd5086dc81c1e2675e6ae58d6c4f62a16c6d7f2f"
 "checksum termion 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "689a3bdfaab439fd92bc87df5c4c78417d3cbe537487274e9b0b2dce76e92096"
