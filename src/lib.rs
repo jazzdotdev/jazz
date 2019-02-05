@@ -17,7 +17,8 @@ use actix_web::{server as actix_server, App};
 use rlua::prelude::*;
 use std::{
     path::{Path, PathBuf},
-    result
+    result,
+    fs
 };
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
@@ -94,7 +95,13 @@ impl AppState {
         }
 
         // Lua arg
-        lua.globals().set("arg", lua.create_sequence_from(self.init_args.clone())?)?;
+        let mut cmd_args = self.init_args.clone();
+        // if file path is symlink, then resolve
+        match fs::read_link(&cmd_args[0]) {
+            Ok(p) => cmd_args[0] = String::from(p.to_str().unwrap_or("")),
+            Err(_) => (),
+        };
+        lua.globals().set("arg", lua.create_sequence_from(cmd_args)?)?;
 
         // Lua Bridge
         lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
