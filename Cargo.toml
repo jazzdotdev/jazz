@@ -1,7 +1,7 @@
 [package]
 name = "torchbear"
 description = "A simple and complete programming environment"
-version = "0.11.6"
+version = "0.11.7"
 authors = ["Mitchell Tannenbaum <tannenbaum.mitchell@gmail.com>"]
 repository = "https://github.com/foundpatterns/torchbear"
 readme = "Readme.md"
