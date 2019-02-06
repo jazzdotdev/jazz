@@ -18,6 +18,11 @@ use crate::error::Error;
 #[cfg(target_family = "unix")]
 use std::os::unix::fs::PermissionsExt;
 
+//TODO: Investigate the regression(?) between rlua and rust to determine the best course to take when calls from rust to use within lua
+//      due to the performance decrease with any IO calls. This could also be what caused tantivy to have a degrade in performance
+//      when using it with rlua.
+
+//Mutex will be used for the time being but will change in the future.
 #[derive(Clone)]
 pub struct LuaCommonIO {
     inner: Option<Arc<Mutex<Box<File>>>>,
@@ -35,49 +40,52 @@ pub struct LuaPermissions(Permissions);
 
 impl LuaUserData for LuaCommonIO {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_method_mut("write", |_, this: &mut LuaCommonIO, bytes: Vec<u8>|{
-            let stdin = this.clone().stdin.ok_or(LuaError::external(Error::InternalError))?;
+        methods.add_method_mut("write", |_, this: &mut LuaCommonIO, data: LuaValue|{
+            let stdin = this.stdin.clone().ok_or(LuaError::external(Error::InternalError))?;
             let mut stdin = stdin.lock().unwrap();
-            stdin.write(bytes.as_slice()).map_err(LuaError::external)
-        });
-        methods.add_method_mut("write", |_, this: &mut LuaCommonIO, str: String|{
-            let stdin = this.clone().stdin.ok_or(LuaError::external(Error::InternalError))?;
-            let mut stdin = stdin.lock().unwrap();
-            stdin.write(str.as_bytes()).map_err(LuaError::external)
+            Ok(match data {
+                    LuaValue::String(ref string) => stdin.write(string.as_bytes()).ok(),
+                    LuaValue::Table(table) => {
+                        let data: Vec<u8> = table.sequence_values().into_iter().filter_map(Result::ok).collect();
+                        stdin.write(data.as_slice()).ok()
+                    },
+                    _ => None
+            })
         });
         methods.add_method_mut("flush", |_, this: &mut LuaCommonIO, _: ()|{
-            let stdin = this.clone().stdin.ok_or(LuaError::external(Error::InternalError))?;
+            let stdin = this.stdin.clone().ok_or(LuaError::external(Error::InternalError))?;
             let mut stdin = stdin.lock().unwrap();
             stdin.flush().map_err(LuaError::external)
         });
 
-        methods.add_method_mut("read", |_, this: &mut LuaCommonIO, len: Option<usize>|{
-            let stdout = this.clone().stdout.ok_or(LuaError::external(Error::InternalError))?;
+        methods.add_method_mut("read", |lua: &Lua, this: &mut LuaCommonIO, (data, _opt): (Option<LuaValue>, Option<LuaValue>)|{
+            let stdout = this.stdout.clone().ok_or(LuaError::external(Error::InternalError))?;
             let mut stdout = stdout.lock().unwrap();
-            let bytes = match len {
-                Some(len) => {
-                    let mut bytes = vec![0u8; len];
+            match data {
+                Some(LuaValue::Integer(len)) => {
+                    let mut bytes = vec![0u8; len as usize];
                     stdout.read(&mut bytes).map_err(LuaError::external)?;
-                    bytes
+                    lua.create_sequence_from(bytes).map(LuaValue::Table)
                 },
-                None => {
+                Some(LuaValue::String(mode)) => {
+                    //TODO: Implement other modes for reading
+                    match mode.to_str().ok() {
+                        Some("string") | _ => {
+                            let mut data = String::new();
+                            stdout.read_to_string(&mut data).map_err(LuaError::external)?;
+                            lua.create_string(&data).map(LuaValue::String)
+                        },
+                    }
+                },
+                None | _ => {
                     let mut bytes = vec![];
                     stdout.read_to_end(&mut bytes).map_err(LuaError::external)?;
-                    bytes
+                    lua.create_sequence_from(bytes).map(LuaValue::Table)
                 }
-            };
-            Ok(bytes)
+            }
         });
-        methods.add_method_mut("read_to_string", |_, this: &mut LuaCommonIO, _: ()|{
-            let stdout = this.clone().stdout.ok_or(LuaError::external(Error::InternalError))?;
-            let mut stdout = stdout.lock().unwrap();
-            let mut data = String::new();
-            stdout.read_to_string(&mut data).map_err(LuaError::external)?;
-            Ok(data)
-        });
-
         methods.add_method_mut("seek", |_, this: &mut LuaCommonIO, (pos, size): (Option<String>, Option<usize>)| {
-            let seek = this.clone().seek.ok_or(LuaError::external(Error::InternalError))?;
+            let seek = this.seek.clone().ok_or(LuaError::external(Error::InternalError))?;
             let mut seek = seek.lock().unwrap();
 
             let size = size.unwrap_or(0);
@@ -91,21 +99,25 @@ impl LuaUserData for LuaCommonIO {
             }).unwrap_or(SeekFrom::Current(size as i64));
             seek.seek(seekfrom).map_err(LuaError::external)
         });
-
-        methods.add_method_mut("sync_all", |_, this: &mut LuaCommonIO, _: ()|{
-            let fd = this.clone().inner.ok_or(LuaError::external(Error::InternalError))?;
+        methods.add_method_mut("sync", |_, this: &mut LuaCommonIO, opt: Option<String>|{
+            let fd = this.inner.clone().ok_or(LuaError::external(Error::InternalError))?;
             let fd = fd.lock().unwrap();
-            fd.sync_all().map_err(LuaError::external)
-        });
-        methods.add_method_mut("sync_data", |_, this: &mut LuaCommonIO, _: ()|{
-            let fd = this.clone().inner.ok_or(LuaError::external(Error::InternalError))?;
-            let fd = fd.lock().unwrap();
-            fd.sync_data().map_err(LuaError::external)
+            match opt.as_ref().map(|s| s.as_str()) {
+                Some("data") => fd.sync_data().map_err(LuaError::external),
+                Some("all") | _ => fd.sync_all().map_err(LuaError::external)
+            }
         });
         methods.add_method("metadata", |_, this: &LuaCommonIO, _: ()| {
-            let fd = this.clone().inner.ok_or(LuaError::external(Error::InternalError))?;
+            let fd = this.inner.clone().ok_or(LuaError::external(Error::InternalError))?;
             let fd = fd.lock().unwrap();
             fd.metadata().map(LuaMetadata).map_err(LuaError::external)
+        });
+        methods.add_method_mut("close", |_, this: &mut LuaCommonIO, _: ()| {
+            this.inner = None;
+            this.stdin = None;
+            this.stdout = None;
+            this.stderr = None;
+            Ok(())
         });
     }
 }
