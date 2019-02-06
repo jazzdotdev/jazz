@@ -119,17 +119,17 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
         Ok(path.map(LuaPath))
     })? )?;
 
-    module.set("pattern", lua.create_function( |lua, (path, patt, options): (String, Vec<String>, Option<HashMap<String, String>>)| {
+    module.set("pattern", lua.create_function( |lua, (path, patt, options): (String, Vec<String>, Option<HashMap<String, LuaValue>>)| {
         let mut glob = GlobWalkerBuilder::from_patterns(path, &patt);
         if let Some(opt) = options {
-            for (key, val) in opt.iter().map(|(k, v)| (k.as_str(), v.as_str())) {
-                glob = match key {
-                    "case_insensitive" => glob.case_insensitive(val.parse().map_err(LuaError::external)?),
-                    "contents_first" => glob.contents_first(val.parse().map_err(LuaError::external)?),
-                    "follow_links" => glob.follow_links(val.parse().map_err(LuaError::external)?),
-                    "max_depth" => glob.max_depth(val.parse().map_err(LuaError::external)?),
-                    "max_open" => glob.max_open(val.parse().map_err(LuaError::external)?),
-                    "min_depth" => glob.min_depth(val.parse().map_err(LuaError::external)?),
+            for (key, val) in opt.iter().map(|(k, v)| (k.as_str(), v)) {
+                glob = match (key, val) {
+                    ("case_insensitive", LuaValue::Boolean(val)) => glob.case_insensitive(*val),
+                    ("contents_first", LuaValue::Boolean(val)) => glob.contents_first(*val),
+                    ("follow_links", LuaValue::Boolean(val)) => glob.follow_links(*val),
+                    ("max_depth", LuaValue::Integer(val)) => glob.max_depth(*val as usize),
+                    ("max_open", LuaValue::Integer(val)) => glob.max_open(*val as usize),
+                    ("min_depth", LuaValue::Integer(val)) => glob.min_depth(*val as usize),
                     _ => glob,
                 };
             }
