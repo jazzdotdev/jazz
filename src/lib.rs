@@ -96,6 +96,11 @@ impl AppState {
 
         // Lua arg
         let mut cmd_args = self.init_args.clone();
+        // if no command line argument is passed, push current working directory
+        if cmd_args.is_empty() {
+            cmd_args.push(String::from("."));
+        }
+
         // if file path is symlink, then resolve
         match fs::read_link(&cmd_args[0]) {
             Ok(p) => cmd_args[0] = String::from(p.to_str().unwrap_or("")),
