@@ -50,9 +50,10 @@ serde_urlencoded = "0.5"
 comrak = "0.4"
 serde_json = "1.0"
 serde_derive = "1.0"
-diff-rs = "0.2"
-patch-rs = "0.5"
-splitdiff-rs = "0.4"
+diff-rs = "0.2.3"
+patch-rs = "0.6.2"
+splitdiff-rs = "0.4.1"
+interdiff-rs = "0.2.0"
 select = "0.4"
 scl = { git = "https://github.com/foundpatterns/scl" }
 # string
