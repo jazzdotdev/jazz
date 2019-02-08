@@ -3,7 +3,10 @@ use rlua::Lua;
 use std::{io, fs};
 use patch_rs::{Patch, PatchProcessor};
 
-const EMPTY_PATCH: &str = "/dev/null";
+#[cfg(target_os = "windows")]
+const NULL_SOURCE: &str = "nul";
+#[cfg(target_os = "linux")]
+const NULL_SOURCE: &str = "/dev/null";
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
@@ -11,21 +14,21 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     module.set(
         "interdiff",
         lua.create_function(|_, (patch_1, patch_2): (String, String)| {
-            if patch_1 == EMPTY_PATCH && patch_2 == EMPTY_PATCH {
+            if patch_1 == NULL_SOURCE && patch_2 == NULL_SOURCE {
                 return Err(rlua::Error::external(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    "Both patches cannot be empty"
+                    "Both patches cannot be null"
                 )));
             }
 
-            let patch_1 = if patch_1 != EMPTY_PATCH {
+            let patch_1 = if patch_1 != NULL_SOURCE {
                 let patch_1 = fs::read_to_string(patch_1).map_err(rlua::Error::external)?;
                 PatchProcessor::convert(&patch_1).map_err(rlua::Error::external)?
             } else {
                 Patch::default()
             };
 
-            let patch_2 = if patch_2 != EMPTY_PATCH {
+            let patch_2 = if patch_2 != NULL_SOURCE {
                 let patch_2 = fs::read_to_string(patch_2).map_err(rlua::Error::external)?;
                 PatchProcessor::convert(&patch_2).map_err(rlua::Error::external)?
             } else {

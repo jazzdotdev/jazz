@@ -6,6 +6,11 @@ use std::{
 use chrono::{DateTime, Local};
 use diff_rs::diff;
 
+#[cfg(target_os = "windows")]
+const NULL_SOURCE: &str = "nul";
+#[cfg(target_os = "linux")]
+const NULL_SOURCE: &str = "/dev/null";
+
 fn time_format(d: &DateTime<Local>) -> String {
     d.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
@@ -53,8 +58,23 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
             format!("+++ {}\t{}", &right, time_format(&mtime(&right).map_err(LuaError::external)?))
         ];
 
-        let left = read_file(&left).map_err(LuaError::external)?;
-        let right = read_file(&right).map_err(LuaError::external)?;
+        if left == NULL_SOURCE && right == NULL_SOURCE {
+            return Err(rlua::Error::external(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Both files cannot be null"
+            )));
+        }
+
+        let left = if left != NULL_SOURCE {
+            read_file(&left).map_err(LuaError::external)?
+        } else {
+            Vec::new()
+        };
+        let right = if right != NULL_SOURCE {
+            Vec::new()
+        } else {
+            read_file(&right).map_err(LuaError::external)?
+        };
 
         let diff = diff(&left, &right, 3).map_err(LuaError::external)?;
 
@@ -69,4 +89,3 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
 
     Ok(())
 }
-
