@@ -4,6 +4,7 @@ pub mod patch;
 pub mod scl;
 pub mod select;
 pub mod splitdiff;
+pub mod combinediff;
 pub mod yaml;
 
 use rlua::prelude::*;
@@ -16,6 +17,7 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     diff::init(&lua)?;
     patch::init(&lua)?;
     splitdiff::init(&lua)?;
+    combinediff::init(&lua)?;
 
     Ok(())
 }
