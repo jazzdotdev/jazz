@@ -54,6 +54,7 @@ diff-rs = "0.2"
 patch-rs = "0.6"
 splitdiff-rs = "0.4"
 combinediff-rs = "0.1"
+interdiff-rs = "0.2"
 select = "0.4"
 scl = { git = "https://github.com/foundpatterns/scl" }
 # string

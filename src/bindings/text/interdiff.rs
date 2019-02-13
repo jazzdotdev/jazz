@@ -9,7 +9,7 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     let module = lua.create_table()?;
 
     module.set(
-        "combinediff",
+        "interdiff",
         lua.create_function(|_, (patch_1, patch_2): (String, String)| {
             if patch_1 == NULL_SOURCE && patch_2 == NULL_SOURCE {
                 return Err(rlua::Error::external(io::Error::new(
@@ -32,11 +32,11 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
                 Patch::default()
             };
 
-            Ok(combinediff_rs::combinediff(patch_1, patch_2, 3).to_string())
+            Ok(interdiff_rs::interdiff(patch_1, patch_2, 3).to_string())
         })?,
     )?;
 
-    lua.globals().set("combinediff", module)?;
+    lua.globals().set("interdiff", module)?;
 
     Ok(())
 }
