@@ -71,9 +71,9 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
             Vec::new()
         };
         let right = if right != NULL_SOURCE {
-            Vec::new()
-        } else {
             read_file(&right).map_err(LuaError::external)?
+        } else {
+            Vec::new()
         };
 
         let diff = diff(&left, &right, 3).map_err(LuaError::external)?;
