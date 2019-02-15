@@ -24,10 +24,10 @@ path = "src/main.rs"
 [dependencies]
 # base
 actix = "0.7"
-actix-lua = "0.5"
+actix-lua = "0.7"
 futures = "0.1"
-rlua = "0.15"
-rlua_serde = "0.2"
+rlua = "0.16"
+rlua_serde = "0.3"
 # system
 dirs = "1.0"
 libm = "0.1"
@@ -36,8 +36,6 @@ globwalk = "0.6"
 actix-web = { version = "0.7", features = ["ssl"] }
 # cli and log
 env_logger = "0.6"
-failure = "0.1"
-failure_derive = "0.1"
 clap = "2.32"
 log = "0.4"
 fern = { version = "0.5", features = ["colored"] }

@@ -9,12 +9,12 @@ pub mod ulid;
 use rlua::prelude::*;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    case::init(&lua)?;
-    mime::init(&lua)?;
-    regex::init(&lua)?;
-    stringset::init(&lua)?;
-    uuid::init(&lua)?;
-    base64::init(&lua)?;
-    ulid::init(&lua)?;
+    case::init(lua)?;
+    mime::init(lua)?;
+    regex::init(lua)?;
+    stringset::init(lua)?;
+    uuid::init(lua)?;
+    base64::init(lua)?;
+    ulid::init(lua)?;
     Ok(())
 }

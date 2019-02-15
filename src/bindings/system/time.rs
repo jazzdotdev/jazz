@@ -26,23 +26,25 @@ impl UserData for LuaTime {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("now", lua.create_function( |_, _: ()| {
-        Ok(LuaTime(Utc::now()))
-    })? )?;
+        module.set("now", lua.create_function(|_, _: ()| {
+            Ok(LuaTime(Utc::now()))
+        })?)?;
 
-    module.set("new", lua.create_function( |_, s: String| {
-        DateTime::parse_from_rfc2822(&s).map(
-            |t| LuaTime(t.with_timezone(&Utc))
-        ).map_err(
-            |_| LuaError::RuntimeError("Invalid time string".to_string())
-        )
-    })? )?;
+        module.set("new", lua.create_function(|_, s: String| {
+            DateTime::parse_from_rfc2822(&s).map(
+                |t| LuaTime(t.with_timezone(&Utc))
+            ).map_err(
+                |_| LuaError::RuntimeError("Invalid time string".to_string())
+            )
+        })?)?;
 
-    lua.globals().set("time", module)?;
+        lua.globals().set("time", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -54,11 +56,14 @@ mod tests {
         let lua = Lua::new();
         init(&lua).unwrap();
 
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             print(time.now())
             print(time.new("Fri, 28 Nov 2014 12:00:09 +0000"))
-        "#, None).unwrap();
+        "#).exec().unwrap();
 
-        assert!(lua.exec::<_, ()>("print(time.new('lol'))", None).is_err());
+        assert!(lua.load("print(time.new('lol'))").exec().is_err());
+        })
+
     }
 }

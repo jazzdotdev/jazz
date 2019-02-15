@@ -1,8 +1,8 @@
-use rlua::{Error as LuaError, Lua};
+use rlua::{Error as LuaError, Context};
 use checksumdir;
 use rlua;
 
-pub fn checksum(_lua: &Lua, (path, array): (String, rlua::Table))
+pub fn checksum(_lua: Context, (path, array): (String, rlua::Table))
     -> Result<String, LuaError> {
     // created so rust doesn't drop ownership of Vec<String>
     let tmp: Vec<String> = array.pairs::<usize, String>()

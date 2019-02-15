@@ -1,7 +1,6 @@
-use rlua::{ToLua, FromLua, prelude::LuaError};
-use crate::error::Error;
+use rlua::{ToLua, FromLua, prelude::{LuaError, LuaResult}};
 
-fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
+fn to_rlua_value(lua: rlua::Context, val: scl::Value) -> rlua::Value {
     match val {
         scl::Value::Boolean(b) => b.to_lua(lua).unwrap(),
         scl::Value::Integer(i) => i.to_lua(lua).unwrap(),
@@ -29,7 +28,7 @@ fn to_rlua_value(lua: &rlua::Lua, val: scl::Value) -> rlua::Value {
     }
 }
 
-fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> crate::Result<scl::Date> {
+fn to_date<'a>(lua: rlua::Context<'a>, t: &rlua::Table<'a>) -> LuaResult<scl::Date> {
     if t.len()? == 3
         || t.contains_key("day")?
         || t.contains_key("month")?
@@ -40,11 +39,11 @@ fn to_date(lua: &rlua::Lua, t: &rlua::Table) -> crate::Result<scl::Date> {
         let year = <_>::from_lua(t.get("year")?, lua)?;
         Ok(scl::Date { day, month, year })
     } else {
-        Err(Error::from(rlua::Error::external(failure::err_msg("not a date"))))
+        Err(rlua::Error::external(format_err!("not a date")))
     }
 }
 
-fn to_scl_value(lua: &rlua::Lua, val: rlua::Value) -> scl::Value {
+fn to_scl_value<'a>(lua: rlua::Context<'a>, val: rlua::Value<'a>) -> scl::Value {
     match &val {
         rlua::Value::Boolean(_) => scl::Value::Boolean(<_>::from_lua(val, lua).unwrap()),
         rlua::Value::Integer(_) => scl::Value::Integer(<_>::from_lua(val, lua).unwrap()),
@@ -100,7 +99,7 @@ fn escape(s: String) -> String {
     }
 }
 
-fn scl_decode(d: scl::Dict) -> String {
+fn scl_decode(d: scl::Dict) -> String { 
     let mut s = String::new();
     for (k, v) in d {
         s += &k;
@@ -142,33 +141,36 @@ fn to_string(val: scl::Value) -> String {
 }
 
 pub fn init(lua: &rlua::Lua) -> crate::Result<()> {
-    // Decode string to a table
-    let module = lua.create_table()?;
-    module.set(
-        "to_table",
-        lua.create_function(|lua, text: String| {
-            scl::parse_str(&text)
-                .map(|dict| to_rlua_value(lua, scl::Value::Dict(dict)))
-                .map_err(|e| LuaError::external(Error::from(e)))
-        })?,
-    )?;
+    lua.context(|lua| {
+        // Decode string to a table
+        let module = lua.create_table()?;
+        module.set(
+            "to_table",
+            lua.create_function(|lua, text: String| {
+                scl::parse_str(&text)
+                    .map(|dict| to_rlua_value(lua, scl::Value::Dict(dict)))
+                    .map_err(crate::error::Error::SclError)
+                    .map_err(LuaError::external)
+            })?,
+        )?;
 
-    // Encode table to a string
-    module.set(
-        "from_table",
-        lua.create_function(|lua, table: rlua::Table| {
-            let val = to_scl_value(lua, rlua::Value::Table(table));
-            if let scl::Value::Dict(d) = val {
-                Ok(scl_decode(d))
-            } else {
-                unreachable!();
-            }
-        })?,
-    )?;
+        // Encode table to a string
+        module.set(
+            "from_table",
+            lua.create_function(|lua, table: rlua::Table| {
+                let val = to_scl_value(lua, rlua::Value::Table(table));
+                if let scl::Value::Dict(d) = val {
+                    Ok(scl_decode(d))
+                } else {
+                    unreachable!();
+                }
+            })?,
+        )?;
 
-    lua.globals().set("scl", module)?;
+        lua.globals().set("scl", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -204,37 +206,38 @@ clients = {
         "##;
         let lua = rlua::Lua::new();
         super::init(&lua).unwrap();
-        lua.globals().set("TEXT", TEXT).unwrap();
-        lua.exec::<_, rlua::Value>(
-            r##"
-        local x = scl.to_table(TEXT)
-        assert(x.owner.name == "Vincent Prouillet")
-        assert(x.owner.dob.year == 1979)
-        assert(x.owner.dob.month == 5)
-        assert(x.owner.dob.day == 27)
-        assert(#x.database.ports == 3)
-        assert(x.database.ports[1] == 8001)
-        assert(x.database.ports[2] == 8001)
-        assert(x.database.ports[3] == 8002)
-        assert(x.database.connection_max == 5000)
-        assert(x.database.enabled == true)
-        assert(x.servers.max_upload_size == 10000000)
-        assert(x.servers.alpha.ip == "10.0.0.1")
-        assert(x.servers.alpha.dc == "eqdc10")
-        assert(x.clients.data[1][1] == "gamma")
-        assert(x.clients.data[2][1] == 1)
-        "##,
-            None,
-        )
-        .unwrap();
+
+        lua.context(|lua| {
+            lua.globals().set("TEXT", TEXT).unwrap();
+            lua.load(
+                    r##"
+            local x = scl.to_table(TEXT)
+            assert(x.owner.name == "Vincent Prouillet")
+            assert(x.owner.dob.year == 1979)
+            assert(x.owner.dob.month == 5)
+            assert(x.owner.dob.day == 27)
+            assert(#x.database.ports == 3)
+            assert(x.database.ports[1] == 8001)
+            assert(x.database.ports[2] == 8001)
+            assert(x.database.ports[3] == 8002)
+            assert(x.database.connection_max == 5000)
+            assert(x.database.enabled == true)
+            assert(x.servers.max_upload_size == 10000000)
+            assert(x.servers.alpha.ip == "10.0.0.1")
+            assert(x.servers.alpha.dc == "eqdc10")
+            assert(x.clients.data[1][1] == "gamma")
+            assert(x.clients.data[2][1] == 1)
+            "##).exec().unwrap();
+        })
     }
 
     #[test]
     fn test_encode() {
         let lua = rlua::Lua::new();
         super::init(&lua).unwrap();
-        lua.exec::<_, rlua::Value>(
-            r##"
+        lua.context(|lua| {
+            lua.load(
+                r##"
         local x = {
         x=0,
         y=true,
@@ -260,9 +263,7 @@ clients = {
         assert(y.x == 0)
         assert(y.y == true)
         assert(y.z == "a\nb")
-        "##,
-            None,
-        )
-        .unwrap();
+        "##).exec().unwrap();
+        })
     }
 }

@@ -111,58 +111,60 @@ impl<P> LuaUserData for LuaPath<P> where P: AsRef<path::Path> {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("new", lua.create_function( |_, path: Option<String>| {
-        let mut path = path;
-        if path.is_none() { path = Some(String::from(".")); }
-        Ok(path.map(LuaPath))
-    })? )?;
+        module.set("new", lua.create_function(|_, path: Option<String>| {
+            let mut path = path;
+            if path.is_none() { path = Some(String::from(".")); }
+            Ok(path.map(LuaPath))
+        })?)?;
 
-    module.set("pattern", lua.create_function( |lua, (path, patt, options): (String, Vec<String>, Option<HashMap<String, LuaValue>>)| {
-        let mut glob = GlobWalkerBuilder::from_patterns(path, &patt);
-        if let Some(opt) = options {
-            for (key, val) in opt.iter().map(|(k, v)| (k.as_str(), v)) {
-                glob = match (key, val) {
-                    ("case_insensitive", LuaValue::Boolean(val)) => glob.case_insensitive(*val),
-                    ("contents_first", LuaValue::Boolean(val)) => glob.contents_first(*val),
-                    ("follow_links", LuaValue::Boolean(val)) => glob.follow_links(*val),
-                    ("max_depth", LuaValue::Integer(val)) => glob.max_depth(*val as usize),
-                    ("max_open", LuaValue::Integer(val)) => glob.max_open(*val as usize),
-                    ("min_depth", LuaValue::Integer(val)) => glob.min_depth(*val as usize),
-                    _ => glob,
-                };
+        module.set("pattern", lua.create_function(|lua, (path, patt, options): (String, Vec<String>, Option<HashMap<String, LuaValue>>)| {
+            let mut glob = GlobWalkerBuilder::from_patterns(path, &patt);
+            if let Some(opt) = options {
+                for (key, val) in opt.iter().map(|(k, v)| (k.as_str(), v)) {
+                    glob = match (key, val) {
+                        ("case_insensitive", LuaValue::Boolean(val)) => glob.case_insensitive(*val),
+                        ("contents_first", LuaValue::Boolean(val)) => glob.contents_first(*val),
+                        ("follow_links", LuaValue::Boolean(val)) => glob.follow_links(*val),
+                        ("max_depth", LuaValue::Integer(val)) => glob.max_depth(*val as usize),
+                        ("max_open", LuaValue::Integer(val)) => glob.max_open(*val as usize),
+                        ("min_depth", LuaValue::Integer(val)) => glob.min_depth(*val as usize),
+                        _ => glob,
+                    };
+                }
             }
-        }
-        let iter = glob.build().map_err(LuaError::external)?;
-        let mut arc_iter = Arc::new(Some(iter));
-        let f = move |_, _: ()| {
-            let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
-                Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.into_path())).ok()),
-                None => None
+            let iter = glob.build().map_err(LuaError::external)?;
+            let mut arc_iter = Arc::new(Some(iter));
+            let f = move |_, _: ()| {
+                let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
+                    Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.into_path())).ok()),
+                    None => None
+                };
+                if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
+                Ok(result)
             };
-            if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
-            Ok(result)
-        };
-        lua.create_function_mut(f)
-    })? )?;
+            lua.create_function_mut(f)
+        })?)?;
 
-    module.set("match", lua.create_function( |lua, patt: String| {
-        let glob = globwalk::glob(&patt).map_err(LuaError::external)?;
+        module.set("match", lua.create_function(|lua, patt: String| {
+            let glob = globwalk::glob(&patt).map_err(LuaError::external)?;
 
-        let mut arc_iter = Arc::new(Some(glob));
-        let f = move |_, _: ()| {
-            let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
-                Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.into_path())).ok()),
-                None => None
+            let mut arc_iter = Arc::new(Some(glob));
+            let f = move |_, _: ()| {
+                let result = match Arc::get_mut(&mut arc_iter).expect("entries iterator is mutably borrowed") {
+                    Some(iter) => iter.next().map(|entry| entry.map(|e| LuaPath(e.into_path())).ok()),
+                    None => None
+                };
+                if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
+                Ok(result)
             };
-            if result.is_none() { *Arc::get_mut(&mut arc_iter).unwrap() = None; }
-            Ok(result)
-        };
-        lua.create_function_mut(f)
-    })? )?;
+            lua.create_function_mut(f)
+        })?)?;
 
-    lua.globals().set("path", module)?;
+        lua.globals().set("path", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }

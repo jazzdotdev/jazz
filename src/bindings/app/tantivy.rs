@@ -195,7 +195,7 @@ impl UserData for Document {
 
         use tantivy::schema::Value;
 
-        fn get_value<'a, 'b> (lua: &'a Lua, tan: &'b Value) -> crate::Result<LuaValue<'a>> {
+        fn get_value<'a, 'b> (lua: &'a LuaContext<'a>, tan: &'b Value) -> crate::Result<LuaValue<'a>> {
             Ok(match tan {
                 Value::Str(s) => LuaValue::String(lua.create_string(&s)?),
                 Value::U64(n) => LuaValue::Integer(*n as rlua::Integer),
@@ -227,68 +227,70 @@ struct Term(tantivy::Term);
 impl UserData for Term {}
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let tan = lua.create_table()?;
-    tan.set(
-        "new_schema_builder",
-        lua.create_function(|_, _: ()| Ok(SchemaBuilder(Some(Default::default()))))?,
-    )?;
+    lua.context(|lua| {
+        let tan = lua.create_table()?;
+        tan.set(
+            "new_schema_builder",
+            lua.create_function(|_, _: ()| Ok(SchemaBuilder(Some(Default::default()))))?,
+        )?;
 
-    tan.set("TEXT", TextOptions(tantivy::schema::TEXT))?;
-    tan.set("STRING", TextOptions(tantivy::schema::STRING))?;
-    tan.set("STORED", TextOptions(tantivy::schema::STORED))?;
-    tan.set("INT_STORED", IntOptions(tantivy::schema::INT_STORED))?;
-    tan.set("INT_INDEXED", IntOptions(tantivy::schema::INT_INDEXED))?;
-    tan.set("FAST", IntOptions(tantivy::schema::FAST))?;
-    tan.set("FACET_SEP_BYTE", tantivy::schema::FACET_SEP_BYTE)?;
+        tan.set("TEXT", TextOptions(tantivy::schema::TEXT))?;
+        tan.set("STRING", TextOptions(tantivy::schema::STRING))?;
+        tan.set("STORED", TextOptions(tantivy::schema::STORED))?;
+        tan.set("INT_STORED", IntOptions(tantivy::schema::INT_STORED))?;
+        tan.set("INT_INDEXED", IntOptions(tantivy::schema::INT_INDEXED))?;
+        tan.set("FAST", IntOptions(tantivy::schema::FAST))?;
+        tan.set("FACET_SEP_BYTE", tantivy::schema::FACET_SEP_BYTE)?;
 
-    tan.set(
-        "index_in_ram",
-        lua.create_function(|_, schema: Schema| {
-            Ok(Index(tantivy::Index::create_in_ram(schema.0)))
-        })?,
-    )?;
-    tan.set(
-        "index_in_dir",
-        lua.create_function(|_, (path, schema): (String, Schema)| {
-            Ok(Index(
-                tantivy::Index::create_in_dir(&path, schema.0).expect("create_in_dir failed"),
-            ))
-        })?,
-    )?;
+        tan.set(
+            "index_in_ram",
+            lua.create_function(|_, schema: Schema| {
+                Ok(Index(tantivy::Index::create_in_ram(schema.0)))
+            })?,
+        )?;
+        tan.set(
+            "index_in_dir",
+            lua.create_function(|_, (path, schema): (String, Schema)| {
+                Ok(Index(
+                    tantivy::Index::create_in_dir(&path, schema.0).expect("create_in_dir failed"),
+                ))
+            })?,
+        )?;
 
-    tan.set(
-        "new_document",
-        lua.create_function(|_, _: ()| Ok(Document(Default::default())))?,
-    )?;
+        tan.set(
+            "new_document",
+            lua.create_function(|_, _: ()| Ok(Document(Default::default())))?,
+        )?;
 
-    tan.set(
-        "top_collector_with_limit",
-        lua.create_function(|_, l: usize| {
-            Ok(TopCollector(::std::sync::Arc::new(
-                tantivy::collector::TopCollector::with_limit(l),
-            )))
-        })?,
-    )?;
-    tan.set(
-        "query_parser_for_index",
-        lua.create_function(|_, (i, f): (Index, Vec<Field>)| {
-            let f = f.into_iter().map(|x| x.0).collect();
-            Ok(QueryParser(::std::sync::Arc::new(
-                tantivy::query::QueryParser::for_index(&i.0, f),
-            )))
-        })?,
-    )?;
+        tan.set(
+            "top_collector_with_limit",
+            lua.create_function(|_, l: usize| {
+                Ok(TopCollector(::std::sync::Arc::new(
+                    tantivy::collector::TopCollector::with_limit(l),
+                )))
+            })?,
+        )?;
+        tan.set(
+            "query_parser_for_index",
+            lua.create_function(|_, (i, f): (Index, Vec<Field>)| {
+                let f = f.into_iter().map(|x| x.0).collect();
+                Ok(QueryParser(::std::sync::Arc::new(
+                    tantivy::query::QueryParser::for_index(&i.0, f),
+                )))
+            })?,
+        )?;
 
-    tan.set(
-        "term_from_field_text",
-        lua.create_function(|_, (f, s): (Field, String)| {
-            Ok(Term(tantivy::Term::from_field_text(f.0, &s)))
-        })?,
-    )?;
+        tan.set(
+            "term_from_field_text",
+            lua.create_function(|_, (f, s): (Field, String)| {
+                Ok(Term(tantivy::Term::from_field_text(f.0, &s)))
+            })?,
+        )?;
 
-    let globals = lua.globals();
-    globals.set("tan", tan)?;
-    Ok(())
+        let globals = lua.globals();
+        globals.set("tan", tan)?;
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -345,8 +347,10 @@ mod tests {
 
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().as_os_str().to_str().unwrap();
-        let globals = lua.globals();
-        globals.set("index_path", path).unwrap();
-        lua.exec::<_, Value>(SCRIPT, None).unwrap();
+        lua.context(|lua| {
+            let globals = lua.globals();
+            globals.set("index_path", path).unwrap();
+            lua.load(SCRIPT).exec().unwrap();
+        })
     }
 }

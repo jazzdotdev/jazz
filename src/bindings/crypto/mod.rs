@@ -10,30 +10,31 @@ use crate::error::Error;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
     sodiumoxide::init().map_err(|_| LuaError::external(Error::SodiumInitFailure))?;
+    lua.context(|lua| {
+        let crypto = lua.create_table()?;
 
-    let crypto = lua.create_table()?;
+        crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
+        crypto.set("hash", lua.create_function(hash::hash)?)?;
+        crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
+        crypto.set("checksumdir", lua.create_function(checksumdir::checksum)?)?;
 
-    crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
-    crypto.set("hash", lua.create_function(hash::hash)?)?;
-    crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
-    crypto.set("checksumdir", lua.create_function(checksumdir::checksum)?)?;
+        let sign = lua.create_table()?;
+        sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;
+        sign.set("load_secret", lua.create_function(sign::load_secret)?)?;
+        sign.set("load_public", lua.create_function(sign::load_public)?)?;
+        crypto.set("sign", sign)?;
 
-    let sign = lua.create_table()?;
-    sign.set("new_keypair", lua.create_function(sign::new_keypair)?)?;
-    sign.set("load_secret", lua.create_function(sign::load_secret)?)?;
-    sign.set("load_public", lua.create_function(sign::load_public)?)?;
-    crypto.set("sign", sign)?;
+        let box_ = lua.create_table()?;
+        box_.set("new_keypair", lua.create_function(box_::new_keypair)?)?;
+        box_.set("new_nonce", lua.create_function(box_::new_nonce)?)?;
+        box_.set("load_keypair", lua.create_function(box_::load_keypair)?)?;
+        box_.set("load_nonce", lua.create_function(box_::load_nonce)?)?;
+        crypto.set("box", box_)?;
 
-    let box_ = lua.create_table()?;
-    box_.set("new_keypair", lua.create_function(box_::new_keypair)?)?;
-    box_.set("new_nonce", lua.create_function(box_::new_nonce)?)?;
-    box_.set("load_keypair", lua.create_function(box_::load_keypair)?)?;
-    box_.set("load_nonce", lua.create_function(box_::load_nonce)?)?;
-    crypto.set("box", box_)?;
+        lua.globals().set("crypto", crypto)?;
 
-    lua.globals().set("crypto", crypto)?;
-
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -45,8 +46,9 @@ mod tests {
     fn test_box_() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<_, Value>(
-            r#"
+        lua.context(|lua| {
+            let result = lua.load(
+                r#"
                 local nonce1 = crypto.box.new_nonce()
                 local nonce_str = nonce1:tostring()
                 print("nonce_str=" .. nonce_str)
@@ -71,17 +73,18 @@ mod tests {
                 print( "detach_sealed =" .. sealed .. " tag= " .. tag)
 
                 return true
-            "#, None);
-
-        println!("returned {:?}", result);
+            "#).eval::<Value>();
+            println!("returned {:?}", result);
+        })
     }
 
     #[test]
     fn test_crypto() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<_, Value>(
-            r#"
+        lua.context(|lua| {
+            let result = lua.load(
+                r#"
                 local random_bytes = crypto.random_bytes(8)
                 print("random_bytes length=" .. #random_bytes)
 
@@ -93,17 +96,18 @@ mod tests {
                 print("BLAKE2B=" .. blakehash)
 
                 return true
-            "#, None);
-
-        println!("returned {:?}", result);
+            "#).eval::<Value>();
+            println!("returned {:?}", result);
+        })
     }
 
     #[test]
     fn lua_sign() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<_, Value>(
-            r#"
+        lua.context(|lua| {
+            let result = lua.load(
+                r#"
                 local secret, public = crypto.sign.new_keypair()
                 print( "secret", secret )
                 print( "public", public )
@@ -139,9 +143,10 @@ mod tests {
                 print("verified=" .. verified)
 
                 return true
-            "#, None);
+            "#).eval::<Value>();
+            println!("returned {:?}", result);
+        })
 
-        println!("returned {:?}", result);
     }
 }
 

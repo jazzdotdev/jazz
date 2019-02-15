@@ -1,15 +1,11 @@
-#[macro_use] extern crate failure;
-#[macro_use] extern crate failure_derive;
 #[macro_use] extern crate log;
 #[macro_use] extern crate human_panic;
 #[macro_use] extern crate serde_derive;
-#[cfg(feature = "tantivy_bindings")]
-extern crate tantivy;
-
+#[cfg(feature = "tantivy_bindings")] extern crate tantivy;
+#[macro_use] pub mod error;
 pub mod bindings;
 pub mod logger;
 pub mod conf;
-pub mod error;
 
 use actix::prelude::*;
 use actix_lua::LuaActorBuilder;
@@ -38,79 +34,81 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn create_vm (&self) -> result::Result<Lua, LuaError> {
+    pub fn create_vm (&self) -> Result<Lua> {
         let lua = unsafe { Lua::new_with_debug() };
+        lua.context(|lua| {
+            lua.load(include_str!("handlers/debug.lua")).exec()
+        })?;
 
-        lua.exec::<_, ()>(include_str!("handlers/debug.lua"), None)?;
+        bindings::app::init(&lua)?;
+        bindings::archive::init(&lua)?;
+        bindings::crypto::init(&lua)?;
+        bindings::string::init(&lua)?;
+        bindings::system::init(&lua)?;
+        bindings::text::init(&lua)?;
+        bindings::web::init(&lua)?;
+        bindings::number::init(&lua)?;
+        bindings::net::init(&lua)?;
+        lua.context(|lua| -> result::Result<(), LuaError> {
+            // torchbear global table 
+            {
+                let tb_table: LuaTable = lua.create_table()?;
+                tb_table.set("settings", rlua_serde::to_value(lua, &self.settings).map_err(LuaError::external)?)?;
+                tb_table.set("init_filename", self.init_path.to_str())?;
+                tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
+                let os = if cfg!(target_os = "windows") {
+                    "windows"
+                } else if cfg!(target_os = "linux") {
+                    "linux"
+                } else if cfg!(target_os = "macos") {
+                    "macos"
+                } else if cfg!(target_os = "android") {
+                    "android"
+                } else {
+                    "unknown"
+                };
+                tb_table.set("os", os)?;
+                lua.globals().set("torchbear", tb_table)?;
+            }
 
-        bindings::app::init(&lua).map_err(LuaError::external)?;
-        bindings::archive::init(&lua).map_err(LuaError::external)?;
-        bindings::crypto::init(&lua).map_err(LuaError::external)?;
-        bindings::string::init(&lua).map_err(LuaError::external)?;
-        bindings::system::init(&lua).map_err(LuaError::external)?;
-        bindings::text::init(&lua).map_err(LuaError::external)?;
-        bindings::web::init(&lua).map_err(LuaError::external)?;
-        bindings::number::init(&lua).map_err(LuaError::external)?;
-        bindings::net::init(&lua).map_err(LuaError::external)?;
+            // app table
 
-        // torchbear global table
-        {
-            let tb_table = lua.create_table()?;
-            tb_table.set("settings", rlua_serde::to_value(&lua, &self.settings).map_err(LuaError::external)?)?;
-            tb_table.set("init_filename", self.init_path.to_str())?;
-            tb_table.set("version", env!("CARGO_PKG_VERSION"))?;
-            let os = if cfg!(target_os = "windows") {
-                "windows"
-            } else if cfg!(target_os = "linux") {
-                "linux"
-            } else if cfg!(target_os = "macos") {
-                "macos"
-            } else if cfg!(target_os = "android") {
-                "android"
-            } else {
-                "unknown"
+            if let Some((name, app_settings)) = &self.app_settings {
+                let tb_table = lua.create_table()?;
+                tb_table.set("settings", rlua_serde::to_value(lua, app_settings)?)?;
+                lua.globals().set(name.as_str(), tb_table)?;
+            }
+
+            // Lua package.path
+            match self.package_path {
+                Some(ref package_path) => {
+                    let package: LuaTable = lua.globals().get("package")?;
+                    let mut path: String = package.get("path")?;
+                    path.push_str(";");
+                    path.push_str(package_path);
+                    package.set("path", path)?;
+                },
+                None => ()
+            }
+
+            // Lua arg
+            let mut cmd_args = self.init_args.clone();
+            // if no command line argument is passed, push current working directory
+            if cmd_args.is_empty() {
+                cmd_args.push(String::from("."));
+            }
+
+            // if file path is symlink, then resolve
+            match fs::read_link(&cmd_args[0]) {
+                Ok(p) => cmd_args[0] = String::from(p.to_str().unwrap_or("")),
+                Err(_) => (),
             };
-            tb_table.set("os", os)?;
-            lua.globals().set("torchbear", tb_table)?;
-        }
+            lua.globals().set("arg", lua.create_sequence_from(cmd_args)?)?;
 
-        // app table
-
-        if let Some((name, app_settings)) = &self.app_settings {
-            let tb_table = lua.create_table()?;
-            tb_table.set("settings", rlua_serde::to_value(&lua, app_settings).map_err(LuaError::external)?)?;
-            lua.globals().set(name.as_str(), tb_table)?;
-        }
-
-        // Lua package.path
-        match self.package_path {
-            Some(ref package_path) => {
-                let package: LuaTable = lua.globals().get("package")?;
-                let mut path: String = package.get("path")?;
-                path.push_str(";");
-                path.push_str(package_path);
-                package.set("path", path)?;
-            },
-            None => ()
-        }
-
-        // Lua arg
-        let mut cmd_args = self.init_args.clone();
-        // if no command line argument is passed, push current working directory
-        if cmd_args.is_empty() {
-            cmd_args.push(String::from("."));
-        }
-
-        // if file path is symlink, then resolve
-        match fs::read_link(&cmd_args[0]) {
-            Ok(p) => cmd_args[0] = String::from(p.to_str().unwrap_or("")),
-            Err(_) => (),
-        };
-        lua.globals().set("arg", lua.create_sequence_from(cmd_args)?)?;
-
-        // Lua Bridge
-        lua.exec::<_, ()>(include_str!("handlers/bridge.lua"), None)?;
-
+            // Lua Bridge
+            lua.load(include_str!("handlers/bridge.lua")).exec()?;
+            Ok(())
+        })?;
         Ok(lua)
     }
 
@@ -245,10 +243,13 @@ impl ApplicationBuilder {
 
             if let Some(Some(bootstrap)) = web.get("bootstrap_path").map(|s| { s.as_str() }) {
                 let vm = app_state.create_vm().unwrap();
-                vm.globals().get::<_, LuaTable>("torchbear").unwrap().set("bootstrap", bootstrap).unwrap();
+                vm.context(|vm| {
+                    vm.globals().get::<_, LuaTable>("torchbear").unwrap().set("bootstrap", bootstrap).unwrap();
 
-                if !vm.exec::<_, bool>(include_str!("handlers/bootstrap.lua"), Some("bootstrap")).unwrap()
-                { std::process::exit(1); }
+//                    if !vm.exec::<_, bool>(include_str!("handlers/bootstrap.lua"), Some("bootstrap")).unwrap()
+                    if !vm.load(include_str!("handlers/bootstrap.lua")).set_name("bootstrap").unwrap().eval::<bool>().unwrap()
+                        { std::process::exit(1); }
+                });
             }
 
             let single_actor = match web.get("single_actor").map(|s| { s.as_bool() }) {

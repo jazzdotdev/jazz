@@ -58,7 +58,7 @@ impl LuaUserData for LuaCommonIO {
             stdin.flush().map_err(LuaError::external)
         });
 
-        methods.add_method_mut("read", |lua: &Lua, this: &mut LuaCommonIO, (data, _opt): (Option<LuaValue>, Option<LuaValue>)|{
+        methods.add_method_mut("read", |lua, this: &mut LuaCommonIO, (data, _opt): (Option<LuaValue>, Option<LuaValue>)|{
             let stdout = this.stdout.clone().ok_or(LuaError::external(Error::InternalError))?;
             let mut stdout = stdout.lock().unwrap();
             match data {
@@ -170,13 +170,13 @@ impl LuaUserData for LuaPermissions {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    fs::init(&lua)?;
-    time::init(&lua)?;
-    path::init(&lua)?;
-    env::init(&lua)?;
-    dirs::init(&lua)?;
-    process::init(&lua)?;
-    command::init(&lua)?;
-    memory::init(&lua)?;
+    fs::init(lua)?;
+    time::init(lua)?;
+    path::init(lua)?;
+    env::init(lua)?;
+    dirs::init(lua)?;
+    process::init(lua)?;
+    command::init(lua)?;
+    memory::init(lua)?;
     Ok(())
 }
