@@ -6,6 +6,8 @@ use std::{
 use chrono::{DateTime, Local};
 use diff_rs::diff;
 
+use super::NULL_SOURCE;
+
 fn time_format(d: &DateTime<Local>) -> String {
     d.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
@@ -51,22 +53,36 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
             Ok(res)
         })?)?;
 
-        module.set("compare_files", lua.create_function(|_, (left, right): (String, String)| {
+
+        
+        module.set("compare_files", lua.create_function( |_, (left, right): (String, String)| {
             let prefix = vec![
                 format!("--- {}\t{}", &left, time_format(&mtime(&left).map_err(LuaError::external)?)),
                 format!("+++ {}\t{}", &right, time_format(&mtime(&right).map_err(LuaError::external)?))
             ];
 
-            let left = read_file(&left).map_err(LuaError::external)?;
-            let right = read_file(&right).map_err(LuaError::external)?;
+            if left == NULL_SOURCE && right == NULL_SOURCE {
+                return Err(rlua::Error::external(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "Both files cannot be null"
+                )));
+            }
+
+            let left = if left != NULL_SOURCE {
+                read_file(&left).map_err(LuaError::external)?
+            } else {
+                Vec::new()
+            };
+            let right = if right != NULL_SOURCE {
+                read_file(&right).map_err(LuaError::external)?
+            } else {
+                Vec::new()
+            };
 
             let diff = diff(&left, &right, 3).map_err(LuaError::external)?;
 
             let mut res = String::new();
-            prefix.iter().cloned().chain(diff).for_each(|s| {
-                res.push_str(&s);
-                res.push('\n')
-            });
+            prefix.iter().cloned().chain(diff).for_each(|s| { res.push_str(&s); res.push('\n') });
 
             Ok(res)
         })?)?;
@@ -77,4 +93,3 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
         Ok(())
     })
 }
-
