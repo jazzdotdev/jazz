@@ -8,9 +8,9 @@ pub mod combinediff;
 pub mod interdiff;
 pub mod yaml;
 
-#[cfg(target_os = "windows")]
+#[cfg(target_family = "windows")]
 pub const NULL_SOURCE: &str = "nul";
-#[cfg(target_os = "linux")]
+#[cfg(target_family = "unix")]
 pub const NULL_SOURCE: &str = "/dev/null";
 
 use rlua::prelude::*;
