@@ -65,6 +65,7 @@ nanoid = "0.2"
 heck = "0.3"
 # app
 tera = { git = "https://github.com/foundpatterns/tera" }
+handlebars = "1.1"
 tantivy = { version = "0.8", optional = true }
 chrono = "0.4"
 base64 = "0.10"

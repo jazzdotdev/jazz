@@ -2,7 +2,7 @@ pub mod git;
 pub mod log;
 pub mod markdown;
 pub mod tera;
-
+pub mod handlebars;
 
 use rlua::prelude::*;
 
@@ -21,6 +21,6 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
     markdown::init(&lua)?;
     tantivy::init(&lua)?;
     tera::init(&lua)?;
-
+    handlebars::init(&lua)?;
     Ok(())
 }
