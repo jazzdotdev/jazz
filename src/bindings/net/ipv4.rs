@@ -43,26 +43,28 @@ impl LuaUserData for LuaIpv4 {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("new", lua.create_function( |_, ip: String| {
-        ip.parse().map(LuaIpv4).map_err(LuaError::external)
-    })? )?;
+        module.set("new", lua.create_function(|_, ip: String| {
+            ip.parse().map(LuaIpv4).map_err(LuaError::external)
+        })?)?;
 
-    module.set("from_table", lua.create_function( |_, ip: Vec<u8>| {
-        if ip.len() != 4 {
-            return Ok(None);
-        }
-        let (a, b, c, d) = (
-            ip.get(0).unwrap_or(&0),
-            ip.get(1).unwrap_or(&0),
-            ip.get(2).unwrap_or(&0),
-            ip.get(3).unwrap_or(&0));
+        module.set("from_table", lua.create_function(|_, ip: Vec<u8>| {
+            if ip.len() != 4 {
+                return Ok(None);
+            }
+            let (a, b, c, d) = (
+                ip.get(0).unwrap_or(&0),
+                ip.get(1).unwrap_or(&0),
+                ip.get(2).unwrap_or(&0),
+                ip.get(3).unwrap_or(&0));
 
-        Ok(Some(LuaIpv4(Ipv4Addr::new(*a, *b, *c, *d))))
-    })? )?;
+            Ok(Some(LuaIpv4(Ipv4Addr::new(*a, *b, *c, *d))))
+        })?)?;
 
-    lua.globals().set("ipv4", module)?;
+        lua.globals().set("ipv4", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }

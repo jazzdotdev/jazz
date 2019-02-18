@@ -5,16 +5,18 @@ pub mod stringset;
 pub mod uuid;
 pub mod base64;
 pub mod ulid;
+pub mod nanoid;
 
 use rlua::prelude::*;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    case::init(&lua)?;
-    mime::init(&lua)?;
-    regex::init(&lua)?;
-    stringset::init(&lua)?;
-    uuid::init(&lua)?;
-    base64::init(&lua)?;
-    ulid::init(&lua)?;
+    case::init(lua)?;
+    mime::init(lua)?;
+    regex::init(lua)?;
+    stringset::init(lua)?;
+    uuid::init(lua)?;
+    base64::init(lua)?;
+    ulid::init(lua)?;
+    nanoid::init(lua)?;
     Ok(())
 }

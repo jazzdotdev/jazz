@@ -31,30 +31,32 @@ impl LuaUserData for LuaIpv6 {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("new", lua.create_function( |_, ip: String| {
-        ip.parse().map(LuaIpv6).map_err(LuaError::external)
-    })? )?;
+        module.set("new", lua.create_function(|_, ip: String| {
+            ip.parse().map(LuaIpv6).map_err(LuaError::external)
+        })?)?;
 
-    module.set("from_table", lua.create_function( |_, ip: Vec<u16>| {
-        if ip.len() != 8 {
-            return Ok(None);
-        }
-        let (a, b, c, d, e, f, g, h) = (
-            ip.get(0).unwrap_or(&0),
-            ip.get(1).unwrap_or(&0),
-            ip.get(2).unwrap_or(&0),
-            ip.get(3).unwrap_or(&0),
-            ip.get(4).unwrap_or(&0),
-            ip.get(5).unwrap_or(&0),
-            ip.get(6).unwrap_or(&0),
-            ip.get(7).unwrap_or(&0));
+        module.set("from_table", lua.create_function(|_, ip: Vec<u16>| {
+            if ip.len() != 8 {
+                return Ok(None);
+            }
+            let (a, b, c, d, e, f, g, h) = (
+                ip.get(0).unwrap_or(&0),
+                ip.get(1).unwrap_or(&0),
+                ip.get(2).unwrap_or(&0),
+                ip.get(3).unwrap_or(&0),
+                ip.get(4).unwrap_or(&0),
+                ip.get(5).unwrap_or(&0),
+                ip.get(6).unwrap_or(&0),
+                ip.get(7).unwrap_or(&0));
 
-        Ok(Some(LuaIpv6(Ipv6Addr::new(*a, *b, *c, *d, *e, *f, *g, *h))))
-    })? )?;
+            Ok(Some(LuaIpv6(Ipv6Addr::new(*a, *b, *c, *d, *e, *f, *g, *h))))
+        })?)?;
 
-    lua.globals().set("ipv6", module)?;
+        lua.globals().set("ipv6", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }

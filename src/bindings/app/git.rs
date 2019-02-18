@@ -151,98 +151,100 @@ fn git_init(repo: &str) -> crate::Result<()> {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let git = lua.create_table()?;
+    lua.context(|lua| {
+        let git = lua.create_table()?;
 
-    git.set(
-        "init",
-        lua.create_function(|_, path: String| Ok(git_init(&path).is_ok()))?,
-    )?;
+        git.set(
+            "init",
+            lua.create_function(|_, path: String| Ok(git_init(&path).is_ok()))?,
+        )?;
 
-    git.set(
-        "add",
-        lua.create_function(|_, (repo, paths): (String, Vec<String>)| {
-            Ok(git_add(&repo, &paths).is_ok())
-        })?,
-    )?;
+        git.set(
+            "add",
+            lua.create_function(|_, (repo, paths): (String, Vec<String>)| {
+                Ok(git_add(&repo, &paths).is_ok())
+            })?,
+        )?;
 
-    git.set(
-        "commit",
-        lua.create_function(
-            |_, (repo, message, name, email): (String, String, Option<String>, Option<String>)| {
-                let sig = if name.is_some() && email.is_some() {
-                    Some((name.unwrap(), email.unwrap()))
-                } else {
-                    None
+        git.set(
+            "commit",
+            lua.create_function(
+                |_, (repo, message, name, email): (String, String, Option<String>, Option<String>)| {
+                    let sig = if name.is_some() && email.is_some() {
+                        Some((name.unwrap(), email.unwrap()))
+                    } else {
+                        None
+                    };
+                    Ok(git_commit(&repo, &message, sig).is_ok())
+                },
+            )?,
+        )?;
+
+        //TODO: Fallback for android
+        #[cfg(not(target_os = "android"))]
+            git.set(
+            "log",
+            lua.create_function(|lua, repo: String| {
+                let repo = match git2::Repository::open(&repo) {
+                    Ok(repo) => repo,
+                    Err(_) => return Ok(None),
                 };
-                Ok(git_commit(&repo, &message, sig).is_ok())
-            },
-        )?,
-    )?;
-
-    //TODO: Fallback for android
-    #[cfg(not(target_os = "android"))]
-    git.set(
-        "log",
-        lua.create_function(|lua, repo: String| {
-            let repo = match git2::Repository::open(&repo) {
-                Ok(repo) => repo,
-                Err(_) => return Ok(None),
-            };
-            let mut walk = match repo.revwalk() {
-                Ok(walk) => walk,
-                Err(_) => return Ok(None),
-            };
-            if walk.push_head().is_ok() {
-                let walk = walk.filter_map(|x| match x {
-                    Err(_) => None,
-                    Ok(id) => match repo.find_commit(id) {
+                let mut walk = match repo.revwalk() {
+                    Ok(walk) => walk,
+                    Err(_) => return Ok(None),
+                };
+                if walk.push_head().is_ok() {
+                    let walk = walk.filter_map(|x| match x {
                         Err(_) => None,
-                        Ok(commit) => {
-                            let table = lua.create_table().unwrap();
-                            table.set("id", format!("{}", commit.id())).unwrap();
-                            table
-                                .set("message", commit.message().unwrap_or(""))
-                                .unwrap();
-                            Some(table)
-                        }
-                    },
-                });
-                Ok(Some(walk.collect::<Vec<_>>()))
-            } else {
-                Ok(Some(Vec::new()))
-            }
-        })?,
-    )?;
+                        Ok(id) => match repo.find_commit(id) {
+                            Err(_) => None,
+                            Ok(commit) => {
+                                let table = lua.create_table().unwrap();
+                                table.set("id", format!("{}", commit.id())).unwrap();
+                                table
+                                    .set("message", commit.message().unwrap_or(""))
+                                    .unwrap();
+                                Some(table)
+                            }
+                        },
+                    });
+                    Ok(Some(walk.collect::<Vec<_>>()))
+                } else {
+                    Ok(Some(Vec::new()))
+                }
+            })?,
+        )?;
 
-    git.set(
-	"clone",
-	lua.create_function(|_, (url, into): (String, String)| {
-	    git_clone(&url, &into).map_err(LuaError::external)
-	})?,
-    )?;
+        git.set(
+            "clone",
+            lua.create_function(|_, (url, into): (String, String)| {
+                git_clone(&url, &into).map_err(LuaError::external)
+            })?,
+        )?;
 
-    git.set(
-        "pull",
-        lua.create_function(|_, (path, remote_name, branch_name): (String, String, String)| {
-            git_pull(&path, &remote_name, &branch_name).map_err(LuaError::external)
-        })?,
-    )?;
+        git.set(
+            "pull",
+            lua.create_function(|_, (path, remote_name, branch_name): (String, String, String)| {
+                git_pull(&path, &remote_name, &branch_name).map_err(LuaError::external)
+            })?,
+        )?;
 
-    git.set(
-        "reset",
-        lua.create_function(|_, (path, spec, reset_type): (String, String, String)| {
-            git_reset(&path, &spec, &reset_type).map_err(LuaError::external)
-        })?,
-    )?;
+        git.set(
+            "reset",
+            lua.create_function(|_, (path, spec, reset_type): (String, String, String)| {
+                git_reset(&path, &spec, &reset_type).map_err(LuaError::external)
+            })?,
+        )?;
 
-    let globals = lua.globals();
-    globals.set("git", git)?;
-    Ok(())
+        let globals = lua.globals();
+        globals.set("git", git)?;
+        Ok(())
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use rlua::{Lua, Value};
+    use rlua::Lua;
     #[test]
     fn test() {
         let dir = tempfile::tempdir().unwrap();
@@ -251,35 +253,31 @@ mod tests {
         let lua = Lua::new();
         super::init(&lua).unwrap();
 
-        lua.exec::<_, Value>(r#"assert(git.init("repo") == true)"#, None)
-            .unwrap();
-        let repo = git2::Repository::open("repo").unwrap();
+        lua.context(|lua| {
+            lua.load(r#"assert(git.init("repo") == true)"#).exec()
+                .unwrap();
+            let repo = git2::Repository::open("repo").unwrap();
 
-        lua.exec::<_, Value>(r#"assert(#git.log("repo") == 0)"#, None)
-            .unwrap();
+            lua.load(r#"assert(#git.log("repo") == 0)"#).exec()
+                .unwrap();
 
-        std::fs::write("repo/file", b"").unwrap();
-        lua.exec::<_, Value>(r#"assert(git.add("repo", {"file"}) == true)"#, None)
-            .unwrap();
-        assert!(repo.status_file("file".as_ref()).unwrap().is_index_new());
+            std::fs::write("repo/file", b"").unwrap();
+            lua.load(r#"assert(git.add("repo", {"file"}) == true)"#).exec()
+                .unwrap();
+            assert!(repo.status_file("file".as_ref()).unwrap().is_index_new());
 
-        lua.exec::<_, Value>(
-            r#"assert(git.commit("repo", "initial", "user", "user@gmail.com") == true)"#,
-            None,
-        ).unwrap();
+            lua.load(
+                r#"assert(git.commit("repo", "initial", "user", "user@gmail.com") == true)"#).exec().unwrap();
 
-        lua.exec::<_, Value>(
-            r#"assert(git.commit("repo", "second", "user", "user@gmail.com") == true)"#,
-            None,
-        ).unwrap();
+            lua.load(
+                r#"assert(git.commit("repo", "second", "user", "user@gmail.com") == true)"#).exec().unwrap();
 
-        lua.exec::<_, Value>(
-            r#"
+            lua.load(
+                r#"
             local log = git.log("repo")
             assert(log[1].message == "second")
             assert(log[2].message == "initial")
-            "#,
-            None,
-        ).unwrap();
+            "#,).exec().unwrap();
+        })
     }
 }

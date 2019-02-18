@@ -54,23 +54,25 @@ fn comrak_options_from_table(table: &HashMap<String, LuaValue>) -> Result<Comrak
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let render_markdown = lua.create_function(
-        |_, (markdown_str, options): (String, Option<HashMap<String, LuaValue>>)| {
-            let html_string = match options {
-                Some(options) => {
-                    let opts = comrak_options_from_table(&options)?;
-                    markdown_to_html(&markdown_str, &opts)
-                }
-                None => markdown_to_html(&markdown_str, &ComrakOptions::default()),
-            };
+    lua.context(|lua| {
+        let render_markdown = lua.create_function(
+            |_, (markdown_str, options): (String, Option<HashMap<String, LuaValue>>)| {
+                let html_string = match options {
+                    Some(options) => {
+                        let opts = comrak_options_from_table(&options)?;
+                        markdown_to_html(&markdown_str, &opts)
+                    }
+                    None => markdown_to_html(&markdown_str, &ComrakOptions::default()),
+                };
 
-            Ok(html_string)
-        },
-    )?;
+                Ok(html_string)
+            },
+        )?;
 
-    lua.globals().set("markdown_to_html", render_markdown)?;
+        lua.globals().set("markdown_to_html", render_markdown)?;
 
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -81,33 +83,35 @@ mod tests {
     fn test_markdown_to_html() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<_, LuaValue>(r#"return markdown_to_html("Hello, **世界**!")"#, None);
+        lua.context(|lua| {
+            let result = lua.load(r#"return markdown_to_html("Hello, **世界**!")"#).eval::<LuaValue>();
 
-        match result {
-            Ok(LuaValue::String(html)) => {
-                assert_eq!(html, "<p>Hello, <strong>世界</strong>!</p>\n")
+            match result {
+                Ok(LuaValue::String(html)) => {
+                    assert_eq!(html, "<p>Hello, <strong>世界</strong>!</p>\n")
+                }
+                _ => unimplemented!("Unexpected value returned from markdown_to_html"),
             }
-            _ => unimplemented!("Unexpected value returned from markdown_to_html"),
-        }
+        })
     }
 
     #[test]
     fn test_markdown_to_html_with_options() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        let result = lua.exec::<_, LuaValue>(
-            r#"return markdown_to_html("Hello, **世界**!<script></script>", {unsafe = false})"#,
-            None,
-        );
+        lua.context(|lua| {
+            let result = lua.load(
+                r#"return markdown_to_html("Hello, **世界**!<script></script>", {unsafe = false})"#).eval::<LuaValue>();
 
-        match result {
-            Ok(LuaValue::String(html)) => {
-                let s = html.to_str().unwrap().to_string();
-                //                println!("html = {}", s);
-                assert!(s.contains("<p>Hello, <strong>世界</strong>!"));
-                assert!(!s.contains("<script>"));
+            match result {
+                Ok(LuaValue::String(html)) => {
+                    let s = html.to_str().unwrap().to_string();
+                    //                println!("html = {}", s);
+                    assert!(s.contains("<p>Hello, <strong>世界</strong>!"));
+                    assert!(!s.contains("<script>"));
+                }
+                _ => unimplemented!("Unexpected value returned from markdown_to_html"),
             }
-            _ => unimplemented!("Unexpected value returned from markdown_to_html"),
-        }
+        })
     }
 }

@@ -16,15 +16,14 @@ pub const NULL_SOURCE: &str = "/dev/null";
 use rlua::prelude::*;
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    json::init(&lua)?;
-    scl::init(&lua)?;
-    select::init(&lua)?;
-    yaml::init(&lua)?;
-    diff::init(&lua)?;
-    patch::init(&lua)?;
-    splitdiff::init(&lua)?;
-    combinediff::init(&lua)?;
-    interdiff::init(&lua)?;
-
+    json::init(lua)?;
+    scl::init(lua)?;
+    select::init(lua)?;
+    yaml::init(lua)?;
+    diff::init(lua)?;
+    patch::init(lua)?;
+    splitdiff::init(lua)?;
+    combinediff::init(lua)?;
+    interdiff::init(lua)?;
     Ok(())
 }

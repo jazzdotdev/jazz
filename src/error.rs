@@ -1,4 +1,4 @@
-use std::{io, string, time};
+use std::{io, fmt, string, time, sync::Arc, error::Error as StdError};
 use serde_json;
 use serde_yaml;
 use rlua_serde;
@@ -7,51 +7,81 @@ use git2;
 use base64;
 use scl;
 use rlua::Error as LuaError;
+use splitdiff_rs;
+use patch_rs;
 
 //Due to number of number of crates that have different errors, we will handle them this way for the time being which would just create a base for
 //handling errors properly. The errors will be bound to change in the near future
 
-#[derive(Fail, Debug)]
+#[derive(Debug)]
 pub enum Error {
-    #[fail(display = "Failed to initialize libsodium.")]
     SodiumInitFailure,
-    #[fail(display = "Failed to load nonce, data is invalid.")]
     InvalidNonce,
-    #[fail(display = "Object passed is in not Nonce.")]
     InvalidNonceObject,
-    #[fail(display = "Failed to decrypt.")]
     FailedToDecrypt,
-    #[fail(display = "Failed to verify signed message.")]
     VerifyError,
-    #[fail(display = "Failed to load key, data is invalid.")]
     InvalidKeys,
-    #[fail(display = "Failed verify, signature is invalid.")]
     InvalidSignature,
-    #[fail(display = "Internal error as occured.")]
     InternalError,
-    #[fail(display = "{}", _0)]
     LuaError(rlua::Error),
-    #[fail(display = "{}", _0)]
     IoError(io::Error),
-    #[fail(display = "{}", _0)]
     JsonError(serde_json::Error),
-    #[fail(display = "{}", _0)]
     YamlError(serde_yaml::Error),
-    #[fail(display = "{}", _0)]
     LuaSerdeError(rlua_serde::error::Error),   
-    #[fail(display = "{}", _0)]
     GitError(git2::Error),
-    #[fail(display = "{}", _0)]
     Base64Error(base64::DecodeError),
-    #[fail(display = "{}", _0)]
     StringUtf8Error(string::FromUtf8Error),
-    #[fail(display = "{}", _0)]
     SclError(scl::Error),
-    #[fail(display = "{}", _0)]
     SysTimeError(time::SystemTimeError),
+    SplitDiffError(splitdiff_rs::Error),
+    PatchError(patch_rs::PatchError),
     //TODO: This is only temp as a place holder for anything making use of a string for error messages
-    #[fail(display = "{}", _0)]
     Other(String),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Error::SodiumInitFailure => writeln!(fmt, "Failed to initialize libsodium."),
+            Error::InvalidNonce => writeln!(fmt, "Failed to load nonce, data is invalid."),
+            Error::InvalidNonceObject => writeln!(fmt, "Object passed is in not Nonce."),
+            Error::FailedToDecrypt => writeln!(fmt, "Failed to decrypt."),
+            Error::VerifyError => writeln!(fmt, "Failed to verify signed message."),
+            Error::InvalidSignature => writeln!(fmt, "Failed to load key, data is invalid."),
+            Error::InvalidKeys => writeln!(fmt, "Failed verify, signature is invalid."),
+            Error::InternalError => writeln!(fmt, "Internal error as occured."),
+            Error::LuaError(ref err) => writeln!(fmt, "{}", err),
+            Error::IoError(ref err) => writeln!(fmt, "{}", err),
+            Error::JsonError(ref err) => writeln!(fmt, "{}", err),
+            Error::YamlError(ref err) => writeln!(fmt, "{}", err),
+            Error::LuaSerdeError(ref err) => writeln!(fmt, "{}", err),
+            Error::GitError(ref err) => writeln!(fmt, "{}", err),
+            Error::Base64Error(ref err) => writeln!(fmt, "{}", err),
+            Error::StringUtf8Error(ref err) => writeln!(fmt, "{}", err),
+            Error::SclError(ref err) => writeln!(fmt, "{}", err),
+            Error::SysTimeError(ref err) => writeln!(fmt, "{}", err),
+            Error::SplitDiffError(ref err) => writeln!(fmt, "{}", err),
+            Error::PatchError(ref err) => writeln!(fmt, "{}", err),
+            Error::Other(ref err) => writeln!(fmt, "{}", err),
+        }
+    }
+}
+
+impl StdError for Error {
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        match *self {
+            Error::LuaError(ref err) => Some(err),
+            Error::IoError(ref err) => Some(err),
+            Error::JsonError(ref err) => Some(err),
+            Error::YamlError(ref err) => Some(err),
+            Error::LuaSerdeError(ref err) => Some(err),
+            Error::GitError(ref err) => Some(err),
+            Error::Base64Error(ref err) => Some(err),
+            Error::StringUtf8Error(ref err) => Some(err),
+            Error::SysTimeError(ref err) => Some(err),
+            _ => None,
+        }
+    }
 }
 
 impl From<rlua::Error> for Error {
@@ -114,6 +144,12 @@ impl From<time::SystemTimeError> for Error {
     }
 }
 
+impl From<splitdiff_rs::Error> for Error {
+    fn from(err: splitdiff_rs::Error) -> Error {
+        Error::SplitDiffError(err)
+    }
+}
+
 impl From<String> for Error {
     fn from(err: String) -> Error {
         Error::Other(err)
@@ -121,12 +157,11 @@ impl From<String> for Error {
 }
 
 pub fn create_lua_error <T> (err: T) -> LuaError
-    where T: std::error::Error + Sync + Send + 'static {
-    LuaError::ExternalError(
-        std::sync::Arc::new(
-            ::failure::Error::from_boxed_compat(
-                Box::new(err)
-            )
-        )
-    )
+   where T: StdError + Sync + Send + 'static {
+    LuaError::ExternalError(Arc::new(Box::new(err)))
+}
+
+#[macro_export]
+macro_rules! format_err {
+    ($($arg:tt)*) => { $crate::error::Error::Other(format!($($arg)*)) }
 }

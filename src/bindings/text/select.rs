@@ -183,10 +183,11 @@ fn into_send(raw: &mut Raw) {
 impl Document {
     fn from_str(text: &str) -> Document {
         let mut doc = select::document::Document::from(text);
-        for raw in &mut doc.nodes {
-            // This line is important
-            into_send(raw);
-        }
+        doc.nodes.iter_mut().for_each(into_send);
+        // for raw in &mut doc.nodes {
+        //     // This line is important
+        //     into_send(raw);
+        // }
         Document(Arc::new(doc))
     }
 }
@@ -211,142 +212,144 @@ impl UserData for Document {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let select = lua.create_table()?;
+    lua.context(|lua| {
+        let select = lua.create_table()?;
 
-    // New Document from string
-    select.set(
-        "document",
-        lua.create_function(|_, text: String| Ok(Document::from_str(text.as_str())))?,
-    )?;
+        // New Document from string
+        select.set(
+            "document",
+            lua.create_function(|_, text: String| Ok(Document::from_str(text.as_str())))?,
+        )?;
 
-    // Create `Name` predicate
-    select.set(
-        "name",
-        lua.create_function(|lua, text: String| {
-            let pred = Predicate::Name(text);
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Class` predicate
-    select.set(
-        "class",
-        lua.create_function(|lua, text: String| {
-            let pred = Predicate::Class(text);
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Attr` predicate
-    select.set(
-        "attr",
-        lua.create_function(|lua, args: (String, Option<String>)| {
-            let pred = Predicate::Attr(args.0, args.1);
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Any` predicate
-    select.set(
-        "any",
-        lua.create_function(|lua, _: ()| {
-            let pred = Predicate::Any;
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Text` predicate
-    select.set(
-        "text",
-        lua.create_function(|lua, _: ()| {
-            let pred = Predicate::Text;
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Element` predicate
-    select.set(
-        "element",
-        lua.create_function(|lua, _: ()| {
-            let pred = Predicate::Element;
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Comment` predicate
-    select.set(
-        "comment",
-        lua.create_function(|lua, _: ()| {
-            let pred = Predicate::Comment;
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
+        // Create `Name` predicate
+        select.set(
+            "name",
+            lua.create_function(|lua, text: String| {
+                let pred = Predicate::Name(text);
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Class` predicate
+        select.set(
+            "class",
+            lua.create_function(|lua, text: String| {
+                let pred = Predicate::Class(text);
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Attr` predicate
+        select.set(
+            "attr",
+            lua.create_function(|lua, args: (String, Option<String>)| {
+                let pred = Predicate::Attr(args.0, args.1);
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Any` predicate
+        select.set(
+            "any",
+            lua.create_function(|lua, _: ()| {
+                let pred = Predicate::Any;
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Text` predicate
+        select.set(
+            "text",
+            lua.create_function(|lua, _: ()| {
+                let pred = Predicate::Text;
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Element` predicate
+        select.set(
+            "element",
+            lua.create_function(|lua, _: ()| {
+                let pred = Predicate::Element;
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Comment` predicate
+        select.set(
+            "comment",
+            lua.create_function(|lua, _: ()| {
+                let pred = Predicate::Comment;
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
 
-    // Create `Not` predicate
-    select.set(
-        "not",
-        lua.create_function(|lua, pred: rlua::Value| {
-            let pred: Predicate = rlua_serde::from_value(pred)?;
-            let pred = Predicate::Not(Box::new(pred));
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `And` predicate
-    select.set(
-        "and",
-        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
-            let a: Predicate = rlua_serde::from_value(a)?;
-            let b: Predicate = rlua_serde::from_value(b)?;
-            let pred = Predicate::And(Box::new(a), Box::new(b));
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Or` predicate
-    select.set(
-        "or",
-        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
-            let a: Predicate = rlua_serde::from_value(a)?;
-            let b: Predicate = rlua_serde::from_value(b)?;
-            let pred = Predicate::Or(Box::new(a), Box::new(b));
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Child` predicate
-    select.set(
-        "child",
-        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
-            let a: Predicate = rlua_serde::from_value(a)?;
-            let b: Predicate = rlua_serde::from_value(b)?;
-            let pred = Predicate::Child(Box::new(a), Box::new(b));
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
-    // Create `Descendant` predicate
-    select.set(
-        "descendant",
-        lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
-            let a: Predicate = rlua_serde::from_value(a)?;
-            let b: Predicate = rlua_serde::from_value(b)?;
-            let pred = Predicate::Descendant(Box::new(a), Box::new(b));
-            rlua_serde::to_value(lua, &pred)
-        })?,
-    )?;
+        // Create `Not` predicate
+        select.set(
+            "not",
+            lua.create_function(|lua, pred: rlua::Value| {
+                let pred: Predicate = rlua_serde::from_value(pred)?;
+                let pred = Predicate::Not(Box::new(pred));
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `And` predicate
+        select.set(
+            "and",
+            lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+                let a: Predicate = rlua_serde::from_value(a)?;
+                let b: Predicate = rlua_serde::from_value(b)?;
+                let pred = Predicate::And(Box::new(a), Box::new(b));
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Or` predicate
+        select.set(
+            "or",
+            lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+                let a: Predicate = rlua_serde::from_value(a)?;
+                let b: Predicate = rlua_serde::from_value(b)?;
+                let pred = Predicate::Or(Box::new(a), Box::new(b));
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Child` predicate
+        select.set(
+            "child",
+            lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+                let a: Predicate = rlua_serde::from_value(a)?;
+                let b: Predicate = rlua_serde::from_value(b)?;
+                let pred = Predicate::Child(Box::new(a), Box::new(b));
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
+        // Create `Descendant` predicate
+        select.set(
+            "descendant",
+            lua.create_function(|lua, (a, b): (rlua::Value, rlua::Value)| {
+                let a: Predicate = rlua_serde::from_value(a)?;
+                let b: Predicate = rlua_serde::from_value(b)?;
+                let pred = Predicate::Descendant(Box::new(a), Box::new(b));
+                rlua_serde::to_value(lua, &pred)
+            })?,
+        )?;
 
-    let globals = lua.globals();
-    globals.set("hquery", select)?;
+        let globals = lua.globals();
+        globals.set("hquery", select)?;
 
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use rlua::{Lua, Value};
+    use rlua::Lua;
 
     #[test]
     fn test() {
         let lua = Lua::new();
         super::init(&lua).unwrap();
-        lua.exec::<_, Value>(
-            r#"
+        lua.context(|lua| {
+            lua.load(
+                r#"
         local doc = hquery.document("<p>hello</p>")
         local vec = doc:find(hquery.name("p"))
         assert(vec[1]:text() == "hello")
-        "#,
-            None,
-        ).unwrap();
+        "#).exec().unwrap();
+        })
     }
 }

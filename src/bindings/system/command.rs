@@ -144,17 +144,19 @@ impl LuaUserData for LuaExitStatus {
 
 #[allow(unreachable_code)]
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("new", lua.create_function( |_, (name, args): (String, Option<Vec<String>>)| {
-        let mut command = Command::new(name);
-        if let Some(args) = args {
-            command.args(args);
-        }
-        Ok(LuaCommand(command))
-    })? )?;
+        module.set("new", lua.create_function(|_, (name, args): (String, Option<Vec<String>>)| {
+            let mut command = Command::new(name);
+            if let Some(args) = args {
+                command.args(args);
+            }
+            Ok(LuaCommand(command))
+        })?)?;
 
-    lua.globals().set("command", module)?;
+        lua.globals().set("command", module)?;
 
-    Ok(())
+        Ok(())
+    })
 }

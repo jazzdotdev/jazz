@@ -82,16 +82,17 @@ impl LuaUserData for LuaTera {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
+    lua.context(|lua| {
+        let new_tera = lua.create_function(move |_, dir: String| {
+            let tera = Tera::new(&dir).unwrap();
+            let arc_mutex = Arc::new(Mutex::new(tera));
+            Ok(LuaTera(arc_mutex))
+        })?;
 
-    let new_tera = lua.create_function(move |_, dir: String| {
-        let tera = Tera::new(&dir).unwrap();
-        let arc_mutex = Arc::new(Mutex::new(tera));
-        Ok(LuaTera(arc_mutex))
-    })?;
+        let module = lua.create_table()?;
+        module.set("new", new_tera)?;
+        lua.globals().set("tera", module).map_err(Error::from)?;
 
-    let module = lua.create_table()?;
-    module.set("new", new_tera)?;
-    lua.globals().set("tera", module).map_err(Error::from)?;
-
-    Ok(())
+        Ok(())
+    })
 }

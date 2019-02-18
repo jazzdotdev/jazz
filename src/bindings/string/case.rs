@@ -27,16 +27,17 @@ impl LuaUserData for LuaCase {
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    let module = lua.create_table()?;
+        module.set("new", lua.create_function(|_, text: String| {
+            Ok(LuaCase(text))
+        })?)?;
 
-    module.set("new", lua.create_function(|_, text: String| {
-        Ok(LuaCase(text))
-    })?)?;
+        lua.globals().set("case", module)?;
 
-    lua.globals().set("case", module)?;
-
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -48,64 +49,71 @@ mod tests {
         let lua = Lua::new();
         init(&lua).unwrap();
 
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("We are not in the least afraid of ruins")
             assert(val:to_camel() == "WeAreNotInTheLeastAfraidOfRuins")
-        "#, None).unwrap();
+            "#).exec().unwrap();
+        });
     }
 
     #[test]
     fn lua_kebab () {
         let lua = Lua::new();
         init(&lua).unwrap();
-
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("We are going to inherit the earth")
             assert(val:to_kebab() == "we-are-going-to-inherit-the-earth")
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 
     #[test]
     fn lua_mixed () {
         let lua = Lua::new();
         init(&lua).unwrap();
-
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("It is we who built these palaces and cities")
             assert(val:to_mixed() == "itIsWeWhoBuiltThesePalacesAndCities")
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 
     #[test]
     fn lua_shouty() {
         let lua = Lua::new();
         init(&lua).unwrap();
-
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("That world is growing in this minute")
             assert(val:to_shouty_snake() == "THAT_WORLD_IS_GROWING_IN_THIS_MINUTE")
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 
     #[test]
     fn lua_snake () {
         let lua = Lua::new();
         init(&lua).unwrap();
-
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("We carry a new world here, in our hearts")
             assert(val:to_snake() == "we_carry_a_new_world_here_in_our_hearts")
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 
     #[test]
     fn lua_title () {
         let lua = Lua::new();
         init(&lua).unwrap();
-
-        lua.exec::<_, ()>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local val = case.new("We have always lived in slums and holes in the wall")
             assert(val:to_title() == "We Have Always Lived In Slums And Holes In The Wall")
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 }

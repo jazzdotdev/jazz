@@ -94,8 +94,8 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok(set)
     }
 
-    fn get_sets (lua: &Lua, args: (Value, Value)) -> Result<(Set, Set), LuaError> {
-        fn from_value (a: Value, lua: &Lua) -> Result<Set, LuaError> {
+    fn get_sets<'a>(lua: LuaContext<'a>, args: (Value<'a>, Value<'a>)) -> Result<(Set, Set), LuaError> {
+        fn from_value<'a>(a: Value<'a>, lua: LuaContext<'a>) -> Result<Set, LuaError> {
             Ok(match a {
                 Value::Table(t) => from_table(t)?,
                 a@_ => StringSet::from_lua(a, lua)?.0
@@ -105,44 +105,46 @@ pub fn init(lua: &Lua) -> Result<(), LuaError> {
         Ok((from_value(a, lua)?, from_value(b, lua)?))
     }
 
-    let module = lua.create_table()?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
 
-    module.set("create", lua.create_function(
-        |_, _: ()|  Ok(StringSet(HashSet::new()))
-    )? )?;
+        module.set("create", lua.create_function(
+            |_, _: ()| Ok(StringSet(HashSet::new()))
+        )?)?;
 
-    module.set("from_table", lua.create_function(
-        |_, t: Table|  Ok(StringSet(from_table(t)?))
-    )? )?;
+        module.set("from_table", lua.create_function(
+            |_, t: Table| Ok(StringSet(from_table(t)?))
+        )?)?;
 
-    let g = lua.globals();
-    g.set("stringset", module)?;
+        let g = lua.globals();
+        g.set("stringset", module)?;
 
-    g.set("difference", lua.create_function( |lua, args: (Value, Value)| {
-        let (a, b) = get_sets(lua, args)?;
-        let c = a.difference(&b).cloned().collect();
-        Ok(StringSet(c))
-    })? )?;
+        g.set("difference", lua.create_function(|lua, args: (Value, Value)| {
+            let (a, b) = get_sets(lua, args)?;
+            let c = a.difference(&b).cloned().collect();
+            Ok(StringSet(c))
+        })?)?;
 
-    g.set("symmetric", lua.create_function( |lua, args: (Value, Value)| {
-        let (a, b) = get_sets(lua, args)?;
-        let c = a.symmetric_difference(&b).cloned().collect();
-        Ok(StringSet(c))
-    })? )?;
+        g.set("symmetric", lua.create_function(|lua, args: (Value, Value)| {
+            let (a, b) = get_sets(lua, args)?;
+            let c = a.symmetric_difference(&b).cloned().collect();
+            Ok(StringSet(c))
+        })?)?;
 
-    g.set("intersection", lua.create_function( |lua, args: (Value, Value)| {
-        let (a, b) = get_sets(lua, args)?;
-        let c = a.intersection(&b).cloned().collect();
-        Ok(StringSet(c))
-    })? )?;
+        g.set("intersection", lua.create_function(|lua, args: (Value, Value)| {
+            let (a, b) = get_sets(lua, args)?;
+            let c = a.intersection(&b).cloned().collect();
+            Ok(StringSet(c))
+        })?)?;
 
-    g.set("union", lua.create_function( |lua, args: (Value, Value)| {
-        let (a, b) = get_sets(lua, args)?;
-        let c = a.union(&b).cloned().collect();
-        Ok(StringSet(c))
-    })? )?;
+        g.set("union", lua.create_function(|lua, args: (Value, Value)| {
+            let (a, b) = get_sets(lua, args)?;
+            let c = a.union(&b).cloned().collect();
+            Ok(StringSet(c))
+        })?)?;
 
-    Ok(())
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -153,7 +155,8 @@ mod tests {
     fn direct_methods() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        lua.exec::<_, Value>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local a = stringset.create()
             a:insert("Colombia")
             a:insert("Canada")
@@ -200,14 +203,16 @@ mod tests {
             for i, v in ipairs(t) do
                 print(i, v)
             end
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 
     #[test]
     fn shortcut_syntax() {
         let lua = Lua::new();
         init(&lua).unwrap();
-        lua.exec::<_, Value>(r#"
+        lua.context(|lua| {
+            lua.load(r#"
             local a = stringset.create()
             a:insert("Canada")
             a:insert("China")
@@ -221,6 +226,7 @@ mod tests {
             union(a, b)
             difference(a, b)
             symmetric(a, b)
-        "#, None).unwrap();
+        "#).exec().unwrap();
+        })
     }
 }

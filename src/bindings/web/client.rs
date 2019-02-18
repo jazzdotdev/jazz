@@ -13,7 +13,7 @@ fn map_actix_err(err: actix_web::Error) -> LuaError {
     LuaError::external(format_err!("actix_web error: {}", &err))
 }
 
-fn parse_response(lua: &Lua, res: ClientResponse) -> Result<LuaTable, LuaError> {
+fn parse_response(lua: LuaContext, res: ClientResponse) -> Result<LuaTable, LuaError> {
     let body_data = res.body()
         .wait()
         .map_err(|err| {
@@ -88,13 +88,13 @@ fn set_headers(value: LuaValue, request_builder: &mut ClientRequestBuilder) -> R
             request_builder.header(&key as &str, value);
         }
     } else {
-        return Err(LuaError::external(format_err!("Invalid client headers {:?}", &value)))
+        return Err(LuaError::external(format_err!("Invalid client headers {:?}", &value)));
     }
 
     Ok(())
 }
 
-fn send_lua_request <'a> (lua: &'a Lua, val: LuaValue<'a>) -> Result<LuaTable<'a>, LuaError> {
+fn send_lua_request <'a> (lua: LuaContext<'a>, val: LuaValue<'a>) -> Result<LuaTable<'a>, LuaError> {
 
     let mut builder = ClientRequest::build();
 
@@ -135,10 +135,12 @@ fn send_lua_request <'a> (lua: &'a Lua, val: LuaValue<'a>) -> Result<LuaTable<'a
 
 
 pub fn init(lua: &Lua) -> Result<(), LuaError> {
-    let table = lua.create_table()?;
-    table.set("send", lua.create_function(send_lua_request)?)?;
+    lua.context(|lua| {
+        let table = lua.create_table()?;
+        table.set("send", lua.create_function(send_lua_request)?)?;
 
-    lua.globals().set("client_request", table)?;
+        lua.globals().set("client_request", table)?;
 
-    Ok(())
+        Ok(())
+    })
 }

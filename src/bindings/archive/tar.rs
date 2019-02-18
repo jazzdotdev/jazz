@@ -20,21 +20,23 @@ fn extract<T: Read>(archive: &mut Archive<T>, dst: &Path) -> result::Result<(), 
 }
 
 pub fn init(lua: &Lua) -> crate::Result<()> {
-    let module = lua.create_table()?;
-    module.set("decompress", lua.create_function(|_, (src, dst): (String, String)| {
-        let tar = fs::File::open(src).map_err(LuaError::external)?;
-        let dst = Path::new(&dst);
-        let mut archive = Archive::new(tar);
-        extract(&mut archive, &dst)
-    })?)?;
+    lua.context(|lua| {
+        let module = lua.create_table()?;
+        module.set("decompress", lua.create_function(|_, (src, dst): (String, String)| {
+            let tar = fs::File::open(src).map_err(LuaError::external)?;
+            let dst = Path::new(&dst);
+            let mut archive = Archive::new(tar);
+            extract(&mut archive, &dst)
+        })?)?;
 
-    module.set("decompress_buf", lua.create_function(|_, (data, dst): (ByteBuf, String)| {
-        let dst = Path::new(&dst);
-        let mut archive = Archive::new(&data.0[..]);
-        extract(&mut archive, &dst)
-    })?)?;
+        module.set("decompress_buf", lua.create_function(|_, (data, dst): (ByteBuf, String)| {
+            let dst = Path::new(&dst);
+            let mut archive = Archive::new(&data.0[..]);
+            extract(&mut archive, &dst)
+        })?)?;
 
-    lua.globals().set("tar", module).map_err(Error::from)?;
+        lua.globals().set("tar", module).map_err(Error::from)?;
 
-    Ok(())
+        Ok(())
+    })
 }
