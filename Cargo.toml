@@ -34,7 +34,6 @@ libm = "0.1"
 globwalk = "0.6"
 # web
 actix-web = { version = "0.7", features = ["ssl"] }
-sass-rs = "0.2"
 # cli and log
 env_logger = "0.6"
 clap = "2.32"
