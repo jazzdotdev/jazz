@@ -169,7 +169,7 @@ cd torchbear
 cargo build --release
 ```
 
-Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in `./target/release/torchbear`.
+Note: You will also need a C compiler, eg on Debian-based Linux distros `sudo apt install build-essential`.  Compilation will probably take several minutes depending on your machine and your network speed. The binary will end up in `./target/release/torchbear`.
 
 ## App Stores
 
