@@ -24,10 +24,10 @@ path = "src/main.rs"
 [dependencies]
 # base
 actix = "0.7"
-actix-lua = "0.7"
+actix-lua = { git = "https://github.com/foundpatterns/actix-lua" }
 futures = "0.1"
-rlua = "0.16"
-rlua_serde = "0.3"
+rlua = { git = "https://github.com/kyren/rlua", rev = "78c2aac5bda746c9046f701a6d8631ad53841baa" }
+rlua_serde = { git = "https://github.com/foundpatterns/rlua_serde" }
 # system
 dirs = "1.0"
 libm = "0.1"
