@@ -123,6 +123,8 @@ install_machu_picchu () {
     else
         error Machu Picchu install was unsuccesfull
     fi
+
+    mp refresh
 }
 
 install_path() {
