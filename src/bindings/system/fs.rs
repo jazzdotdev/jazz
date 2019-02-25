@@ -138,6 +138,15 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
             }
         })?)?;
 
+        module.set("remove_file", lua.create_function(|_, path: String| {
+            fs::remove_file(&path).map_err(LuaError::external)
+        })?)?;
+
+        //Maybe rename function to rename?
+        module.set("move", lua.create_function(|_, (src, dst): (String, String)| {
+            fs::rename(src, dst).map_err(LuaError::external)
+        })?)?;
+
         //TODO: Rename to something suitable other than touch
         //Probably deprecate for path:create_file
         module.set("touch", lua.create_function(|_, path: String| {
