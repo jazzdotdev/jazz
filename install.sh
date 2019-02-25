@@ -164,6 +164,13 @@ torchbear_path() {
     esac
 }
 
+uninstall_torchup() {
+    FILE=$(install_path)/torchup
+    if [ -f $FILE ]; then
+        sudo rm $FILE
+    fi
+}
+
 uninstall_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
         echo Uninstalling Torchbear.
@@ -180,6 +187,10 @@ uninstall_torchbear() {
         else
             echo Torchbear is now uninstalled.
         fi
+
+        sudo rm $(install_path)/speakeasy
+
+        uninstall_torchup
     else
         error Torchbear is not installed.
     fi
@@ -208,6 +219,13 @@ uninstall_mp() {
     fi
 }
 
+install_torchup() {
+    URL=https://raw.githubusercontent.com/foundpatterns/torchbear/master/install.sh
+    sudo wget -O $1/torchup $URL
+    sudo chmod +x $1/torchup
+    echo Torchup has been installed
+}
+
 install_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
 	    local curr_version=($(echo $($(torchbear_path) -V)))
@@ -225,12 +243,18 @@ install_torchbear() {
 
     DIR=$(install_path)
     download_and_extract $DIR
+
+    if [ -f $DIR/speakeasy ]; then
+        sudo rm $DIR/speakeasy
+    fi
     sudo ln -Ts $DIR/torchbear $DIR/speakeasy
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
         echo Torchbear ${version[1]} has been installed.
     fi
+
+    install_torchup $DIR
 }
 
 install_mp() {
