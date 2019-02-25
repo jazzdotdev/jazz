@@ -223,7 +223,9 @@ install_torchbear() {
 
     echo Downloading torchbear
 
-    download_and_extract $(install_path)
+    DIR=$(install_path)
+    download_and_extract $DIR
+    sudo ln -Ts $DIR/torchbear $DIR/speakeasy
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
@@ -256,6 +258,9 @@ case $1 in
     "--uninstall")
         uninstall_torchbear
         uninstall_mp
+    ;;
+    "--uninstall-torchbear")
+        uninstall_torchbear
     ;;
     "--uninstall-mp")
         uninstall_mp
