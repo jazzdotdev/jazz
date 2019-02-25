@@ -208,7 +208,7 @@ uninstall_mp() {
 
 install_torchup() {
     URL=https://raw.githubusercontent.com/foundpatterns/torchbear/master/install.sh
-    wget -O $1/torchup $URL
+    curl -L $URL -o $1/torchup
     chmod +x $1/torchup
     echo Torchup has been installed
 }
