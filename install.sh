@@ -176,7 +176,9 @@ uninstall_torchbear() {
             echo Torchbear is now uninstalled.
         fi
 
-        rm $(install_path)/speakeasy
+        if [ -f $DIR/speakeasy ]; then
+            rm $DIR/speakeasy
+        fi
 
         uninstall_torchup
     else
