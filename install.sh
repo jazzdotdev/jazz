@@ -86,14 +86,7 @@ download_and_extract() {
 
     if [ -x "$(command -v curl)" ]; then
         curl -L $(get_url) -o temp.zip
-        case $(get_os) in
-            Linux | Darwin )
-                sudo unzip -o temp.zip -d $1
-                ;;
-            * )
-                unzip -o temp.zip -d $1
-                ;;
-        esac
+        unzip -o temp.zip -d $1
         rm temp.zip
     else
         error "Curl is not installed. Please install curl. If curl is installed, check your path and try again"
@@ -115,7 +108,7 @@ install_machu_picchu () {
         rm $TEMP
         cd $DIR/mp-installer-master
         case $(get_os) in
-            Linux | Darwin ) sudo torchbear;;
+            Linux | Darwin ) torchbear;;
             * ) torchbear;;
         esac
         STATUS=$?
@@ -130,6 +123,8 @@ install_machu_picchu () {
     else
         error Machu Picchu install was unsuccesfull
     fi
+
+    mp refresh
 }
 
 install_path() {
@@ -167,28 +162,26 @@ torchbear_path() {
 uninstall_torchup() {
     FILE=$(install_path)/torchup
     if [ -f $FILE ]; then
-        sudo rm $FILE
+        rm $FILE
     fi
 }
 
 uninstall_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
         echo Uninstalling Torchbear.
-        case $(get_os) in
-            Linux | Darwin)
-                sudo rm $(torchbear_path)
-                ;;
-            * )
-                rm $(torchbear_path)
-                ;;
-        esac
+
+        rm $(torchbear_path)
+
         if [ -f "$(torchbear_path)" ]; then
             error Torchbear could not be uninstalled.
         else
             echo Torchbear is now uninstalled.
         fi
 
-        sudo rm $(install_path)/speakeasy
+
+        if [ -f $(install_path)/speakeasy ]; then
+            rm $(install_path)/speakeasy
+        fi
 
         uninstall_torchup
     else
@@ -199,16 +192,10 @@ uninstall_torchbear() {
 uninstall_mp() {
     if [ -f "$(install_path)/mp" ]; then
         echo Uninstalling machu picchu.
-        case $(get_os) in
-            Linux | Darwin)
-                sudo rm $(install_path)/mp
-                sudo rm -rf $(install_path)/machu-pichu
-                ;;
-            * )
-                rm $(install_path)/mp
-                rm -rf $(install_path)/machu-pichu
-                ;;
-        esac
+
+        rm $(install_path)/mp
+        rm -rf $(install_path)/machu-pichu
+
         if [ -f "$(install_path)/mp" ]; then
             error Machu Picchu could not be uninstalled.
         else
@@ -221,8 +208,8 @@ uninstall_mp() {
 
 install_torchup() {
     URL=https://raw.githubusercontent.com/foundpatterns/torchbear/master/install.sh
-    sudo wget -O $1/torchup $URL
-    sudo chmod +x $1/torchup
+    wget -O $1/torchup $URL
+    chmod +x $1/torchup
     echo Torchup has been installed
 }
 
@@ -245,9 +232,9 @@ install_torchbear() {
     download_and_extract $DIR
 
     if [ -f $DIR/speakeasy ]; then
-        sudo rm $DIR/speakeasy
+        rm $DIR/speakeasy
     fi
-    sudo ln -Ts $DIR/torchbear $DIR/speakeasy
+    ln -Ts $DIR/torchbear $DIR/speakeasy
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
