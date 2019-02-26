@@ -1,4 +1,4 @@
-use std::{io, fmt, string, time, sync::Arc, error::Error as StdError};
+use std::{env, io, fmt, string, time, sync::Arc, error::Error as StdError, panic::{self, PanicInfo}, collections::HashMap};
 use serde_json;
 use serde_yaml;
 use rlua_serde;
@@ -9,6 +9,7 @@ use scl;
 use rlua::Error as LuaError;
 use splitdiff_rs;
 use patch_rs;
+use backtrace::Backtrace;
 
 //Due to number of number of crates that have different errors, we will handle them this way for the time being which would just create a base for
 //handling errors properly. The errors will be bound to change in the near future
@@ -164,4 +165,77 @@ pub fn create_lua_error <T> (err: T) -> LuaError
 #[macro_export]
 macro_rules! format_err {
     ($($arg:tt)*) => { $crate::error::Error::Other(format!($($arg)*)) }
+}
+
+pub fn create_hook<F>(text: &'static str, data: Option<HashMap<&'static str, &'static str>>, f: F)
+    where F: 'static + Fn(Option<::std::path::PathBuf>, String) -> Result<(), Error> + Send + Sync
+{
+
+    match ::std::env::var("RUST_BACKTRACE") {
+        Err(_) => {
+
+            let data = data.unwrap_or({
+                let mut data = HashMap::new();
+                data.insert("%NAME%", env!("CARGO_PKG_NAME"));
+                data.insert("%GITHUB%", env!("CARGO_PKG_REPOSITORY"));
+                data
+            });
+
+            panic::set_hook(Box::new(move |info: &PanicInfo| {
+
+                let mut text = String::from(text);
+
+                for (k, v) in &data {
+                    text = text.replace(k, v);
+                }
+
+                let path = if text.contains("%PATH%") {
+                    let tmp = env::temp_dir().join(format!("report-{}.log", ::uuid::Uuid::new_v4().to_hyphenated().to_string()));
+                    text = text.replace("%PATH%", tmp.to_string_lossy().as_ref());
+                    Some(tmp)
+                } else {
+                    None
+                };
+
+                println!("{}", text);
+
+                let mut payload = String::new();
+
+                let os = if cfg!(target_os = "windows") {
+                    "Windows"
+                } else if cfg!(target_os = "linux") {
+                    "Linux"
+                } else if cfg!(target_os = "macos") {
+                    "Mac OS"
+                } else if cfg!(target_os = "android") {
+                    "Android"
+                } else {
+                    "Unknown"
+                };
+
+                payload.push_str(&format!("Name: {}\n", env!("CARGO_PKG_NAME")));
+                payload.push_str(&format!("Version: {}\n", env!("CARGO_PKG_VERSION")));
+                payload.push_str(&format!("Operating System: {}\n", os));
+
+                if let Some(inner) = info.payload().downcast_ref::<&str>() {
+                    payload.push_str(&format!("Cause: {}.\n", &inner));
+                }
+
+                match info.location() {
+                    Some(location) => payload.push_str(&format!(
+                        "Panic occurred in file '{}' at line {}\n",
+                        location.file(),
+                        location.line()
+                    )),
+                    None => payload.push_str("Panic location unknown.\n"),
+                };
+
+                payload.push_str(&format!("{:#?}\n", Backtrace::new()));
+
+                f(path, payload).expect("Error generating report")
+            }));
+        }
+        Ok(_) => {}
+    };
+
 }

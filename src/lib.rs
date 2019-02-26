@@ -1,5 +1,4 @@
 #[macro_use] extern crate log;
-#[macro_use] extern crate human_panic;
 #[macro_use] extern crate serde_derive;
 #[cfg(feature = "tantivy_bindings")] extern crate tantivy;
 #[macro_use] pub mod error;
@@ -14,7 +13,7 @@ use rlua::prelude::*;
 use std::{
     path::{Path, PathBuf},
     result,
-    fs
+    fs, io::prelude::*
 };
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json::Value;
@@ -154,8 +153,17 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
-        
-        setup_panic!();
+        let mut data = ::std::collections::HashMap::new();
+        data.insert("%NAME%", env!("CARGO_PKG_NAME"));
+        data.insert("%GITHUB%", env!("CARGO_PKG_REPOSITORY"));
+
+        error::create_hook(include_str!("../panic.txt"), Some(data), |path, data| {
+            if let Some(path) = path {
+                let mut fs = fs::File::create(path)?;
+                fs.write_all(data.as_bytes())?;
+            }
+            Ok(())
+        });
 
         let mut init_path: Option<PathBuf> = None;
         let mut init_args: Vec<String> = vec![];
