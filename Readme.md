@@ -17,7 +17,7 @@
   <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
   <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
-  <a href="https://discord.gg/b6MY7dG"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>  <br>
+  <a href="https://discord.gg/f6XSuWs"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>  <br>
   developer badges
   <br>
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
@@ -97,7 +97,7 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 
 * [Torchbear Libs](https://github.com/foundpatterns/torchbear-libs) · libraries for logging, terminal coloring, event triggering, functional programming, graph data processing, argument parsing (todo), and file patching (todo)
 * [Torchbear Libs Dev](https://github.com/foundpatterns/torchbear-libs-dev) · a library for inspecting tables
-* [ContentDB](https://github.com/foundpatterns/contentdb) · a document-oriented, file-based database (see also [ContentDB-Lua](https://github.com/foundpatterns/contentdb-lua))
+* [ContentDB](https://github.com/foundpatterns/contentdb) · a document-oriented, file-based database
 * [Lighttouch](https://github.com/foundpatterns/lighttouch) · a simple, event-driven, rule-based, dynamically-loaded, functional, parameter-populated, configurable, version-controlled application framework
 
 ## Get Started
