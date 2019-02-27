@@ -106,22 +106,19 @@ Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes
 
 ### Install
 
-To install Torchbear, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
+To install Torchbear on Android or Windows, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
 ```
 
-Linux users need to give the install permissions to write files in `usr/local/bin` by running it as superuser, or run:
-
+MacOS and Linux users will need admin permissions to run:
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | sudo bash
 ```
 
 [The installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) automatically gets the latest version (which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases)) and puts it in a convenient file location for you.  To do this, it downloads the latest zip file for your operating system and hardware architecture, then it unzips the executable to a place where it will run as a command.  You can do that manually or differently, as you like.
-
-On install, the install script itself is installed in the system as `torchup`, subsequent updates or uninstalling can use that command.
 
 #### What is a terminal?
 
@@ -139,14 +136,14 @@ If you haven't heard of a terminal before, here's a [1 min intro to what is a te
 
 * [Redox](https://redox-os.org/): work in progress, see [Torchbear Redox release](https://github.com/foundpatterns/torchbear/issues/18)
 
+### Update
+
+To update, run `torchup`.
+
 ### Uninstall
-```sh
-curl https://git.io/fpcV6 -sSfL | bash -s -- --uninstall
-```
-or, if you have `install.sh` already downloaded:
-```sh
-bash install.sh --uninstall
-```
+
+To uninstall, run `torchup --uninstall`.
+
 ## Development
 
 #### Hello World App
