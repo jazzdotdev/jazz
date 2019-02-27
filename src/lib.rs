@@ -157,7 +157,7 @@ impl ApplicationBuilder {
         data.insert("%NAME%", env!("CARGO_PKG_NAME"));
         data.insert("%GITHUB%", env!("CARGO_PKG_REPOSITORY"));
 
-        error::create_hook(include_str!("../panic.txt"), Some(data), |path, data| {
+        error::create_hook(include_str!("../panic-message.txt"), Some(data), |path, data| {
             if let Some(path) = path {
                 let mut fs = fs::File::create(path)?;
                 fs.write_all(data.as_bytes())?;
