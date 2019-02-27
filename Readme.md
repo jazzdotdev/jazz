@@ -61,9 +61,10 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 * [libm](https://en.wikipedia.org/wiki/C_mathematical_functions)* mathematical functions, like exponential, power, trigonometric, hyperbolic, floating-point manipulation, classification
 
 #### String
+* [NanoID](https://github.com/nikolay-govorov/nanoid) secure, URL-friendly, unique string ID generator
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [ulid](https://github.com/dylanhart/ulid-rs) Universally Unique Lexicographically Sortable Identifier
-* [Heck](https://github.com/withoutboats/heck) case conversions
+* [Case conversions](https://github.com/withoutboats/heck) to CamelCase, snake_case, kebab-case, SHOUTY_SNAKE_CASE, mixedCase, and Title Case
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
 
@@ -82,7 +83,7 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 #### Archive
 * [Zip](https://github.com/mvdnes/zip-rs) file decompression
 * [Tar](https://github.com/alexcrichton/tar-rs) file decompression
-* [xz](https://github.com/alexcrichton/xz2-rs) lzma file decompression
+* [xz](https://github.com/alexcrichton/xz2-rs) lzma file compression and decompression
 
 #### Diff
 * [Diff](https://github.com/foundpatterns/diff-rs) [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) generation using strings and text files 
