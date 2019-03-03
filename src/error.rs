@@ -232,7 +232,8 @@ pub fn create_hook<F>(text: &'static str, data: Option<HashMap<&'static str, &'s
 
                 payload.push_str(&format!("{:#?}\n", Backtrace::new()));
 
-                f(path, payload).expect("Error generating report")
+                f(path, payload).expect("Error generating report");
+                std::process::exit(1);
             }));
         }
         Ok(_) => {}
