@@ -1,0 +1,13 @@
+Well, this is embarrassing...
+
+%NAME% had a problem and crashed. To help us figure out what happened and fix the problem you can send us a crash report.
+
+We have generated a report file at "%PATH%".
+
+To send it, please visit https://github.com/foundpatterns/torchbear/issues and create a new issue called, "Crash Report", add any info about how it happened that might help us, and include the generated report as an attachment.
+
+If you have any questions, you can ask for help in our Discord chat server, at https://discord.gg/f6XSuWs
+
+We take privacy seriously, and do not perform any automated error collection. In order to improve the software, we rely on users to send us these reports.
+
+Thank you kindly!

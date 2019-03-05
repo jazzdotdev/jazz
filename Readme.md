@@ -17,7 +17,7 @@
   <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
   <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
-  <a href="https://discord.gg/b6MY7dG"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>  <br>
+  <a href="https://discord.gg/f6XSuWs"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a>  <br>
   developer badges
   <br>
   <a href="https://www.travis-ci.com/foundpatterns/torchbear"><img src="https://travis-ci.com/foundpatterns/torchbear.svg?branch=master" alt="Travis Build Status"></a>
@@ -61,9 +61,10 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 * [libm](https://en.wikipedia.org/wiki/C_mathematical_functions)* mathematical functions, like exponential, power, trigonometric, hyperbolic, floating-point manipulation, classification
 
 #### String
+* [NanoID](https://github.com/nikolay-govorov/nanoid) secure, URL-friendly, unique string ID generator
 * [UUID-rs](https://github.com/uuid-rs/uuid) UUID generation and verification
 * [ulid](https://github.com/dylanhart/ulid-rs) Universally Unique Lexicographically Sortable Identifier
-* [Heck](https://github.com/withoutboats/heck) case conversions
+* [Case conversions](https://github.com/withoutboats/heck) to CamelCase, snake_case, kebab-case, SHOUTY_SNAKE_CASE, mixedCase, and Title Case
 * [regex](https://github.com/rust-lang/regex) matching and replacing
 * [MIME](https://github.com/abonander/mime_guess) type guessing
 
@@ -82,7 +83,7 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 #### Archive
 * [Zip](https://github.com/mvdnes/zip-rs) file decompression
 * [Tar](https://github.com/alexcrichton/tar-rs) file decompression
-* [xz](https://github.com/alexcrichton/xz2-rs) lzma file decompression
+* [xz](https://github.com/alexcrichton/xz2-rs) lzma file compression and decompression
 
 #### Diff
 * [Diff](https://github.com/foundpatterns/diff-rs) [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) generation using strings and text files 
@@ -96,7 +97,7 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 
 * [Torchbear Libs](https://github.com/foundpatterns/torchbear-libs) · libraries for logging, terminal coloring, event triggering, functional programming, graph data processing, argument parsing (todo), and file patching (todo)
 * [Torchbear Libs Dev](https://github.com/foundpatterns/torchbear-libs-dev) · a library for inspecting tables
-* [ContentDB](https://github.com/foundpatterns/contentdb) · a document-oriented, file-based database (see also [ContentDB-Lua](https://github.com/foundpatterns/contentdb-lua))
+* [ContentDB](https://github.com/foundpatterns/contentdb) · a document-oriented, file-based database
 * [Lighttouch](https://github.com/foundpatterns/lighttouch) · a simple, event-driven, rule-based, dynamically-loaded, functional, parameter-populated, configurable, version-controlled application framework
 
 ## Get Started
@@ -105,22 +106,19 @@ Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes
 
 ### Install
 
-To install Torchbear, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
+To install Torchbear on Android or Windows, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
 ```
 
-Linux users need to give the install permissions to write files in `usr/local/bin` by running it as superuser, or run:
-
+MacOS and Linux users will need admin permissions to run:
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | sudo bash
 ```
 
 [The installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) automatically gets the latest version (which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases)) and puts it in a convenient file location for you.  To do this, it downloads the latest zip file for your operating system and hardware architecture, then it unzips the executable to a place where it will run as a command.  You can do that manually or differently, as you like.
-
-On install, the install script itself is installed in the system as `torchup`, subsequent updates or uninstalling can use that command.
 
 #### What is a terminal?
 
@@ -138,14 +136,14 @@ If you haven't heard of a terminal before, here's a [1 min intro to what is a te
 
 * [Redox](https://redox-os.org/): work in progress, see [Torchbear Redox release](https://github.com/foundpatterns/torchbear/issues/18)
 
+### Update
+
+To update, run `torchup`.
+
 ### Uninstall
-```sh
-curl https://git.io/fpcV6 -sSfL | bash -s -- --uninstall
-```
-or, if you have `install.sh` already downloaded:
-```sh
-bash install.sh --uninstall
-```
+
+To uninstall, run `torchup --uninstall`.
+
 ## Development
 
 #### Hello World App

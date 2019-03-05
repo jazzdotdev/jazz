@@ -19,8 +19,8 @@ fn main() {
 
     let matches = ClapApp::new("torchbear")
         .version(crate_version!())
-        .author(crate_authors!())
-        .about("TorchBear Application Framework")
+        .about("a Found Patterns Studio project; for more info, visit https://discord.gg/f6XSuWs")
+        .author("Torchbear speakeasy interpreter")
         .setting(clap::AppSettings::TrailingVarArg)
         .arg(Arg::with_name("log")
             .long("log")
