@@ -28,7 +28,7 @@
   <a href="https://github.com/foundpatterns/torchbear/releases"><img src="https://img.shields.io/github/downloads/foundpatterns/torchbear/total.svg" alt="Download Total"></a>
 </p>
 
-Torchbear gives you a simple, yet powerful, general-purpose application development environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
+Torchbear gives you a simple, yet powerful, general-purpose interpreter for the [Speakeasy](https://github.com/foundpatterns/speakeasy) programming language.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
 It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear, because it aims to give you the simplest possible programming environment with the most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc developers should feel right at home... and with what one might call "more bells and whistles" - or just `complete`.
 
@@ -151,7 +151,7 @@ To uninstall, run `torchup --uninstall`.
 1. put this in `init.lua`:
 
 ```lua
-#!/usr/bin/env torchbear
+#!/usr/bin/env speakeasy
 
 print("hello from Torchbear")
 ```
@@ -194,14 +194,23 @@ Experienced Rust developers' reviews would be greatly appreciated, eg those fami
 Users who who want to add a 'review' or 'story' about your use cases, simply add this "issue label" (type/review) or (type/story).  Everyone is welcomed to do so, and this will help users and developers understand Torchbear from eachother's points of view.  Developers who want to post other feedback and analysis will receive a hearty thank you.
 
 ## Community
-Eveyone interested in learning and solving problems with programming and open-source tools in general is welcomed to come to [Found Patterns Studio's Discord Server](https://discord.gg/b6MY7dG) to meet fellow engineers and to work together on team-driven projects, like Torchbear.  If you haven't heard of [Discord](https://discordapp.com/) before, you could start with these videos, [Discord For Dummies: Basic Use and Set up Instructions for Discord App](https://www.youtube.com/watch?v=7BFytSpuAWs) and [How To Setup And Use Discord - Basic Overview Of Features and Tools](https://www.youtube.com/watch?v=E7xznRGg9WM).  We use it to help eachother use and build Torchbear and many other projects.  It's a safe and friendly place to get things done.
 
-## Backers
+Eveyone interested in learning and solving problems with programming and open-source tools in general is welcomed to come to [Found Patterns Studio's Discord Server](https://discord.gg/f6XSuWs) to meet fellow engineers and to work together on team-driven projects, like Torchbear.  If you haven't heard of [Discord](https://discordapp.com/) before, you could start with these videos, [Discord For Dummies: Basic Use and Set up Instructions for Discord App](https://www.youtube.com/watch?v=7BFytSpuAWs) and [How To Setup And Use Discord - Basic Overview Of Features and Tools](https://www.youtube.com/watch?v=E7xznRGg9WM).  We use it to help eachother use and build Torchbear and many other projects.  It's a safe and friendly place to get things done.
 
-To back this project and join this list, ask Mitchell for more info on Discord.
+## Supporters
+
+As an open source project, continued development depends on support from people like you.  To see current and past supporters, visit our [supporters.md](https://github.com/foundpatterns/torchbear/blob/master/supporters.md) file.
+
+To add your support to this project, as it is currently lead, and to join that list, visit [Mitchell's contact and support channel](https://github.com/naturallymitchell/call-me-maybe) for more info.
 
 ## Sponsors
 
-To sponsor this project and put your logo here, ask Mitchell for more info on Discord.
+[[ Sponsors' Logos ]]
+
+To sponsor this project and put your logo here, visit [Mitchell's contact and support channel](https://github.com/naturallymitchell/call-me-maybe) for more info.
+
+## Found Patterns Museum & Exhibit Sponsors
+
+This project is currently in early development for a future exhibit in [Found Patterns Museum](https://github.com/lighttouch-apps/found-patterns-museum), called [User Handed Programming](https://github.com/foundpatterns/studio-care/issues?q=label%3Aexhibit%2Fuser-handed-programming).  If you would like to help us realize it, [make a donation to Found Patterns Museum](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3MDKYD7P9AKE2&source=url).
 
 ### Thank you · Namaste · Aloha 👋
