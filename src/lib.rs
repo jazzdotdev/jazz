@@ -153,11 +153,8 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
-        let mut data = ::std::collections::HashMap::new();
-        data.insert("%NAME%", env!("CARGO_PKG_NAME"));
-        data.insert("%GITHUB%", env!("CARGO_PKG_REPOSITORY"));
 
-        error::create_hook(include_str!("../panic-message.txt"), Some(data), |path, data| {
+        error::create_hook(include_str!("../panic-message.txt"), None, |path, data| {
             if let Some(path) = path {
                 let mut fs = fs::File::create(path)?;
                 fs.write_all(data.as_bytes())?;
