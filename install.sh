@@ -94,6 +94,31 @@ download_and_extract() {
 
 }
 
+update_installer() {
+    local installer_path=$0
+    local remote_hash=$(curl https://git.io/fpcV6 -sSfL | sha512sum | cut -d " " -f 1)
+    local local_hash=$(sha512sum $0 | cut -d " " -f 1)
+
+    if [ "$remote_hash" == "$local_hash" ]; then
+        error "Installer is up to date"
+    else
+        if [ -w "$0" ]; then
+            curl https://git.io/fpcV6 -sSfL > $installer_path
+            local new_hash=$(sha512sum $0 | cut -d " " -f 1)
+            if [ "$remote_hash" == "$new_hash" ]; then
+                echo "Installer has been updated"
+            else
+                echo "Cannot update installer"
+            fi
+        else
+            error "Cannot update installer; check permissiosns and try again."
+        fi
+
+    fi
+
+}
+
+
 install_machu_picchu () {
     URL="https://github.com/foundpatterns/mp-installer/archive/master.zip"
     TEMP=temp.zip
@@ -275,6 +300,9 @@ case $1 in
     ;;
     "--uninstall-mp")
         uninstall_mp
+    ;;
+    "--update")
+        update_installer
     ;;
     * )
         install_torchbear
