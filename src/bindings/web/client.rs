@@ -128,7 +128,7 @@ fn send_lua_request <'a> (lua: LuaContext<'a>, val: LuaValue<'a>) -> Result<LuaT
 
     let ssl_conn_builder = SslConnector::builder(SslMethod::tls()).unwrap();
     ssl_conn_builder.set_verify(SslVerifyMode::NONE);
-    let connector = ClientConnector::with_connector(ssl_conn_builder.build).start();
+    let connector = ClientConnector::with_connector(ssl_conn_builder.build()).start();
     builder.with_connector(connector);
 
     let response = (match body {
