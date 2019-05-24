@@ -153,7 +153,8 @@ impl ApplicationBuilder {
     }
 
     pub fn start (&mut self, args: Option<Vec<String>>) -> Result<()> {
-
+        openssl_probe::init_ssl_cert_env_vars();
+        
         error::create_hook(include_str!("../panic-message.txt"), None, |path, data| {
             if let Some(path) = path {
                 let mut fs = fs::File::create(path)?;

@@ -1,14 +1,13 @@
 use actix_web::{
     http::Method,
     HttpMessage,
-    client::{ClientRequest, ClientRequestBuilder, ClientResponse, ClientConnector}
+    client::{ClientRequest, ClientRequestBuilder, ClientResponse}
 };
 use futures::Future;
 use rlua::prelude::*;
 use rlua_serde;
 use serde_json::{self, Value as JsonValue};
 use std::str::FromStr;
-use actix::Actor;
 
 fn map_actix_err(err: actix_web::Error) -> LuaError {
     LuaError::external(format_err!("actix_web error: {}", &err))
@@ -123,13 +122,6 @@ fn send_lua_request <'a> (lua: LuaContext<'a>, val: LuaValue<'a>) -> Result<LuaT
             return Err(LuaError::RuntimeError("Invalid arguments".to_string()))
         }
     };
-
-    use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
-
-    let mut ssl_conn_builder = SslConnector::builder(SslMethod::tls()).unwrap();
-    ssl_conn_builder.set_verify(SslVerifyMode::NONE);
-    let connector = ClientConnector::with_connector(ssl_conn_builder.build()).start();
-    builder.with_connector(connector);
 
     let response = (match body {
         Some(body) => set_body(body, &mut builder)?,

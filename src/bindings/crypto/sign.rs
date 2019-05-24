@@ -26,7 +26,7 @@ pub fn verify(_: LuaContext, this: &LuaPublicKey, base64_msg: String) -> Result<
 /// Returns base64 encoded signature for `msg`
 pub fn sign_detached(_: LuaContext, this: &LuaSecretKey, msg: String) -> Result<String, LuaError> {
     let signature = sign::sign_detached(msg.as_bytes(), &this.0);
-    Ok(base64::encode(signature.0.as_ref()))
+    Ok(base64::encode(signature.as_ref()))
 }
 
 /// Returns true/false if the given `signature` verifies for the given `msg`
@@ -44,7 +44,7 @@ impl UserData for LuaSecretKey {
         methods.add_method("sign", sign);
         methods.add_method("sign_detached", sign_detached);
         methods.add_meta_method(MetaMethod::ToString, |_, this, _: ()| {
-            Ok(base64::encode((this.0).0.as_ref()))
+            Ok(base64::encode((this.0).as_ref()))
         });
     }
 }
@@ -54,7 +54,7 @@ impl UserData for LuaPublicKey {
         methods.add_method("verify", verify);
         methods.add_method("verify_detached", verify_detached);
         methods.add_meta_method(MetaMethod::ToString, |_, this, _: ()| {
-            Ok(base64::encode((this.0).0.as_ref()))
+            Ok(base64::encode((this.0).as_ref()))
         });
     }
 }

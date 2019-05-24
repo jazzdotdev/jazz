@@ -34,6 +34,7 @@ libm = "0.1"
 globwalk = "0.6"
 backtrace = "0.3"
 # web
+#actix-web = { git = "https://github.com/actix/actix-web", tag = "web-v1.0.0-rc", features = ["ssl"] }
 actix-web = { version = "0.7", features = ["ssl"] }
 # cli and log
 env_logger = "0.6"
@@ -73,6 +74,7 @@ git2 = "0.8"
 sodiumoxide = "0.2"
 blake2 = "0.8"
 openssl = { version = "0.10", features = ["vendored"] }
+openssl-probe = "0.1.2"
 checksumdir = "0.3.0"
 # archive
 zip = "0.5"
