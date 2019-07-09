@@ -86,14 +86,15 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 * [xz](https://github.com/alexcrichton/xz2-rs) lzma file compression and decompression
 
 #### Diff
-* [Diff](https://github.com/foundpatterns/diff-rs) [unidiff](https://en.wikipedia.org/wiki/Diff#Unified_format) generation using strings and text files 
-* [Patch](https://github.com/foundpatterns/patch-rs) unidiff processor for text files
-* [Split Diff](https://github.com/foundpatterns/splitdiff-rs) to break unidiff files into multiple
-* [List Diff](https://github.com/foundpatterns/lsdiff-rs) to list files affected by a unidiff
-* [Interdiff](https://stackoverflow.com/questions/30603958/what-does-interdiff-do-that-diff-cannot)** help wanted to compare diff files
+* [Diff](https://github.com/foundpatterns/diff-rs) generating [diffs](https://en.wikipedia.org/wiki/Diff#Unified_format) using strings and text files 
+* [Patch](https://github.com/foundpatterns/patch-rs) applies diffs to strings and text files
+* [Split Diff](https://github.com/foundpatterns/splitdiff-rs) breaks individual diffs into multiple diffs, per file
+* [List Diff](https://github.com/foundpatterns/lsdiff-rs) lists files affected by a diff
+* [Interdiff](https://github.com/changeutils/interdiff-rs)**
 * [Git](https://github.com/alexcrichton/git2-rs)* cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
 
 Note* (asterisk) means safely wraps a C library
+Note** (two asterisks) means help wanted
 
 ## Additional Lua Libraries and Frameworks
 
