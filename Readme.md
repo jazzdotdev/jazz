@@ -17,13 +17,13 @@
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
   <a href="https://discord.gg/f6XSuWs"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a> </p>
 
-Torchbear gives you a simple, yet powerful, general-purpose interpreter for the [Speakeasy](https://github.com/foundpatterns/speakeasy) programming language.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
+Torchbear gives you a simple, yet powerful, general-purpose programming environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
 It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear, because it aims to give you the simplest possible programming environment with the most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc developers should feel right at home... and with what one might call "more bells and whistles" - or just `complete`.
 
 Those without a [programming background](http://holowczak.com/programming-concepts-tutorial-programmers/) can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  You only need general [scripting skills](http://wiki.c2.com/?ScriptingLanguage) to start.
 
-As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).  Every module is completely built-in and coded in pure Rust, or otherwise safely wraps a [C library](https://en.wikipedia.org/wiki/C_(programming_language)) (noted with an asterisk*).
+As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
 
 ## Built-in Modules
 
@@ -82,7 +82,8 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 * [Interdiff](https://github.com/changeutils/interdiff-rs)**
 * [Git](https://github.com/alexcrichton/git2-rs)* cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
 
-Note* (asterisk) means safely wraps a C library
+Note* (asterisk) means safely wraps a [C library](https://en.wikipedia.org/wiki/C_(programming_language))
+
 Note** (two asterisks) means help wanted
 
 ## Additional Lua Libraries and Frameworks
