@@ -93,6 +93,8 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 * [Interdiff](https://stackoverflow.com/questions/30603958/what-does-interdiff-do-that-diff-cannot)** help wanted to compare diff files
 * [Git](https://github.com/alexcrichton/git2-rs)* cloning, pulling, repo creation, staging, committing, and log access (builtin, no `git` dependency)
 
+Note* (asterisk) means safely wraps a C library
+
 ## Additional Lua Libraries and Frameworks
 
 * [Torchbear Libs](https://github.com/foundpatterns/torchbear-libs) · libraries for logging, terminal coloring, event triggering, functional programming, graph data processing, argument parsing (todo), and file patching (todo)
