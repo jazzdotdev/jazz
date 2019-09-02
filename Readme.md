@@ -113,7 +113,7 @@ MacOS and Linux users will need admin permissions to run:
 
 [The installer](https://github.com/foundpatterns/torchbear/blob/master/install.sh) automatically gets the latest version (which is also available on [Torchbear's GitHub releases page](https://github.com/foundpatterns/torchbear/releases)) and puts it in a convenient file location for you.  To do this, it downloads the latest zip file for your operating system and hardware architecture, then it unzips the executable to a place where it will run as a command.  You can do that manually or differently, as you like.
 
-#### What is a terminal?
+#### What is a terminal? (command prompt)
 
 If you haven't heard of a terminal before, here's a [1 min intro to what is a terminal window](https://www.youtube.com/watch?v=zw7Nd67_aFw).  This works on Android, Windows, MacOS, and Linux devices very similarly, but you might need one other tool first:
 
