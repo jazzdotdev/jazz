@@ -198,9 +198,7 @@ To add your support to this project, as it is currently lead, and to join that l
 
 ## Sponsors
 
-[[ Sponsors' Logos ]]
-
-To sponsor this project and put your logo here, visit [Mitchell's contact and support channel](https://github.com/naturallymitchell/call-me-maybe) for more info.
+To sponsor this project and put your logo here, visit [Mitchell's GitHub sponsors page](https://github.com/sponsors/naturallymitchell).
 
 ## Found Patterns Museum & Exhibit Sponsors
 
