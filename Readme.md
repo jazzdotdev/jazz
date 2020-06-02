@@ -15,7 +15,7 @@
   <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
   <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
   <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
-  <a href="https://discord.gg/f6XSuWs"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a> </p>
+  <a href="https://discord.gg/xJzAMNF"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a> </p>
 
 Torchbear gives you a simple, yet powerful, general-purpose programming environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
 
