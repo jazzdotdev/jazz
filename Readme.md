@@ -23,9 +23,9 @@ It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to
 
 Those without a [programming background](http://holowczak.com/programming-concepts-tutorial-programmers/) can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  You only need general [scripting skills](http://wiki.c2.com/?ScriptingLanguage) to start.
 
-As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
+## Blessed Rust Modules
 
-## Built-in Modules
+As you wish to solve more use cases with your programs, you can access [Torchbear's functions](#built-in-modules), which are described below and viewable in the [bindings' documentation](https://foundpatterns.github.io/torchbear-docs/index.html) (generated using our [code map](http://github.com/foundpatterns/lua-module-map) app).
 
 #### Environment
 * [Actix](https://github.com/actix/actix) actor-model [concurrency](http://berb.github.io/diploma-thesis/original/023_concurrency.html#models) framework (see [RFC 613](https://github.com/rust-lang/rfcs/issues/613) for more info)
@@ -86,7 +86,7 @@ Note* (asterisk) means safely wraps a [C library](https://en.wikipedia.org/wiki/
 
 Note** (two asterisks) means help wanted
 
-## Additional Lua Libraries and Frameworks
+## Blessed Libraries and Frameworks
 
 * [Torchbear Libs](https://github.com/foundpatterns/torchbear-libs) · libraries for logging, terminal coloring, event triggering, functional programming, graph data processing, argument parsing (todo), and file patching (todo)
 * [Torchbear Libs Dev](https://github.com/foundpatterns/torchbear-libs-dev) · a library for inspecting tables
