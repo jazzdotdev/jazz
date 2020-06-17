@@ -64,7 +64,7 @@ system() {
 }
 
 get_latest_version() {
-  curl --silent "https://api.github.com/repos/foundpatterns/torchbear/releases/latest" |
+  curl -L --silent "https://api.github.com/repos/foundpatterns/torchbear/releases/latest" |
     grep '"tag_name":' |
     sed -E 's/.*"([^"]+)".*/\1/'
 }
