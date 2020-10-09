@@ -43,7 +43,8 @@ As you wish to solve more use cases with your programs, you can access [Torchbea
 
 #### Crypto
 * [Libsodium](https://github.com/sodiumoxide/sodiumoxide)* cryptographic signing and verifying, and encrypting and decrypting
-* [Blake2](https://github.com/RustCrypto/hashes) cryptographic hash function
+* [BLAKE2](https://github.com/RustCrypto/hashes) cryptographic hash function
+* [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) cryptographic hash function
 * [Checksumdir](https://github.com/sh-zam/checksumdir) deterministic directory hashing
 
 #### Number
