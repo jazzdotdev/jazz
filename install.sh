@@ -204,8 +204,8 @@ uninstall_torchbear() {
         fi
 
 
-        if [ -f $(install_path)/speakeasy ]; then
-            rm $(install_path)/speakeasy
+        if [ -f $(install_path)/jazz ]; then
+            rm $(install_path)/jazz
         fi
 
         uninstall_torchup
@@ -256,10 +256,10 @@ install_torchbear() {
     DIR=$(install_path)
     download_and_extract $DIR
 
-    if [ -f $DIR/speakeasy ]; then
-        rm $DIR/speakeasy
+    if [ -f $DIR/jazz ]; then
+        rm $DIR/jazz
     fi
-    ln -Ts $DIR/torchbear $DIR/speakeasy
+    ln -Ts $DIR/torchbear $DIR/jazz
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
