@@ -125,9 +125,9 @@ install_machu_picchu () {
     DIR=.mp-installer
 
     if [ -x "$(command -v curl)" ]; then
-        echo Downloading Machu Picchu
+        echo Downloading Mary Poppins
         curl -L $URL -o $TEMP
-        echo Installing Machu Picchu
+        echo Installing Mary Poppins
         mkdir $DIR
         unzip -q -o temp.zip -d $DIR
         rm $TEMP
@@ -144,9 +144,9 @@ install_machu_picchu () {
     fi
 
     if [ $STATUS = "0" ]; then
-        echo Machu Picchu installed succesfully
+        echo Mary Poppins installed succesfully
     else
-        error Machu Picchu install was unsuccesfull
+        error Mary Poppins install was unsuccesfull
     fi
 
     mp refresh
@@ -193,14 +193,14 @@ uninstall_torchup() {
 
 uninstall_torchbear() {
     if [ -f "$(torchbear_path)" ]; then
-        echo Uninstalling Torchbear.
+        echo Uninstalling Jazz.
 
         rm $(torchbear_path)
 
         if [ -f "$(torchbear_path)" ]; then
-            error Torchbear could not be uninstalled.
+            error Jazz could not be uninstalled.
         else
-            echo Torchbear is now uninstalled.
+            echo Jazz is now uninstalled.
         fi
 
 
@@ -210,7 +210,7 @@ uninstall_torchbear() {
 
         uninstall_torchup
     else
-        error Torchbear is not installed.
+        error Jazz is not installed.
     fi
 }
 
@@ -222,12 +222,12 @@ uninstall_mp() {
         rm -rf $(install_path)/machu-pichu
 
         if [ -f "$(install_path)/mp" ]; then
-            error Machu Picchu could not be uninstalled.
+            error Mary Poppins could not be uninstalled.
         else
-            echo Machu Picchu is now uninstalled.
+            echo Mary Poppins is now uninstalled.
         fi
     else
-        error Machu Picchu is not installed.
+        error Mary Poppins is not installed.
     fi
 }
 
@@ -244,7 +244,7 @@ install_torchbear() {
 	    local repo_version=$(get_latest_version)
 
 	    if [ "${curr_version[1]}" == "$repo_version" ]; then
-            error "Torchbear is up to date."
+            error "Jazz is up to date."
 	    fi
         echo "New version of available"
         echo "Current Version: ${curr_version[1]}"
@@ -263,7 +263,7 @@ install_torchbear() {
 
     if [ -f "$(torchbear_path)" ]; then
 	    local version=($(echo $($(torchbear_path) -V)))
-        echo Torchbear ${version[1]} has been installed.
+        echo Jazz ${version[1]} has been installed.
     fi
 
     install_torchup $DIR
@@ -278,7 +278,7 @@ install_mp() {
             install_machu_picchu
         fi
     else
-        error Torchbear is not installed.
+        error Jazz is not installed.
     fi
 }
 
