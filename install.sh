@@ -216,7 +216,7 @@ uninstall_torchbear() {
 
 uninstall_mp() {
     if [ -f "$(install_path)/mp" ]; then
-        echo Uninstalling machu picchu.
+        echo Uninstalling Mary Poppins.
 
         rm $(install_path)/mp
         rm -rf $(install_path)/machu-pichu
@@ -251,7 +251,7 @@ install_torchbear() {
         echo "Latest Version: $repo_version"
     fi
 
-    echo Downloading torchbear
+    echo Downloading Jazz
 
     DIR=$(install_path)
     download_and_extract $DIR
