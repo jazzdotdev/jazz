@@ -1,27 +1,4 @@
-<p align="center"><a href="https://github.com/foundpatterns/torchbear"><img width="100" src="https://i.imgur.com/3GfOkqo.png" alt="torchbear logo"></a></p>
-
-<p align="center">
-  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/174/174836.svg" alt="android logo"></a>
-  &nbsp;&nbsp;
-  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/179/179331.svg" alt="windows logo"></a>
-  &nbsp;&nbsp;
-  <a href="#get-started"><img width="70" src="https://image.flaticon.com/icons/svg/732/732181.svg" alt="macos logo"></a>
-  &nbsp;&nbsp;
-  <a href="#get-started"><img width="70" src="https://i.imgur.com/T4Aa1rb.png" alt="linux logo"></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/rust-lang/crates.io/issues/704"><img src="https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg" alt="Actively Maintained"></a>
-  <a href="https://opensource.com/life/16/1/8-ways-contribute-open-source-without-writing-code"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=" alt="Contributions Welcome"></a>
-  <a href="https://akrabat.com/the-beginners-guide-to-contributing-to-a-github-project/#to-sum-up"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
-  <a href="https://en.wikipedia.org/wiki/List_of_parties_to_international_copyright_agreements"><img src="https://img.shields.io/badge/License-MIT%2FApache2-blue.svg" alt="License: MIT/Apache"></a>
-  <a href="https://discord.gg/xJzAMNF"><img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="Chat"></a> </p>
-
-Torchbear gives you a simple, yet powerful, general-purpose programming environment.  It can help you do web automation, embedded programming, data analysis, numerical computing.. really anything you can imagine.
-
-It's built in [Rust](https://rust-lang.org), but you don't need to learn Rust to use Torchbear, because it aims to give you the simplest possible programming environment with the most powerful addon libraries.  Scratch, BASIC, Lua, Python, Ruby, NodeJS etc developers should feel right at home... and with what one might call "more bells and whistles" - or just `complete`.
-
-Those without a [programming background](http://holowczak.com/programming-concepts-tutorial-programmers/) can [learn Lua in 15 minutes](http://tylerneylon.com/a/learn-lua/) to be able to "speak" its programming langauge (its syntax and notation).  You only need general [scripting skills](http://wiki.c2.com/?ScriptingLanguage) to start.
+Jazz is a language that makes programming embedded, web, apps etc easier using a simple scripting language with the tools you need built-in by the Rust and Lua communities.  (It's currently being renamed from Torchbear.)
 
 ## Blessed Rust Modules
 
@@ -95,11 +72,11 @@ Note** (two asterisks) means help wanted
 
 ## Get Started
 
-Torchbear comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps.
+Jazz comes as a single executable (eg. as a binary `.exe` file) which makes it easy to install and easy to run apps.  It also comes with a package manager, called [Machu Picchu](https://github.com/foundpatterns/machu-picchu), which helps you to download more apps.
 
 ### Install
 
-To install Torchbear on Android or Windows, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
+To install Jazz on Android or Windows, run this command using your terminal ([what's a terminal?](#what-is-a-terminal)):
 
 ```sh
  curl https://git.io/fpcV6 -sSfL | bash
