@@ -16,3 +16,9 @@ pub fn blake2_hash(_lua: Context, msg: String) -> Result<String, LuaError> {
     let digest = hasher.result();
     Ok(base64::encode(&digest))
 }
+
+/// Returns base64 encoded BLAKE3 of `msg`
+pub fn blake3_hash(_lua: Context, msg: String) -> Result<String, LuaError> {
+    let digest = blake3::hash(msg.as_bytes());
+    Ok(base64::encode(digest.as_bytes()))
+}

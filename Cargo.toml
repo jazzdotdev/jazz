@@ -73,6 +73,7 @@ git2 = "0.8"
 # crypto
 sodiumoxide = "0.2"
 blake2 = "0.8"
+blake3 = "0.3"
 openssl = { version = "0.10", features = ["vendored"] }
 openssl-probe = "0.1.2"
 checksumdir = "0.3.0"

@@ -16,6 +16,7 @@ pub fn init(lua: &Lua) -> crate::Result<()> {
         crypto.set("random_bytes", lua.create_function(random::random_bytes)?)?;
         crypto.set("hash", lua.create_function(hash::hash)?)?;
         crypto.set("blake2b", lua.create_function(hash::blake2_hash)?)?;
+        crypto.set("blake3", lua.create_function(hash::blake3_hash)?)?;
         crypto.set("checksumdir", lua.create_function(checksumdir::checksum)?)?;
 
         let sign = lua.create_table()?;
@@ -92,8 +93,10 @@ mod tests {
                 print( "source=" .. source )
                 local hash = crypto.hash(source)
                 print("SHA512=" .. hash)
-                local blakehash = crypto.blake2b(source)
-                print("BLAKE2B=" .. blakehash)
+                local blake2hash = crypto.blake2b(source)
+                print("BLAKE2B=" .. blake2hash)
+                local blake3hash = crypto.blake3(source)
+                print("BLAKE3=" .. blake3hash)
 
                 return true
             "#).eval::<Value>();
